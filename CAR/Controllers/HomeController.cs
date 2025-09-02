@@ -1,33 +1,29 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using CAR.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CAR.Controllers
 {
+
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Privacy()
+        [HttpPost]
+        public IActionResult Book(string name, string email, DateTime date, string car)
         {
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(car))
+            {
                 ViewBag.Error = "Please fill all details correctly.";
                 return View("Index");
-        }
+            }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            // Inga booking save panna DB logic podalaam (future la)
+            ViewBag.Message = "🎉 Booking Confirmed! We’ll contact you shortly.";
+            return View("Index");
         }
     }
 }
