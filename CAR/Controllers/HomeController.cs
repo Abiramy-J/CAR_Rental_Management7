@@ -20,7 +20,8 @@ namespace CAR.Controllers
 
         public IActionResult Privacy()
         {
-            return View();
+                ViewBag.Error = "Please fill all details correctly.";
+                return View("Index");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
