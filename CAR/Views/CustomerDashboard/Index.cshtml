@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Rent A Car – Smooth Ride";
+    Layout = null; // temporary full-page layout without _Layout.cshtml
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/743/743988.png" type="image/png" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* (unga CSS same ah include panniruken) */
+        @* --- paste your CSS from HTML here --- *@
+    </style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <section class="hero">
+        <img src="~/images/car-hero.png" alt="Car Rental" />
+        <h1>Rent a Car Today</h1>
+        <p>Drive your dream car with ease. Available 24/7.</p>
+        <button class="cta-btn" onclick="document.querySelector('.booking').scrollIntoView({ behavior: 'smooth' })">Book Now</button>
+    </section>
+
+    <!-- POPULAR CARS -->
+    <section class="cars">
+        <h2>Popular Cars</h2>
+        <div class="car-grid">
+            <div class="car-card">
+                <img src="https://tse1.mm.bing.net/th/id/OIP.sajtEQjsKNbCVcgWiUKN-gHaDt" alt="Hyundai Ioniq 5">
+                <h3>Hyundai Ioniq 5</h3>
+                <p>Rs.9000/day</p>
+                <button>Rent Now</button>
+            </div>
+            <div class="car-card">
+                <img src="https://tse3.mm.bing.net/th/id/OIP.5sO8UyO0LCo8QfY5XlOn5QHaEB" alt="Luxury Sedan">
+                <h3>Luxury Sedan</h3>
+                <p>Rs.12000/day</p>
+                <button>Rent Now</button>
+            </div>
+            <div class="car-card">
+                <img src="https://hips.hearstapps.com/roa.h-cdn.co/assets/15/44/980x490/landscape-1445880022-volkswagen-gti.jpg?resize=768:*" alt="Volkswagen GTI R">
+                <h3>Volkswagen GTI R</h3>
+                <p>Rs.10000/day</p>
+                <button>Rent Now</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOOKING FORM -->
+    <section class="booking">
+        <h2>Book Your Ride</h2>
+        <form class="booking-form" asp-action="Book" asp-controller="Home" method="post">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input id="name" name="name" type="text" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input id="email" name="email" type="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="date">Pickup Date</label>
+                <input id="date" name="date" type="date" required>
+            </div>
+            <div class="form-group">
+                <label for="car">Select Car</label>
+                <select id="car" name="car" required>
+                    <option value="">Choose...</option>
+                    <option value="ioniq">Hyundai Ioniq 5</option>
+                    <option value="sedan">Luxury Sedan</option>
+                    <option value="gti">Volkswagen GTI R</option>
+                </select>
+            </div>
+            <button type="submit">Confirm Booking</button>
+        </form>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger mt-3">@ViewBag.Error</div>
+        }
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-success mt-3">@ViewBag.Message</div>
+        }
+    </section>
+
+</body>
+</html>
