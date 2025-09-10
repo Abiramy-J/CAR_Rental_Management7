@@ -5,93 +5,220 @@
     ViewData["Title"] = "Add New Car";
 }
 
-<h2 class="text-primary mb-4">🚗 Add New Car</h2>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<style>
+    body {
+        background: #F1F5F9;
+        font-family: 'Segoe UI', sans-serif;
+    }
 
+    /* Sidebar */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 220px;
+        background: linear-gradient(180deg, #1E3A8A, #2563EB);
+        color: #fff;
+        padding-top: 20px;
+    }
 
+        .sidebar h4 {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
 
-<form asp-action="AddCar" method="post" class="border p-4 rounded bg-light shadow-sm">
+        .sidebar .nav-link {
+            color: #E2E8F0;
+            font-size: 15px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+        }
 
-    <div class="mb-3">
-        <label asp-for="Car.CarModelID" class="form-label">Select Model</label>
-        <select asp-for="Car.CarModelID" asp-items="Model.CarModelList" class="form-select">
-            <option value="">-- Select Car Model --</option>
-        </select>
-        <span asp-validation-for="Car.CarModelID" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Car.Color" class="form-label"></label>
-        <input asp-for="Car.Color" class="form-control" />
-        <span asp-validation-for="Car.Color" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Car.Mileage" class="form-label"></label>
-        <input asp-for="Car.Mileage" class="form-control" type="number" />
-        <span asp-validation-for="Car.Mileage" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Car.DailyRate" class="form-label"></label>
-        <input asp-for="Car.DailyRate" class="form-control" type="number" step="0.01" />
-        <span asp-validation-for="Car.DailyRate" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Car.ImageUrl" class="form-label">Main Image URL</label>
-        <input asp-for="Car.ImageUrl" class="form-control" placeholder="Main image (required)" />
-        <span asp-validation-for="Car.ImageUrl" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <input asp-for="Car.ImageUrl2" class="form-control" placeholder="Image URL 2 (optional)" />
-        <input asp-for="Car.ImageUrl3" class="form-control mt-1" placeholder="Image URL 3 (optional)" />
-        <input asp-for="Car.ImageUrl4" class="form-control mt-1" placeholder="Image URL 4 (optional)" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Car.VideoUrl" class="form-label">Video URL (YouTube)</label>
-        <input asp-for="Car.VideoUrl" class="form-control" placeholder="Optional YouTube video link" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Car.Description" class="form-label">Description</label>
-        <textarea asp-for="Car.Description" class="form-control" rows="4" placeholder="Car details, special features, etc."></textarea>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Car.Status" class="form-label">Availability Status</label>
-        <select asp-for="Car.Status" asp-items="Model.StatusList" class="form-select">
-            <option value="">-- Select Status --</option>
-        </select>
-        <span asp-validation-for="Car.Status" class="text-danger"></span>
-    </div>
-
-    <div class="mt-4">
-        <button type="submit" class="btn btn-success me-2">💾 Save Car</button>
-        <a asp-action="CarList" class="btn btn-secondary">Cancel</a>
-    </div>
-
-</form>
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="alert alert-danger">
-        <ul>
-            @foreach (var modelState in ViewData.ModelState.Values)
-            {
-                foreach (var error in modelState.Errors)
-                {
-                    <li>@error.ErrorMessage</li>
-                }
+            .sidebar .nav-link i {
+                margin-right: 12px;
+                font-size: 18px;
             }
-        </ul>
+
+            .sidebar .nav-link:hover,
+            .sidebar .nav-link.active {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 8px;
+                color: white;
+                padding-left: 25px;
+            }
+
+    /* Main */
+    .main-content {
+        margin-left: 220px;
+        padding: 30px;
+    }
+
+    /* Header */
+    .dashboard-header {
+        background: linear-gradient(90deg, #2563EB, #7C3AED);
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Table */
+    .table {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+        .table thead {
+            background: linear-gradient(90deg, #1E3A8A, #2563EB);
+            color: white;
+        }
+
+        .table tbody tr:hover {
+            background-color: #E0F2FE;
+            transition: 0.2s;
+        }
+
+    /* Buttons */
+    .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+    .btn-success {
+        background: linear-gradient(90deg, #16A34A, #22C55E);
+        border: none;
+    }
+
+    .btn-warning {
+        background: linear-gradient(90deg, #F59E0B, #D97706);
+        border: none;
+        color: white;
+    }
+
+    .btn-danger {
+        background: linear-gradient(90deg, #DC2626, #B91C1C);
+        border: none;
+    }
+</style>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <h4>⚙ Admin Panel</h4>
+    <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link" href="@Url.Action("Dashboard", "Admin")"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="@Url.Action("AddCar", "Admin")"><i class="fa fa-plus"></i> Add Car</a></li>
+        <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car"></i> Manage Cars</a></li>
+        <li class="nav-item"><a class="nav-link " href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
+        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Booking")"><i class="fa fa-book"></i> Bookings</a></li>
+        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot"></i> Locations</a></li>
+        <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-users"></i> Users</a></li>
+    </ul>
+</div>
+
+@* <h2 class="text-primary mb-4">🚗 Add New Car</h2> *@
+<div class="main-content">
+    <div class="dashboard-header">
+        <h2 class="mb-0">🚗 Add New Car</h2>
     </div>
-}
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
-    
+
+    <form asp-action="AddCar" method="post" class="border p-4 rounded bg-light shadow-sm">
+
+        <div class="mb-3">
+            <label asp-for="Car.CarModelID" class="form-label">Select Model</label>
+            <select asp-for="Car.CarModelID" asp-items="Model.CarModelList" class="form-select">
+                <option value="">-- Select Car Model --</option>
+            </select>
+            <span asp-validation-for="Car.CarModelID" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Car.Color" class="form-label"></label>
+            <input asp-for="Car.Color" class="form-control" />
+            <span asp-validation-for="Car.Color" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Car.Mileage" class="form-label"></label>
+            <input asp-for="Car.Mileage" class="form-control" type="number" />
+            <span asp-validation-for="Car.Mileage" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Car.DailyRate" class="form-label"></label>
+            <input asp-for="Car.DailyRate" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="Car.DailyRate" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Car.ImageUrl" class="form-label">Main Image URL</label>
+            <input asp-for="Car.ImageUrl" class="form-control" placeholder="Main image (required)" />
+            <span asp-validation-for="Car.ImageUrl" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <input asp-for="Car.ImageUrl2" class="form-control" placeholder="Image URL 2 (optional)" />
+            <input asp-for="Car.ImageUrl3" class="form-control mt-1" placeholder="Image URL 3 (optional)" />
+            <input asp-for="Car.ImageUrl4" class="form-control mt-1" placeholder="Image URL 4 (optional)" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Car.VideoUrl" class="form-label">Video URL (YouTube)</label>
+            <input asp-for="Car.VideoUrl" class="form-control" placeholder="Optional YouTube video link" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Car.Description" class="form-label">Description</label>
+            <textarea asp-for="Car.Description" class="form-control" rows="4" placeholder="Car details, special features, etc."></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Car.Status" class="form-label">Availability Status</label>
+            <select asp-for="Car.Status" asp-items="Model.StatusList" class="form-select">
+                <option value="">-- Select Status --</option>
+            </select>
+            <span asp-validation-for="Car.Status" class="text-danger"></span>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success me-2">💾 Save Car</button>
+            <a asp-action="CarList" class="btn btn-secondary">Cancel</a>
+        </div>
+
+    </form>
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <ul>
+                @foreach (var modelState in ViewData.ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</div>   

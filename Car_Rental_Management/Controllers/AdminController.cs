@@ -1,5 +1,5 @@
 ﻿using Car_Rental_Management.Data;
-using Car_Rental_Management.ViewModels; // Ensure this namespace exists in your project
+using Car_Rental_Management.ViewModels; 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -221,4 +221,17 @@ public class AdminController : Controller
 
         return View();
     }
+    // ========================
+    // GET: /Admin/User
+    // ========================
+    public async Task<IActionResult> User()
+    {
+        var customers = await _context.Users
+                                      .Where(u => u.Role == "Customer")
+                                      .ToListAsync();
+
+        return View(customers);
+    }
+
+
 }

@@ -1,11 +1,10 @@
-﻿@model IEnumerable<CarModel>
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success text-center fw-bold">
-        @TempData["SuccessMessage"]
-    </div>
+﻿@model IEnumerable<Car_Rental_Management.Models.User>
+@{
+    ViewData["Title"] = "Registered Customers";
 }
-
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
@@ -47,8 +46,7 @@
                 font-size: 18px;
             }
 
-            .sidebar .nav-link:hover,
-            .sidebar .nav-link.active {
+            .sidebar .nav-link:hover {
                 background: rgba(255, 255, 255, 0.2);
                 border-radius: 8px;
                 color: white;
@@ -71,48 +69,40 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* Table */
-    .table {
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-
-        .table thead {
-            background: linear-gradient(90deg, #1E3A8A, #2563EB);
-            color: white;
-        }
-
-        .table tbody tr:hover {
-            background-color: #E0F2FE;
-            transition: 0.2s;
-        }
-
-    /* Buttons */
-    .btn {
-        border-radius: 8px;
-        font-weight: 500;
-        transition: 0.2s;
-    }
-
-        .btn:hover {
-            transform: scale(1.05);
-        }
-
-    .btn-success {
-        background: linear-gradient(90deg, #16A34A, #22C55E);
+    /* Stat Cards */
+    .card {
         border: none;
-    }
-
-    .btn-warning {
-        background: linear-gradient(90deg, #F59E0B, #D97706);
-        border: none;
+        border-radius: 16px;
+        padding: 20px;
         color: white;
+        height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        transition: 0.3s ease-in-out;
+        backdrop-filter: blur(10px);
     }
 
-    .btn-danger {
-        background: linear-gradient(90deg, #DC2626, #B91C1C);
-        border: none;
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .card .icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+    .bg-blue {
+        background: linear-gradient(135deg, #2563EB, #1E40AF);
+    }
+
+    .bg-green {
+        background: linear-gradient(135deg, #16A34A, #065F46);
+    }
+
+    .bg-orange {
+        background: linear-gradient(135deg, #F59E0B, #B45309);
     }
 </style>
 
@@ -123,42 +113,54 @@
         <li class="nav-item"><a class="nav-link" href="@Url.Action("Dashboard", "Admin")"><i class="fa fa-home"></i> Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("AddCar", "Admin")"><i class="fa fa-plus"></i> Add Car</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car"></i> Manage Cars</a></li>
-        <li class="nav-item"><a class="nav-link " href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
+        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Booking")"><i class="fa fa-book"></i> Bookings</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot"></i> Locations</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-users"></i> Users</a></li>
     </ul>
 </div>
-
-<!-- Main Content -->
 <div class="main-content">
     <div class="dashboard-header">
-        <h2 class="mb-0">🚘 Car Models Management</h2>
+        <h2 class="mb-0">Registered Customers</h2>
     </div>
+@* <div class="container mt-4"> *@
+    @* <h2 class="mb-4">Registered Customers</h2> *@
 
-    <a asp-action="Create" class="btn btn-success mb-3"><i class="fa fa-plus"></i> Add New Model</a>
-
-    <table class="table table-bordered table-hover">
-        <thead>
+    <table class="table table-bordered table-striped shadow-sm">
+        <thead class="table-dark">
             <tr>
-                <th>Model Name</th>
-                <th>Type</th>
-                <th style="width: 200px;">Actions</th>
+                <th>UserId</th>
+                <th>Username</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model)
+            @foreach (var user in Model)
             {
                 <tr>
-                    <td>@item.ModelName</td>
-                    <td>@item.Type</td>
-                    <td>
-                        <a class="btn btn-warning btn-sm me-2" asp-action="Edit" asp-route-id="@item.CarModelID"><i class="fa fa-edit"></i> Edit</a>
-                        <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.CarModelID"><i class="fa fa-trash"></i> Delete</a>
-                    </td>
+                    <td>@user.UserId</td>
+                    <td>@user.Username</td>
                 </tr>
             }
         </tbody>
     </table>
+  @*   <table class="table table-bordered table-striped shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>UserId</th>
+                <th>Username</th>
+                <th>Email</th>   <!-- ✅ New Column -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.UserId</td>
+                    <td>@user.Username</td>
+                    <td>@user.Email</td>   <!-- ✅ Show Email -->
+                </tr>
+            }
+        </tbody>
+    </table> *@
 </div>
 
