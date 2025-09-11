@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Car_Rental_Management.Models.Location>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Locations";
+}
+
+<div class="main-content">
+    <div class="dashboard-header">
+        <h2>📍 Location Management</h2>
+    </div>
+
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fa fa-plus-circle"></i> Add New Location
+        </a>
+    </div>
+
+    <table class="table table-bordered table-striped shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var location in Model)
+            {
+                <tr>
+                    <td>@location.Name</td>
+                    <td>@location.Address</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@location.LocationID" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@location.LocationID" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,36 @@
+﻿@model Car_Rental_Management.Models.Location
+
+@{
+    ViewData["Title"] = "Edit Location";
+}
+
+<div class="main-content">
+    <div class="dashboard-header">
+        <h2>✏️ Edit Location</h2>
+    </div>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="LocationID" />
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label"></label>
+            <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">Update</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

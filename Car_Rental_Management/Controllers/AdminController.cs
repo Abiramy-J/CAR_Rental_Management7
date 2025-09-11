@@ -241,10 +241,24 @@ public class AdminController : Controller
 
         if (car == null) return NotFound();
 
-        // Send car and CarModel list to view
-        ViewBag.CarModels = _context.CarModels.ToList();
-        return View(car);
+        var vm = new CarVM
+        {
+            Car = car,
+            CarModelList = _context.CarModels.Select(m => new SelectListItem
+            {
+                Value = m.CarModelID.ToString(),
+                Text = m.ModelName
+            }).ToList(),
+            StatusList = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "Available", Text = "Available" },
+            new SelectListItem { Value = "Maintenance", Text = "Maintenance" }
+        }
+        };
+
+        return View(vm);
     }
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]

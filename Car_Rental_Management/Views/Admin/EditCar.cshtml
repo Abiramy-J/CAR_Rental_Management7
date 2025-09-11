@@ -4,6 +4,11 @@
     ViewData["Title"] = "Edit Car";
 }
 
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    
+}
+
 <h2>Edit Car</h2>
 
 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
