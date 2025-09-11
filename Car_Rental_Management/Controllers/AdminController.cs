@@ -415,5 +415,58 @@ public class AdminController : Controller
         return View(customers);
     }
 
+    // GET: Admin/CreateUser
+    public IActionResult CreateUser()
+    {
+        ViewBag.Roles = new List<SelectListItem>
+    {
+        new SelectListItem { Value = "Admin", Text = "Admin" },
+        new SelectListItem { Value = "Staff", Text = "Staff" }
+    };
+
+        return View(new CreateUserViewModel());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateUser(CreateUserViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Roles = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "Admin", Text = "Admin" },
+            new SelectListItem { Value = "Staff", Text = "Staff" }
+        };
+            return View(model);
+        }
+
+        // Check duplicate username
+        if (_context.Users.Any(u => u.Username == model.Username))
+        {
+            ModelState.AddModelError("Username", "Username already exists");
+            ViewBag.Roles = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "Admin", Text = "Admin" },
+            new SelectListItem { Value = "Staff", Text = "Staff" }
+        };
+            return View(model);
+        }
+
+        var user = new User
+        {
+            Username = model.Username.Trim(),
+            Password = model.Password,   // ⚠️ later hash this
+            Role = model.Role
+            // If you have a Name column in User entity, save it too:
+            // Name = model.Name
+        };
+
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = "User created successfully!";
+        return RedirectToAction("User"); // goes to list of users
+    }
 
 }

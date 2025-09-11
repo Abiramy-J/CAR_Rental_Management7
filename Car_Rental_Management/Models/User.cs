@@ -13,13 +13,16 @@ namespace Car_Rental_Management.Models
         public string Username { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(20)]
         public string Password { get; set; }
 
         [Required]
         [StringLength(50)]
         public string Role { get; set; }
-        public string Email { get; set; }
 
+        [Required]
+        [StringLength(100)]
+        public string Email { get; set; }
+        public string? Name { get; set; }
     }
 }
