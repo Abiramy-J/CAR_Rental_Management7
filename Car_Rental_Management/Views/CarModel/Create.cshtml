@@ -1,28 +1,109 @@
-﻿@model CarModel
+﻿@model Car_Rental_Management.Models.CarModel
 
-<h2>Add New Car Model</h2>
+<h2 class="mb-4">Add New Car Model</h2>
 
 <form asp-action="Create" method="post">
-    <div class="mb-3">
-        <label class="form-label">Model Name</label>
-        <input asp-for="ModelName" class="form-control" />
-        <span asp-validation-for="ModelName" class="text-danger"></span>
+    <div class="row">
+        <!-- Brand -->
+        <div class="col-md-6 mb-3">
+            <label asp-for="Brand" class="form-label"></label>
+            <input asp-for="Brand" class="form-control" placeholder="e.g. Toyota, Honda" />
+            <span asp-validation-for="Brand" class="text-danger"></span>
+        </div>
+
+        <!-- Model Name -->
+        <div class="col-md-6 mb-3">
+            <label asp-for="ModelName" class="form-label"></label>
+            <input asp-for="ModelName" class="form-control" placeholder="e.g. Corolla, Civic" />
+            <span asp-validation-for="ModelName" class="text-danger"></span>
+        </div>
+
+        <!-- Year -->
+        <div class="col-md-4 mb-3">
+            <label asp-for="Year" class="form-label"></label>
+            <input asp-for="Year" class="form-control" type="number" min="1950" max="2100" />
+            <span asp-validation-for="Year" class="text-danger"></span>
+        </div>
+
+        <!-- Body Type -->
+        <div class="col-md-4 mb-3">
+            <label asp-for="BodyType" class="form-label"></label>
+            <select asp-for="BodyType" class="form-select">
+                <option value="">-- Select Body Type --</option>
+                <option>Sedan</option>
+                <option>SUV</option>
+                <option>Hatchback</option>
+                <option>Truck</option>
+                <option>Van</option>
+            </select>
+            <span asp-validation-for="BodyType" class="text-danger"></span>
+        </div>
+
+        <!-- Fuel Type -->
+        <div class="col-md-4 mb-3">
+            <label asp-for="FuelType" class="form-label"></label>
+            <select asp-for="FuelType" class="form-select">
+                <option value="">-- Select Fuel Type --</option>
+                <option>Petrol</option>
+                <option>Diesel</option>
+                <option>Hybrid</option>
+                <option>Electric</option>
+            </select>
+            <span asp-validation-for="FuelType" class="text-danger"></span>
+        </div>
+
+        <!-- Transmission -->
+        <div class="col-md-4 mb-3">
+            <label asp-for="Transmission" class="form-label"></label>
+            <select asp-for="Transmission" class="form-select">
+                <option value="">-- Select Transmission --</option>
+                <option>Automatic</option>
+                <option>Manual</option>
+                <option>CVT</option>
+            </select>
+            <span asp-validation-for="Transmission" class="text-danger"></span>
+        </div>
+
+        <!-- Seating Capacity -->
+        <div class="col-md-4 mb-3">
+            <label asp-for="SeatingCapacity" class="form-label"></label>
+            <input asp-for="SeatingCapacity" class="form-control" type="number" placeholder="e.g. 5" />
+            <span asp-validation-for="SeatingCapacity" class="text-danger"></span>
+        </div>
+
+        <!-- Engine Capacity -->
+        <div class="col-md-4 mb-3">
+            <label asp-for="EngineCapacity" class="form-label"></label>
+            <input asp-for="EngineCapacity" class="form-control" placeholder="e.g. 1500cc" />
+            <span asp-validation-for="EngineCapacity" class="text-danger"></span>
+        </div>
+
+        <!-- Daily Rent Price -->
+        <div class="col-md-6 mb-3">
+            <label asp-for="DailyRentPrice" class="form-label"></label>
+            <input asp-for="DailyRentPrice" class="form-control" type="number" placeholder="e.g. 5000" />
+            <span asp-validation-for="DailyRentPrice" class="text-danger"></span>
+        </div>
+
+        <!-- Deposit Amount -->
+        <div class="col-md-6 mb-3">
+            <label asp-for="DepositAmount" class="form-label"></label>
+            <input asp-for="DepositAmount" class="form-control" type="number" placeholder="e.g. 20000" />
+            <span asp-validation-for="DepositAmount" class="text-danger"></span>
+        </div>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Type</label>
-        <input asp-for="Type" class="form-control" />
-        <span asp-validation-for="Type" class="text-danger"></span>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">💾 Save</button>
+        <a asp-action="Index" class="btn btn-secondary">↩ Cancel</a>
     </div>
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 
     @if (!ViewData.ModelState.IsValid)
     {
-        <div class="alert alert-danger mt-2">
-            🔥 ModelState is Invalid
+        <div class="alert alert-danger mt-3">
+            ⚠️ Please correct the errors before submitting.
         </div>
     }
-
 </form>
 
 @section Scripts {

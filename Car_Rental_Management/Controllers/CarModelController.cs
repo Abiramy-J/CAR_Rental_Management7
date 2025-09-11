@@ -34,8 +34,10 @@ public class CarModelController : Controller
         {
             _dbcontext.CarModels.Add(model);
             _dbcontext.SaveChanges();
+            TempData["SuccessMessage"] = "✅ Car model created successfully!";
             return RedirectToAction("Index");
         }
+        TempData["ErrorMessage"] = "❌ Failed to create car model.";
         return View(model);
     }
 
@@ -47,7 +49,6 @@ public class CarModelController : Controller
         return View(model);
     }
 
-    // POST: CarModel/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Edit(CarModel model)
@@ -56,8 +57,10 @@ public class CarModelController : Controller
         {
             _dbcontext.CarModels.Update(model);
             _dbcontext.SaveChanges();
+            TempData["SuccessMessage"] = "✅ Car model updated successfully!";
             return RedirectToAction("Index");
         }
+        TempData["ErrorMessage"] = "❌ Failed to update car model.";
         return View(model);
     }
 
@@ -69,16 +72,21 @@ public class CarModelController : Controller
         return View(model);
     }
 
-    // POST: CarModel/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public IActionResult DeleteConfirmed(int id)
     {
         var model = _dbcontext.CarModels.Find(id);
+        if (model == null)
+        {
+            TempData["ErrorMessage"] = "❌ Car model not found!";
+            return RedirectToAction("Index");
+        }
+
         _dbcontext.CarModels.Remove(model);
         _dbcontext.SaveChanges();
         TempData["SuccessMessage"] = "✅ Car model deleted successfully!";
-
         return RedirectToAction("Index");
     }
+
 }

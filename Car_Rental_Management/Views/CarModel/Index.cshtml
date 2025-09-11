@@ -1,11 +1,17 @@
-﻿@model IEnumerable<CarModel>
+﻿@model IEnumerable<Car_Rental_Management.Models.CarModel>
+
 @if (TempData["SuccessMessage"] != null)
 {
     <div class="alert alert-success text-center fw-bold">
         @TempData["SuccessMessage"]
     </div>
 }
-
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger text-center fw-bold">
+        @TempData["ErrorMessage"]
+    </div>
+}
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
@@ -123,7 +129,7 @@
         <li class="nav-item"><a class="nav-link" href="@Url.Action("Dashboard", "Admin")"><i class="fa fa-home"></i> Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("AddCar", "Admin")"><i class="fa fa-plus"></i> Add Car</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car"></i> Manage Cars</a></li>
-        <li class="nav-item"><a class="nav-link " href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
+        <li class="nav-item"><a class="nav-link active" href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Booking")"><i class="fa fa-book"></i> Bookings</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot"></i> Locations</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-users"></i> Users</a></li>
@@ -141,8 +147,15 @@
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
+                <th>Brand</th>
                 <th>Model Name</th>
-                <th>Type</th>
+                <th>Year</th>
+                <th>Body Type</th>
+                <th>Fuel</th>
+                <th>Transmission</th>
+                <th>Seats</th>
+                <th>Daily Rent</th>
+                <th>Deposit</th>
                 <th style="width: 200px;">Actions</th>
             </tr>
         </thead>
@@ -150,15 +163,24 @@
             @foreach (var item in Model)
             {
                 <tr>
+                    <td>@item.Brand</td>
                     <td>@item.ModelName</td>
-                    <td>@item.Type</td>
+                    <td>@item.Year</td>
+                    <td>@item.BodyType</td>
+                    <td>@item.FuelType</td>
+                    <td>@item.Transmission</td>
+                    <td>@item.SeatingCapacity</td>
+                    <td>$@item.DailyRentPrice</td>
+                    <td>$@item.DepositAmount</td>
                     <td>
                         <a class="btn btn-warning btn-sm me-2" asp-action="Edit" asp-route-id="@item.CarModelID"><i class="fa fa-edit"></i> Edit</a>
-                        <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.CarModelID"><i class="fa fa-trash"></i> Delete</a>
+                        <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.CarModelID" onclick="return confirm('Are you sure you want to delete this model?');">
+                            <i class="fa fa-trash"></i> Delete
+                        </a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-</div>
 
+</div>
