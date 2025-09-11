@@ -1,68 +1,94 @@
-﻿@model Car
+﻿@model Car_Rental_Management.ViewModels.CarVM
+
 @{
-    ViewData["Title"] = "Edit Car🔁❗";
-    var carModels = ViewBag.CarModels as List<CarModel>;
+    ViewData["Title"] = "Edit Car";
 }
 
-<h2>Edit Car❗</h2>
+<h2>Edit Car</h2>
 
-<form asp-action="EditCar" method="post">
-    <input type="hidden" asp-for="CarID" />
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-    <div class="form-group">
-        <label>Model</label>
-        <select asp-for="CarModelID" class="form-control" asp-items="@(new SelectList(carModels, "CarModelID", "ModelName"))"></select>
-    </div>
+<form asp-action="EditCar" method="post" enctype="multipart/form-data" class="border p-4 rounded bg-light shadow-sm">
+    <input type="hidden" asp-for="Car.CarID" />
 
-    <div class="form-group">
-        <label>Color</label>
-        <input asp-for="Color" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Mileage</label>
-        <input asp-for="Mileage" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Daily Rate</label>
-        <input asp-for="DailyRate" class="form-control" />
-    </div>
-
-    <div class="form-group">
-        <label>Status</label>
-        <select asp-for="Status" class="form-control">
-            <option>Available</option>
-            <option>Maintenance</option>
+    <div class="mb-3">
+        <label asp-for="Car.CarModelID" class="form-label">Select Model</label>
+        <select asp-for="Car.CarModelID" asp-items="Model.CarModelList" class="form-select">
+            <option value="">-- Select Car Model --</option>
         </select>
+        <span asp-validation-for="Car.CarModelID" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label>Description</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
+    <div class="mb-3">
+        <label asp-for="Car.Color" class="form-label"></label>
+        <input asp-for="Car.Color" class="form-control" />
+        <span asp-validation-for="Car.Color" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label>Image URL</label>
-        <input asp-for="ImageUrl" class="form-control" />
+    <div class="mb-3">
+        <label asp-for="Car.Mileage" class="form-label"></label>
+        <input asp-for="Car.Mileage" class="form-control" type="number" />
+        <span asp-validation-for="Car.Mileage" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label>Image URL2</label>
-        <input asp-for="ImageUrl2" class="form-control" />
+    <div class="mb-3">
+        <label asp-for="Car.DailyRate" class="form-label"></label>
+        <input asp-for="Car.DailyRate" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Car.DailyRate" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label>Image URL3</label>
-        <input asp-for="ImageUrl3" class="form-control" />
+    <div class="mb-3">
+        <label class="form-label">Main Image</label>
+        <input asp-for="ImageFile" type="file" class="form-control" />
+        @if (!string.IsNullOrEmpty(Model.Car.ImageUrl))
+        {
+            <img src="@Model.Car.ImageUrl" alt="Main Image" width="150" class="mt-2" />
+        }
     </div>
 
-    <div class="form-group">
-        <label>Image URL4</label>
-        <input asp-for="ImageUrl4" class="form-control" />
+    <div class="mb-3">
+        <label class="form-label">Optional Images</label>
+        <input asp-for="ImageFile2" type="file" class="form-control mb-1" />
+        @if (!string.IsNullOrEmpty(Model.Car.ImageUrl2))
+        {
+            <img src="@Model.Car.ImageUrl2" alt="Image 2" width="150" class="mb-1" />
+        }
+
+        <input asp-for="ImageFile3" type="file" class="form-control mb-1" />
+        @if (!string.IsNullOrEmpty(Model.Car.ImageUrl3))
+        {
+            <img src="@Model.Car.ImageUrl3" alt="Image 3" width="150" class="mb-1" />
+        }
+
+        <input asp-for="ImageFile4" type="file" class="form-control mb-1" />
+        @if (!string.IsNullOrEmpty(Model.Car.ImageUrl4))
+        {
+            <img src="@Model.Car.ImageUrl4" alt="Image 4" width="150" class="mb-1" />
+        }
     </div>
 
-    <br />
-    <button type="submit" class="btn btn-primary">Update</button>
+    <div class="mb-3">
+        <label asp-for="Car.VideoUrl" class="form-label">Video URL</label>
+        <input asp-for="Car.VideoUrl" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Car.Description" class="form-label">Description</label>
+        <textarea asp-for="Car.Description" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Car.Status" class="form-label">Availability Status</label>
+        <select asp-for="Car.Status" asp-items="Model.StatusList" class="form-select">
+            <option value="">-- Select Status --</option>
+        </select>
+        <span asp-validation-for="Car.Status" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">💾 Update Car</button>
     <a asp-action="CarList" class="btn btn-secondary">Cancel</a>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

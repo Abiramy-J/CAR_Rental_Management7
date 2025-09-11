@@ -138,7 +138,7 @@
 
 
 
-    <form asp-action="AddCar" method="post" class="border p-4 rounded bg-light shadow-sm">
+    <form asp-action="AddCar" method="post" enctype="multipart/form-data" class="border p-4 rounded bg-light shadow-sm">
 
         <div class="mb-3">
             <label asp-for="Car.CarModelID" class="form-label">Select Model</label>
@@ -167,16 +167,17 @@
         </div>
 
         <div class="mb-3">
-            <label asp-for="Car.ImageUrl" class="form-label">Main Image URL</label>
-            <input asp-for="Car.ImageUrl" class="form-control" placeholder="Main image (required)" />
-            <span asp-validation-for="Car.ImageUrl" class="text-danger"></span>
+            <label asp-for="ImageFile" class="form-label">Main Image</label>
+            <input asp-for="ImageFile" type="file" class="form-control" />
         </div>
 
         <div class="mb-3">
-            <input asp-for="Car.ImageUrl2" class="form-control" placeholder="Image URL 2 (optional)" />
-            <input asp-for="Car.ImageUrl3" class="form-control mt-1" placeholder="Image URL 3 (optional)" />
-            <input asp-for="Car.ImageUrl4" class="form-control mt-1" placeholder="Image URL 4 (optional)" />
+            <label class="form-label">Optional Images</label>
+            <input asp-for="ImageFile2" type="file" class="form-control mb-1" />
+            <input asp-for="ImageFile3" type="file" class="form-control mb-1" />
+            <input asp-for="ImageFile4" type="file" class="form-control mb-1" />
         </div>
+
 
         <div class="mb-3">
             <label asp-for="Car.VideoUrl" class="form-label">Video URL (YouTube)</label>

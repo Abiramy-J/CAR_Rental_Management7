@@ -47,7 +47,7 @@ public class AdminController : Controller
     // ========================
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult AddCar(CarVM vm)
+    public async Task<IActionResult> AddCar(CarVM vm)
     {
         // 🛠️ Remove them manually before validation
         ModelState.Remove("CarModelList");
@@ -71,61 +71,154 @@ public class AdminController : Controller
             return View(vm);
         }
 
-        _context.Cars.Add(vm.Car);
-        _context.SaveChanges();
+        // Folder to save images
+    string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/cars");
+    if (!Directory.Exists(folder))
+        Directory.CreateDirectory(folder);
 
-        return RedirectToAction("CarList");
+    // Handle uploaded images
+    if (vm.ImageFile != null)
+    {
+        string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile.FileName);
+        string filePath = Path.Combine(folder, fileName);
+        using (var stream = new FileStream(filePath, FileMode.Create))
+            await vm.ImageFile.CopyToAsync(stream);
+
+        vm.Car.ImageUrl = "/images/cars/" + fileName;
     }
 
+    if (vm.ImageFile2 != null)
+    {
+        string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile2.FileName);
+        string filePath = Path.Combine(folder, fileName);
+        using (var stream = new FileStream(filePath, FileMode.Create))
+            await vm.ImageFile2.CopyToAsync(stream);
+
+        vm.Car.ImageUrl2 = "/images/cars/" + fileName;
+    }
+
+    // Repeat for ImageFile3 and ImageFile4
+
+    _context.Cars.Add(vm.Car);
+    await _context.SaveChangesAsync();
+
+    return RedirectToAction("CarList");
+}
+
     // OPTIONAL: To show list of cars
-    public IActionResult CarList(CarFilterVM filter)
+    //public IActionResult CarList(CarFilterVM filter)
+    //{
+    //    if (filter == null)
+    //        filter = new CarFilterVM();
+
+    //    var cars = _context.Cars.Include(c => c.CarModel).AsQueryable();
+
+    //    // Apply filtering
+    //    if (filter.SelectedCarModelID.HasValue)
+    //        cars = cars.Where(c => c.CarModelID == filter.SelectedCarModelID.Value);
+
+    //    if (filter.MinRate.HasValue)
+    //        cars = cars.Where(c => c.DailyRate >= filter.MinRate.Value);
+
+    //    if (filter.MaxRate.HasValue)
+    //        cars = cars.Where(c => c.DailyRate <= filter.MaxRate.Value);
+
+    //    if (!string.IsNullOrEmpty(filter.Status))
+    //        cars = cars.Where(c => c.Status == filter.Status);
+
+    //    if (!string.IsNullOrEmpty(filter.Keyword))
+    //        cars = cars.Where(c => c.Description.Contains(filter.Keyword));
+
+    //    // Apply sorting
+    //    switch (filter.SortOrder)
+    //    {
+    //        case "model_desc":
+    //            cars = cars.OrderByDescending(c => c.CarModel.ModelName);
+    //            break;
+    //        case "rate_asc":
+    //            cars = cars.OrderBy(c => c.DailyRate);
+    //            break;
+    //        case "rate_desc":
+    //            cars = cars.OrderByDescending(c => c.DailyRate);
+    //            break;
+    //        default: // default sort by Model ascending
+    //            cars = cars.OrderBy(c => c.CarModel.ModelName);
+    //            break;
+    //    }
+
+    //    // Prepare ViewModel data for dropdowns and results
+    //    filter.CarList = cars.ToList();
+
+    //    filter.CarModelList = _context.CarModels.Select(m => new SelectListItem
+    //    {
+    //        Value = m.CarModelID.ToString(),
+    //        Text = m.ModelName
+    //    }).ToList();
+
+    //    filter.StatusList = new List<SelectListItem>
+    //{
+    //    new SelectListItem { Value = "Available", Text = "Available" },
+    //    new SelectListItem { Value = "Maintenance", Text = "Maintenance" }
+    //};
+
+    //    return View(filter);
+    //}
+
+
+
+    // GET: Admin/CarList
+    public async Task<IActionResult> CarList(CarFilterVM filter)
     {
         if (filter == null)
             filter = new CarFilterVM();
 
-        var cars = _context.Cars.Include(c => c.CarModel).AsQueryable();
+        // Start query with Cars including their CarModel
+        var carsQuery = _context.Cars.Include(c => c.CarModel).AsQueryable();
 
         // Apply filtering
         if (filter.SelectedCarModelID.HasValue)
-            cars = cars.Where(c => c.CarModelID == filter.SelectedCarModelID.Value);
+            carsQuery = carsQuery.Where(c => c.CarModelID == filter.SelectedCarModelID.Value);
 
         if (filter.MinRate.HasValue)
-            cars = cars.Where(c => c.DailyRate >= filter.MinRate.Value);
+            carsQuery = carsQuery.Where(c => c.DailyRate >= filter.MinRate.Value);
 
         if (filter.MaxRate.HasValue)
-            cars = cars.Where(c => c.DailyRate <= filter.MaxRate.Value);
+            carsQuery = carsQuery.Where(c => c.DailyRate <= filter.MaxRate.Value);
 
         if (!string.IsNullOrEmpty(filter.Status))
-            cars = cars.Where(c => c.Status == filter.Status);
+            carsQuery = carsQuery.Where(c => c.Status == filter.Status);
 
         if (!string.IsNullOrEmpty(filter.Keyword))
-            cars = cars.Where(c => c.Description.Contains(filter.Keyword));
+            carsQuery = carsQuery.Where(c => c.Description.Contains(filter.Keyword));
 
         // Apply sorting
         switch (filter.SortOrder)
         {
             case "model_desc":
-                cars = cars.OrderByDescending(c => c.CarModel.ModelName);
+                carsQuery = carsQuery.OrderByDescending(c => c.CarModel.ModelName);
                 break;
             case "rate_asc":
-                cars = cars.OrderBy(c => c.DailyRate);
+                carsQuery = carsQuery.OrderBy(c => c.DailyRate);
                 break;
             case "rate_desc":
-                cars = cars.OrderByDescending(c => c.DailyRate);
+                carsQuery = carsQuery.OrderByDescending(c => c.DailyRate);
                 break;
             default: // default sort by Model ascending
-                cars = cars.OrderBy(c => c.CarModel.ModelName);
+                carsQuery = carsQuery.OrderBy(c => c.CarModel.ModelName);
                 break;
         }
 
-        // Prepare ViewModel data for dropdowns and results
-        filter.CarList = cars.ToList();
+        // Execute query asynchronously
+        filter.CarList = await carsQuery.ToListAsync();
 
-        filter.CarModelList = _context.CarModels.Select(m => new SelectListItem
-        {
-            Value = m.CarModelID.ToString(),
-            Text = m.ModelName
-        }).ToList();
+        // Prepare dropdowns for filtering
+        filter.CarModelList = await _context.CarModels
+            .Select(m => new SelectListItem
+            {
+                Value = m.CarModelID.ToString(),
+                Text = m.ModelName
+            })
+            .ToListAsync();
 
         filter.StatusList = new List<SelectListItem>
     {
@@ -135,7 +228,10 @@ public class AdminController : Controller
 
         return View(filter);
     }
-    // GET: Admin/EditCar/5
+
+
+
+
     // GET: Admin/EditCar/5
     public IActionResult EditCar(int id)
     {
@@ -150,25 +246,97 @@ public class AdminController : Controller
         return View(car);
     }
 
-    // POST: Admin/EditCar/5
     [HttpPost]
-    public IActionResult EditCar(Car updatedCar)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditCar(int id, CarVM vm)
     {
-        if (string.IsNullOrEmpty(updatedCar.ImageUrl2))
+        if (id != vm.Car.CarID) return BadRequest();
+
+        // Remove non-model fields from ModelState for validation
+        ModelState.Remove("CarModelList");
+        ModelState.Remove("StatusList");
+
+        if (!ModelState.IsValid)
         {
-            updatedCar.ImageUrl2 = string.Empty; // Or a default value
+            // Reload dropdowns if validation fails
+            vm.CarModelList = _context.CarModels.Select(m => new SelectListItem
+            {
+                Value = m.CarModelID.ToString(),
+                Text = m.ModelName
+            }).ToList();
+
+            vm.StatusList = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "Available", Text = "Available" },
+            new SelectListItem { Value = "Maintenance", Text = "Maintenance" }
+        };
+
+            return View(vm);
         }
 
-        if (ModelState.IsValid)
+        // Find existing car in DB
+        var existingCar = await _context.Cars.FindAsync(id);
+        if (existingCar == null) return NotFound();
+
+        // Update basic fields
+        existingCar.CarModelID = vm.Car.CarModelID;
+        existingCar.Color = vm.Car.Color;
+        existingCar.Mileage = vm.Car.Mileage;
+        existingCar.DailyRate = vm.Car.DailyRate;
+        existingCar.Description = vm.Car.Description;
+        existingCar.Status = vm.Car.Status;
+        existingCar.VideoUrl = vm.Car.VideoUrl;
+
+        // Folder to save images
+        string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/cars");
+        if (!Directory.Exists(folder))
+            Directory.CreateDirectory(folder);
+
+        // Handle uploaded images
+        if (vm.ImageFile != null)
         {
-            _context.Cars.Update(updatedCar);
-            _context.SaveChanges();
-            return RedirectToAction("CarList");
+            string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile.FileName);
+            string filePath = Path.Combine(folder, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+                await vm.ImageFile.CopyToAsync(stream);
+
+            existingCar.ImageUrl = "/images/cars/" + fileName;
         }
 
-        // Reload dropdown if model validation fails
-        ViewBag.CarModels = _context.CarModels.ToList();
-        return View(updatedCar);
+        if (vm.ImageFile2 != null)
+        {
+            string fileName2 = Guid.NewGuid() + Path.GetExtension(vm.ImageFile2.FileName);
+            string filePath2 = Path.Combine(folder, fileName2);
+            using (var stream = new FileStream(filePath2, FileMode.Create))
+                await vm.ImageFile2.CopyToAsync(stream);
+
+            existingCar.ImageUrl2 = "/images/cars/" + fileName2;
+        }
+
+        if (vm.ImageFile3 != null)
+        {
+            string fileName3 = Guid.NewGuid() + Path.GetExtension(vm.ImageFile3.FileName);
+            string filePath3 = Path.Combine(folder, fileName3);
+            using (var stream = new FileStream(filePath3, FileMode.Create))
+                await vm.ImageFile3.CopyToAsync(stream);
+
+            existingCar.ImageUrl3 = "/images/cars/" + fileName3;
+        }
+
+        if (vm.ImageFile4 != null)
+        {
+            string fileName4 = Guid.NewGuid() + Path.GetExtension(vm.ImageFile4.FileName);
+            string filePath4 = Path.Combine(folder, fileName4);
+            using (var stream = new FileStream(filePath4, FileMode.Create))
+                await vm.ImageFile4.CopyToAsync(stream);
+
+            existingCar.ImageUrl4 = "/images/cars/" + fileName4;
+        }
+
+        _context.Cars.Update(existingCar);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("CarList");
     }
 
     // GET: Admin/DeleteCar/5
