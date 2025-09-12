@@ -1,5 +1,4 @@
-﻿
-@model Car_Rental_Management.ViewModels.CarVM
+﻿@model Car_Rental_Management.ViewModels.CarVM
 
 @{
     ViewData["Title"] = "Add New Car";
@@ -9,7 +8,7 @@
 
 <style>
     body {
-        background: #F1F5F9;
+        background: #F8FAFC;
         font-family: 'Segoe UI', sans-serif;
     }
 
@@ -67,30 +66,29 @@
         border-radius: 12px;
         margin-bottom: 30px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
-    /* Table */
-    .table {
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        .dashboard-header h2 {
+            margin: 0;
+        }
+
+    /* Card */
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-
-        .table thead {
-            background: linear-gradient(90deg, #1E3A8A, #2563EB);
-            color: white;
-        }
-
-        .table tbody tr:hover {
-            background-color: #E0F2FE;
-            transition: 0.2s;
-        }
 
     /* Buttons */
     .btn {
         border-radius: 8px;
         font-weight: 500;
         transition: 0.2s;
+        padding: 10px 18px;
     }
 
         .btn:hover {
@@ -100,18 +98,22 @@
     .btn-success {
         background: linear-gradient(90deg, #16A34A, #22C55E);
         border: none;
+        color: white;
     }
 
-    .btn-warning {
-        background: linear-gradient(90deg, #F59E0B, #D97706);
+    .btn-secondary {
+        background: #64748B;
         border: none;
         color: white;
     }
 
-    .btn-danger {
-        background: linear-gradient(90deg, #DC2626, #B91C1C);
-        border: none;
+    /* File preview */
+    .preview-img {
+        max-height: 120px;
+        margin-top: 10px;
+        border-radius: 8px;
     }
+
 </style>
 
 <!-- Sidebar -->
@@ -119,94 +121,99 @@
     <h4>⚙ Admin Panel</h4>
     <ul class="nav flex-column">
         <li class="nav-item"><a class="nav-link" href="@Url.Action("Dashboard", "Admin")"><i class="fa fa-home"></i> Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("AddCar", "Admin")"><i class="fa fa-plus"></i> Add Car</a></li>
+        <li class="nav-item"><a class="nav-link active" href="@Url.Action("AddCar", "Admin")"><i class="fa fa-plus"></i> Add Car</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car"></i> Manage Cars</a></li>
-        <li class="nav-item"><a class="nav-link " href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
+        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Booking")"><i class="fa fa-book"></i> Bookings</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot"></i> Locations</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-users"></i> Users</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("CreateUser", "Admin")"><i class="fa fa-users"></i> AddStaff</a></li>
+        <li class="nav-item"><a class="nav-link" href="@Url.Action("CreateUser", "Admin")"><i class="fa fa-user-plus"></i> Add Staff</a></li>
     </ul>
 </div>
 
-@* <h2 class="text-primary mb-4">🚗 Add New Car</h2> *@
 <div class="main-content">
     <div class="dashboard-header">
-        <h2 class="mb-0">🚗 Add New Car</h2>
+        <h2>🚗 Add New Car</h2>
+        <a asp-action="CarList" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Back</a>
     </div>
 
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="form-card">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
 
+        <form asp-action="AddCar" method="post" enctype="multipart/form-data">
 
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Car.CarModelID" class="form-label">Select Model</label>
+                    <select asp-for="Car.CarModelID" asp-items="Model.CarModelList" class="form-select">
+                        <option value="">-- Select Car Model --</option>
+                    </select>
+                    <span asp-validation-for="Car.CarModelID" class="text-danger"></span>
+                </div>
 
-<form asp-action="AddCar" method="post" enctype="multipart/form-data" class="border p-4 rounded bg-light shadow-sm">
+                <div class="col-md-6">
+                    <label asp-for="Car.Color" class="form-label"></label>
+                    <input asp-for="Car.Color" class="form-control" placeholder="e.g., Black, White" />
+                    <span asp-validation-for="Car.Color" class="text-danger"></span>
+                </div>
 
-        <div class="mb-3">
-            <label asp-for="Car.CarModelID" class="form-label">Select Model</label>
-            <select asp-for="Car.CarModelID" asp-items="Model.CarModelList" class="form-select">
-                <option value="">-- Select Car Model --</option>
-            </select>
-            <span asp-validation-for="Car.CarModelID" class="text-danger"></span>
-        </div>
+                <div class="col-md-6">
+                    <label asp-for="Car.Mileage" class="form-label"></label>
+                    <input asp-for="Car.Mileage" class="form-control" type="number" placeholder="e.g., 15000" />
+                    <span asp-validation-for="Car.Mileage" class="text-danger"></span>
+                </div>
 
-        <div class="mb-3">
-            <label asp-for="Car.Color" class="form-label"></label>
-            <input asp-for="Car.Color" class="form-control" />
-            <span asp-validation-for="Car.Color" class="text-danger"></span>
-        </div>
+                <div class="col-md-6">
+                    <label asp-for="Car.DailyRate" class="form-label"></label>
+                    <input asp-for="Car.DailyRate" class="form-control" type="number" step="0.01" placeholder="e.g., 49.99" />
+                    <span asp-validation-for="Car.DailyRate" class="text-danger"></span>
+                </div>
 
-        <div class="mb-3">
-            <label asp-for="Car.Mileage" class="form-label"></label>
-            <input asp-for="Car.Mileage" class="form-control" type="number" />
-            <span asp-validation-for="Car.Mileage" class="text-danger"></span>
-        </div>
+                <div class="col-md-6">
+                    <label asp-for="ImageFile" class="form-label">Main Image</label>
+                    <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event, 'mainPreview')" />
+                    <img id="mainPreview" class="preview-img d-none" />
+                </div>
 
-        <div class="mb-3">
-            <label asp-for="Car.DailyRate" class="form-label"></label>
-            <input asp-for="Car.DailyRate" class="form-control" type="number" step="0.01" />
-            <span asp-validation-for="Car.DailyRate" class="text-danger"></span>
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">Optional Images</label>
+                    <input asp-for="ImageFile2" type="file" class="form-control mb-1" accept="image/*" onchange="previewImage(event, 'opt1')" />
+                    <img id="opt1" class="preview-img d-none" />
+                    <input asp-for="ImageFile3" type="file" class="form-control mb-1" accept="image/*" onchange="previewImage(event, 'opt2')" />
+                    <img id="opt2" class="preview-img d-none" />
+                    <input asp-for="ImageFile4" type="file" class="form-control mb-1" accept="image/*" onchange="previewImage(event, 'opt3')" />
+                    <img id="opt3" class="preview-img d-none" />
+                </div>
 
-        <div class="mb-3">
-            <label asp-for="ImageFile" class="form-label">Main Image</label>
-            <input asp-for="ImageFile" type="file" class="form-control" />
-        </div>
+                <div class="col-md-12">
+                    <label asp-for="Car.VideoUrl" class="form-label">Video URL (YouTube)</label>
+                    <input asp-for="Car.VideoUrl" class="form-control" placeholder="Optional YouTube video link" />
+                </div>
 
-        <div class="mb-3">
-            <label class="form-label">Optional Images</label>
-            <input asp-for="ImageFile2" type="file" class="form-control mb-1" />
-            <input asp-for="ImageFile3" type="file" class="form-control mb-1" />
-            <input asp-for="ImageFile4" type="file" class="form-control mb-1" />
-        </div>
+                <div class="col-md-12">
+                    <label asp-for="Car.Description" class="form-label">Description</label>
+                    <textarea asp-for="Car.Description" class="form-control" rows="4" placeholder="Car details, special features, etc."></textarea>
+                </div>
 
+                <div class="col-md-6">
+                    <label asp-for="Car.Status" class="form-label">Availability Status</label>
+                    <select asp-for="Car.Status" asp-items="Model.StatusList" class="form-select">
+                        <option value="">-- Select Status --</option>
+                    </select>
+                    <span asp-validation-for="Car.Status" class="text-danger"></span>
+                </div>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Car.VideoUrl" class="form-label">Video URL (YouTube)</label>
-            <input asp-for="Car.VideoUrl" class="form-control" placeholder="Optional YouTube video link" />
-        </div>
+            <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-success me-2"><i class="fa fa-save"></i> Save Car</button>
+                <a asp-action="CarList" class="btn btn-secondary"><i class="fa fa-times"></i> Cancel</a>
+            </div>
+        </form>
+    </div>
 
-        <div class="mb-3">
-            <label asp-for="Car.Description" class="form-label">Description</label>
-            <textarea asp-for="Car.Description" class="form-control" rows="4" placeholder="Car details, special features, etc."></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Car.Status" class="form-label">Availability Status</label>
-            <select asp-for="Car.Status" asp-items="Model.StatusList" class="form-select">
-                <option value="">-- Select Status --</option>
-            </select>
-            <span asp-validation-for="Car.Status" class="text-danger"></span>
-        </div>
-
-        <div class="mt-4">
-            <button type="submit" class="btn btn-success me-2">💾 Save Car</button>
-            <a asp-action="CarList" class="btn btn-secondary">Cancel</a>
-        </div>
-
-    </form>
     @if (!ViewData.ModelState.IsValid)
     {
-        <div class="alert alert-danger">
+        <div class="alert alert-danger mt-3">
             <ul>
                 @foreach (var modelState in ViewData.ModelState.Values)
                 {
@@ -219,8 +226,14 @@
         </div>
     }
 
-
     @section Scripts {
         <partial name="_ValidationScriptsPartial" />
+        <script>
+            function previewImage(event, previewId) {
+                var output = document.getElementById(previewId);
+                output.src = URL.createObjectURL(event.target.files[0]);
+                output.classList.remove("d-none");
+            }
+        </script>
     }
-</div>   
+</div>

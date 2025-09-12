@@ -44,12 +44,6 @@ namespace Car_Rental_Management.Models
         [MaxLength(50)]
         public string EngineCapacity { get; set; }
 
-        // Rental price per day
-        [Range(0, 100000, ErrorMessage = "Invalid daily rental price")]
-        public decimal DailyRentPrice { get; set; }
-
-        // Optional: Security deposit
-        [Range(0, 100000, ErrorMessage = "Invalid deposit amount")]
-        public decimal DepositAmount { get; set; }
+        
     }
 }

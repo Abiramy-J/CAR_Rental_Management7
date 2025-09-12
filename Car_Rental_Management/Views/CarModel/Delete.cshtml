@@ -32,11 +32,11 @@
     <dt class="col-sm-3">Engine Capacity</dt>
     <dd class="col-sm-9">@Model.EngineCapacity</dd>
 
-    <dt class="col-sm-3">Daily Rent Price</dt>
+    @* <dt class="col-sm-3">Daily Rent Price</dt>
     <dd class="col-sm-9">@Model.DailyRentPrice.ToString("C")</dd>
 
     <dt class="col-sm-3">Deposit Amount</dt>
-    <dd class="col-sm-9">@Model.DepositAmount.ToString("C")</dd>
+    <dd class="col-sm-9">@Model.DepositAmount.ToString("C")</dd> *@
 </dl>
 
 <form asp-action="Delete" method="post" onsubmit="return confirmDelete();">

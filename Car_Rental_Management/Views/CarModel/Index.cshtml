@@ -155,8 +155,8 @@
                 <th>Fuel</th>
                 <th>Transmission</th>
                 <th>Seats</th>
-                <th>Daily Rent</th>
-                <th>Deposit</th>
+                @* <th>Daily Rent</th>
+                <th>Deposit</th> *@
                 <th style="width: 200px;">Actions</th>
             </tr>
         </thead>
@@ -171,8 +171,8 @@
                     <td>@item.FuelType</td>
                     <td>@item.Transmission</td>
                     <td>@item.SeatingCapacity</td>
-                    <td>$@item.DailyRentPrice</td>
-                    <td>$@item.DepositAmount</td>
+                    @* <td>$@item.DailyRentPrice</td>
+                    <td>$@item.DepositAmount</td> *@
                     <td>
                         <a class="btn btn-warning btn-sm me-2" asp-action="Edit" asp-route-id="@item.CarModelID"><i class="fa fa-edit"></i> Edit</a>
                         <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@item.CarModelID" onclick="return confirm('Are you sure you want to delete this model?');">
