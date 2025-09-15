@@ -1,0 +1,22 @@
+﻿@model Car_Rental_Management.Models.Driver
+
+@{
+    ViewData["Title"] = "Delete Driver";
+}
+
+<h2>Delete Driver</h2>
+
+
+<div>
+    <strong>Name:</strong> @Model.FullName <br />
+    <strong>Phone No:</strong> @Model.PhoneNo <br />
+    <strong>NIC:</strong> @Model.NIC <br />
+    <strong>License No:</strong> @Model.LicenseNo <br />
+    <strong>Available:</strong> @(Model.IsAvailable ? "Yes" : "No") <br />
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="DriverId" />
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

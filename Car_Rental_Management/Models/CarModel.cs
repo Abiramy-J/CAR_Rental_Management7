@@ -44,6 +44,9 @@ namespace Car_Rental_Management.Models
         [MaxLength(50)]
         public string EngineCapacity { get; set; }
 
-        
+
+        [Display(Name = "Car Logo")]
+        public string? LogoUrl { get; set; } // will store the logo path (URL or uploaded file)
+
     }
 }

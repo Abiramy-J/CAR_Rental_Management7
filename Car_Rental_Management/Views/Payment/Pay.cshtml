@@ -1,0 +1,12 @@
+﻿@model Car_Rental_Management.Models.Booking
+
+<h2>Payment for Booking #@Model.BookingID</h2>
+<p>Car: @Model.Car.CarModel.Brand @Model.Car.CarModel.ModelName</p>
+<p>Pickup: @Model.PickupDate.ToShortDateString()</p>
+<p>Return: @Model.ReturnDate.ToShortDateString()</p>
+<p>Total Amount: @Model.TotalAmount</p>
+
+<form asp-action="Confirm" asp-controller="Payment" method="post">
+    <input type="hidden" name="bookingId" value="@Model.BookingID" />
+    <button type="submit" class="btn btn-success">Pay Now</button>
+</form>

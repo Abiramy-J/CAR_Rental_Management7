@@ -79,6 +79,14 @@
             <span asp-validation-for="EngineCapacity" class="text-danger"></span>
         </div>
 
+        <!-- NEW LOGO URL FIELD -->
+        <div class="mb-3">
+            <label asp-for="LogoUrl" class="form-label"></label>
+            <input asp-for="LogoUrl" class="form-control" placeholder="https://example.com/logo.png" />
+            <span asp-validation-for="LogoUrl" class="text-danger"></span>
+        </div>
+
+
       @*   <!-- Daily Rent Price -->
         <div class="col-md-6 mb-3">
             <label asp-for="DailyRentPrice" class="form-label"></label>

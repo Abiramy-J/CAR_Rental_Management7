@@ -1,0 +1,54 @@
+﻿@model Car_Rental_Management.Models.Booking
+
+<h2>Payment for Booking #@Model.BookingID</h2>
+<p>Car: @Model.Car.CarModel.Brand @Model.Car.CarModel.ModelName</p>
+<p>Total Amount: @Model.TotalAmount</p>
+
+<form asp-action="Confirm" method="post">
+    <input type="hidden" name="bookingId" value="@Model.BookingID" />
+
+    <div class="mb-3">
+        <label>Choose Payment Method:</label><br />
+        <input type="radio" name="paymentType" value="Cash" checked /> Cash
+        <input type="radio" name="paymentType" value="Card" /> Card
+    </div>
+
+    <div id="cardFields" style="display:none;">
+        <div class="mb-3">
+            <label>Card Number</label>
+            <input name="cardNumber" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Expiry</label>
+            <input name="expiry" class="form-control" placeholder="MM/YY" />
+        </div>
+        <div class="mb-3">
+            <label>CVV</label>
+            <input name="cvv" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Name on Card</label>
+            <input name="cardName" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-check mb-3">
+        <input type="checkbox" class="form-check-input" id="disclaimerCheck" required />
+        <label class="form-check-label">I agree to the no-refund policy</label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Pay Now</button>
+</form>
+
+@section Scripts {
+    <script>
+        const radios = document.querySelectorAll('input[name="paymentType"]');
+        const cardFields = document.getElementById('cardFields');
+
+        radios.forEach(r => {
+            r.addEventListener('change', () => {
+                cardFields.style.display = r.value === "Card" ? "block" : "none";
+            });
+        });
+    </script>
+}

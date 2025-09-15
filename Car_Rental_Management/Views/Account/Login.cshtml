@@ -7,14 +7,16 @@
      style="background: url('/images/car.png') no-repeat center center; background-size: cover;">
 
     <div class="card shadow-lg p-5 rounded-4"
-         style="width: 100%; max-width: 380px; backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.85);">
+         style="width: 100%; max-width: 380px; backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.9);">
 
-        <h2 class="text-center mb-4 fw-bold text-primary">Login</h2>
+        <!-- Title -->
+        <h2 class="text-center mb-4 fw-bold text-primary">🔑 Login</h2>
 
+        <!-- Form -->
         <form asp-action="Login" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2 text-center"></div>
 
-
+            <!-- Username -->
             <div class="form-group mb-3">
                 <label asp-for="Username" class="fw-semibold"></label>
                 <div class="input-group">
@@ -24,64 +26,62 @@
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
 
+            <!-- Password with Eye -->
             <div class="form-group mb-4">
                 <label asp-for="Password" class="fw-semibold"></label>
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="bi bi-lock-fill text-primary"></i></span>
-                    <input asp-for="Password" class="form-control" placeholder="Enter your password" id="passwordInput" />
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" id="passwordInput" />
                     <span class="input-group-text bg-white" style="cursor:pointer;" onclick="togglePassword()">
-                        <i class="bi bi-eye-fill text-primary" id="toggleIcon"></i>
+                        <i class="bi bi-eye-slash-fill text-primary" id="toggleIcon"></i>
                     </span>
                 </div>
-
-
-                <script>
-                    function togglePassword() {
-                        const input = document.getElementById('passwordInput');
-                        const icon = document.getElementById('toggleIcon');
-                        if (input.type === 'password') {
-                            input.type = 'text';
-                            icon.classList.replace('bi-eye-fill','bi-eye-slash-fill');
-                        } else {
-                            input.type = 'password';
-                            icon.classList.replace('bi-eye-slash-fill','bi-eye-fill');
-                        }
-                    }
-                </script>
-
-
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 10px; transition: transform 0.2s;">
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3" style="transition: transform 0.2s;">
                 Login
             </button>
 
+            <!-- Hover effect -->
             <style>
                 button:hover {
                     transform: scale(1.03);
                 }
             </style>
-
         </form>
 
+        <!-- Error Message -->
         @if (ViewBag.Error != null)
         {
             <div class="alert alert-danger mt-3 text-center">@ViewBag.Error</div>
         }
 
-        @* <p class="text-center mt-4">
-            <span class="text-muted">Don't have an account?</span><br />
-            <a asp-controller="Home" asp-action="Register" class="fw-semibold text-decoration-none text-primary">
+        <!-- Register Link -->
+        <p class="text-center mt-3 mb-0">
+            <span class="text-muted">Don’t have an account?</span>
+            <a asp-controller="Account" asp-action="Register" class="fw-semibold text-decoration-none text-primary">
                 Register here
             </a>
-        </p> *@
-        <p class="text-center mt-3">
-            Don't have an account?
-            <a asp-controller="Account" asp-action="Register">Register here</a>
         </p>
     </div>
 </div>
+
+<!-- Script for Password Toggle -->
+<script>
+    function togglePassword() {
+        const input = document.getElementById('passwordInput');
+        const icon = document.getElementById('toggleIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
+        }
+    }
+</script>
 
 @section Scripts {
     @{

@@ -80,18 +80,19 @@
             <span asp-validation-for="EngineCapacity" class="text-danger"></span>
         </div>
 
-        @* <!-- Daily Rent Price -->
+        <!-- Car Logo -->
         <div class="col-md-6 mb-3">
-            <label asp-for="DailyRentPrice" class="form-label"></label>
-            <input asp-for="DailyRentPrice" class="form-control" type="number" step="0.01" />
-            <span asp-validation-for="DailyRentPrice" class="text-danger"></span>
-        </div>
+            <label asp-for="LogoUrl" class="form-label fw-bold"></label>
+            <input asp-for="LogoUrl" class="form-control" placeholder="Enter logo image URL" />
+            <span asp-validation-for="LogoUrl" class="text-danger"></span>
 
-        <!-- Deposit Amount -->
-        <div class="col-md-6 mb-3">
-            <label asp-for="DepositAmount" class="form-label"></label>
-            <input asp-for="DepositAmount" class="form-control" type="number" step="0.01" />
-            <span asp-validation-for="DepositAmount" class="text-danger"></span> *@
+            @* Show current logo if available *@
+            @if (!string.IsNullOrEmpty(Model.LogoUrl))
+            {
+                <div class="mt-2">
+                    <img src="@Model.LogoUrl" alt="Car Logo" style="max-height:80px;" class="border rounded shadow-sm" />
+                </div>
+            }
         </div>
     </div>
 

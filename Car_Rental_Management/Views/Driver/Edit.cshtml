@@ -1,0 +1,42 @@
+﻿@model Car_Rental_Management.Models.Driver
+
+@{
+    ViewData["Title"] = "Edit Driver";
+}
+
+<h2>Edit Driver</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="DriverId" />
+
+    <div class="mb-3">
+        <label asp-for="FullName" class="form-label"></label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="PhoneNo" class="form-label"></label>
+        <input asp-for="PhoneNo" class="form-control" />
+        <span asp-validation-for="PhoneNo" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="NIC" class="form-label"></label>
+        <input asp-for="NIC" class="form-control" />
+        <span asp-validation-for="NIC" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="LicenseNo" class="form-label"></label>
+        <input asp-for="LicenseNo" class="form-control" />
+        <span asp-validation-for="LicenseNo" class="text-danger"></span>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="IsAvailable" class="form-check-input" />
+        <label asp-for="IsAvailable" class="form-check-label">Available</label>
+    </div>
+    <button type="submit" class="btn btn-success">Update</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
