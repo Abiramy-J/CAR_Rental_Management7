@@ -66,7 +66,7 @@ namespace Car_Rental_Management.Controllers
                 {
                     "Admin" => RedirectToAction("Dashboard", "Admin"),
                     "Staff" => RedirectToAction("Dashboard", "Staff"),
-                    "Customer" => RedirectToAction("BrowseCars", "Customer"),
+                    "Customer" => RedirectToAction("Dashboard", "Customer"),
                     _ => RedirectToAction("Login")
                 };
             }
@@ -77,27 +77,66 @@ namespace Car_Rental_Management.Controllers
         }
 
         // GET: /Account/Register
-        public IActionResult Register()
+        //public IActionResult Register()
+        //{
+        //    return View();
+        //}
+        public IActionResult Register(string returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
+
         // POST: /Account/Register
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Register(RegisterViewModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return View(model);
+
+        //    // Check if username already exists
+        //    if (_db.Users.Any(u => u.Username.ToLower() == model.Username.Trim().ToLower()))
+        //    {
+        //        ModelState.AddModelError("Username", "Username already exists");
+        //        return View(model);
+        //    }
+
+        //    // Create new user
+        //    var user = new User
+        //    {
+        //        Username = model.Username.Trim(),
+        //        Password = model.Password.Trim(), // ⚠️ Plain text, hash later
+        //        Email = model.Email.Trim(),
+        //        Role = "Customer"
+        //    };
+
+        //    _db.Users.Add(user);
+        //    await _db.SaveChangesAsync();
+
+        //    // Save session
+        //    HttpContext.Session.SetInt32("UserId", user.UserId);
+        //    HttpContext.Session.SetString("Username", user.Username);
+        //    HttpContext.Session.SetString("Role", user.Role);
+
+        //    // Redirect to customer dashboard
+        //    return RedirectToAction("Login", "Account");
+        //}
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            // Check if username already exists
             if (_db.Users.Any(u => u.Username.ToLower() == model.Username.Trim().ToLower()))
             {
                 ModelState.AddModelError("Username", "Username already exists");
                 return View(model);
             }
 
-            // Create new user
             var user = new User
             {
                 Username = model.Username.Trim(),
@@ -114,9 +153,13 @@ namespace Car_Rental_Management.Controllers
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("Role", user.Role);
 
-            // Redirect to customer dashboard
-            return RedirectToAction("BrowseCars", "Customer");
+            // Redirect to original page if returnUrl is provided
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
+            return RedirectToAction("Dashboard", "Customer");
         }
+
 
         // GET: /Account/Logout
         public IActionResult Logout()

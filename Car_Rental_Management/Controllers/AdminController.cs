@@ -384,14 +384,14 @@ public class AdminController : Controller
         // Collect statistics for dashboard
         var totalCars = _context.Cars.Count();
         var availableCars = _context.Cars.Count(c => c.Status == "Available");
-        //var totalBookings = _context.Bookings.Count();
-        //var totalCustomers = _context.Users.Count(u => u.Role == "Customer");
+        var totalBookings = _context.Bookings.Count();
+        var totalCustomers = _context.Users.Count(u => u.Role == "Customer");
 
         // Pass data to View via ViewBag
         ViewBag.TotalCars = totalCars;
         ViewBag.AvailableCars = availableCars;
-        //ViewBag.TotalBookings = totalBookings;
-        // ViewBag.TotalCustomers = totalCustomers;
+        ViewBag.TotalBookings = totalBookings;
+        ViewBag.TotalCustomers = totalCustomers;
 
         // (Optional) Recent Bookings - last 5
         //var recentBookings = _context.Bookings

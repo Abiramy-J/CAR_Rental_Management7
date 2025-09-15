@@ -62,7 +62,11 @@ namespace Car_Rental_Management.Controllers
         }
         public IActionResult Dashboard()
         {
-            return View();
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+
+            return View(); // Your Customer dashboard view
+            
         }
         public IActionResult MyBookings()
         {

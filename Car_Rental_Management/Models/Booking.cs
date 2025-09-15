@@ -42,9 +42,9 @@ namespace Car_Rental_Management.Models
         public decimal TotalAmount { get; set; }
         public DateTime? PaymentDate { get; set; }
         public string? Status { get; set; } // PendingPayment, Paid, Confirmed
-                                            
-        
         public string? PaymentMethod { get; set; } // "Card" or "Cash"
+
+
 
     }
 }

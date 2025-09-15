@@ -1,4 +1,6 @@
 ﻿@model Car_Rental_Management.ViewModels.CustomerBrowseCarVM
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "🚘 Browse Cars";
@@ -63,6 +65,21 @@
                         <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success btn-sm">
                             🏷 Book Now
                         </a>
+
+        @*                 @if (HttpContextAccessor.HttpContext.Session.GetInt32("UserId") != null)
+        {
+            <!-- Already logged in -->
+            <a asp-controller="CustomerBooking" asp-action="BookCar" asp-route-carId="@car.CarID"
+               class="btn btn-success">Book Now</a>
+        }
+        else
+        {
+            <!-- Guest (redirect to login with returnUrl) -->
+            <a asp-controller="Account" asp-action="Login"
+               asp-route-returnUrl="/CustomerBooking/BookCar?carId=@car.CarID"
+               class="btn btn-warning">Book Now</a>
+        } *@
+
                     </div>
 
                     <!-- Compare Checkbox -->

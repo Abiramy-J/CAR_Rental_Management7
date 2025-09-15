@@ -1,29 +1,36 @@
 ﻿@model Car_Rental_Management.ViewModels.RegisterViewModel
 @{
     ViewData["Title"] = "Register";
+    var returnUrl = ViewData["ReturnUrl"] as string ?? "/";
 }
 
-<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <div class="card shadow-lg p-4 rounded-3" style="width: 400px;">
-        <h2 class="text-center mb-4">Create Account</h2>
+<div class="d-flex justify-content-center align-items-center vh-100"
+     style="background: url('/images/car.png') no-repeat center center; background-size: cover;">
+
+    <div class="card shadow-lg p-4 rounded-4"
+         style="width: 100%; max-width: 400px; backdrop-filter: blur(10px); background: rgba(255,255,255,0.9);">
+
+        <h2 class="text-center mb-4 fw-bold text-primary">Create Account</h2>
 
         <form asp-action="Register" method="post">
+            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
             <div class="form-group mb-3">
-                <label asp-for="Username" class="fw-bold"></label>
+                <label asp-for="Username" class="fw-semibold"></label>
                 <input asp-for="Username" class="form-control" placeholder="Choose a username" />
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="Email" class="fw-bold"></label>
+                <label asp-for="Email" class="fw-semibold"></label>
                 <input asp-for="Email" class="form-control" placeholder="Enter your email" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="Password" class="fw-bold"></label>
+                <label asp-for="Password" class="fw-semibold"></label>
                 <div class="input-group">
-                    <input asp-for="Password" class="form-control" placeholder="Create a password" id="PasswordField" type="password" />
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Create a password" id="PasswordField" />
                     <span class="input-group-text bg-white" style="cursor:pointer;" onclick="togglePassword('PasswordField', this)">
                         <i class="bi bi-eye-slash"></i>
                     </span>
@@ -32,9 +39,9 @@
             </div>
 
             <div class="form-group mb-3">
-                <label asp-for="ConfirmPassword" class="fw-bold"></label>
+                <label asp-for="ConfirmPassword" class="fw-semibold"></label>
                 <div class="input-group">
-                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm your password" id="ConfirmPasswordField" type="password" />
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm your password" id="ConfirmPasswordField" />
                     <span class="input-group-text bg-white" style="cursor:pointer;" onclick="togglePassword('ConfirmPasswordField', this)">
                         <i class="bi bi-eye-slash"></i>
                     </span>
@@ -42,25 +49,24 @@
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
 
-
-
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 10px; transition: transform 0.2s;">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3" style="transition: transform 0.2s;">
                 Register
             </button>
         </form>
 
-        <p class="text-center mt-3">
+        <p class="text-center mt-3 mb-0">
             Already have an account?
-            <a asp-controller="Account" asp-action="Login">Login here</a>
+            <a asp-controller="Account" asp-action="Login"  class="fw-semibold text-decoration-none text-primary">
+                Login here
+            </a>
         </p>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }
+
 <script>
     function togglePassword(inputId, iconElement) {
         const input = document.getElementById(inputId);
@@ -68,13 +74,10 @@
 
         if (input.type === "password") {
             input.type = "text";
-            icon.classList.remove("bi-eye-slash");
-            icon.classList.add("bi-eye");
+            icon.classList.replace("bi-eye-slash", "bi-eye");
         } else {
             input.type = "password";
-            icon.classList.remove("bi-eye");
-            icon.classList.add("bi-eye-slash");
+            icon.classList.replace("bi-eye", "bi-eye-slash");
         }
     }
 </script>
-

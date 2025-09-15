@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
+
 
 namespace Car_Rental_Management.Controllers
 {
@@ -18,7 +20,7 @@ namespace Car_Rental_Management.Controllers
         {
             // Ensure the user is logged in
             var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login", "Account");
+            if (userId == null) return RedirectToAction("Register", "Account", new { returnUrl = $"/CustomerBooking/BookCar/{id}" });
 
             // Ensure user exists in Users table
             var userExists = _db.Users.Any(u => u.UserId == userId.Value);
@@ -32,7 +34,7 @@ namespace Car_Rental_Management.Controllers
                 CarID = car.CarID,
                 Car = car,
                 LocationList = _db.Locations
-                                  .Select(l => new SelectListItem { Value = l.LocationID.ToString(), Text = l.Name })
+                                  .Select(l => new SelectListItem { Value = l.LocationID.ToString(), Text = l.Address })
                                   .ToList(),
                 AltDriverName = "",
                 AltDriverIC = "",
@@ -56,7 +58,7 @@ namespace Car_Rental_Management.Controllers
             if (!ModelState.IsValid)
             {
                 vm.LocationList = _db.Locations
-                                     .Select(l => new SelectListItem { Value = l.LocationID.ToString(), Text = l.Name })
+                                     .Select(l => new SelectListItem { Value = l.LocationID.ToString(), Text = l.Address })
                                      .ToList();
                 return View(vm);
             }

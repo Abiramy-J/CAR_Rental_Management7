@@ -1,6 +1,7 @@
 ﻿@model Car_Rental_Management.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Login";
+    var returnUrl = ViewData["ReturnUrl"] as string ?? "/";
 }
 
 <div class="d-flex justify-content-center align-items-center vh-100"
@@ -10,10 +11,12 @@
          style="width: 100%; max-width: 380px; backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.9);">
 
         <!-- Title -->
-        <h2 class="text-center mb-4 fw-bold text-primary">🔑 Login</h2>
+        <h2 class="text-center mb-4 fw-bold text-primary">Login</h2>
 
         <!-- Form -->
         <form asp-action="Login" method="post">
+            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
             <div asp-validation-summary="ModelOnly" class="text-danger mb-2 text-center"></div>
 
             <!-- Username -->
@@ -53,15 +56,17 @@
         </form>
 
         <!-- Error Message -->
-        @if (ViewBag.Error != null)
+        @if (ViewData.ModelState.ErrorCount > 0)
         {
-            <div class="alert alert-danger mt-3 text-center">@ViewBag.Error</div>
+            <div class="alert alert-danger mt-3 text-center">
+                Invalid username or password
+            </div>
         }
 
         <!-- Register Link -->
         <p class="text-center mt-3 mb-0">
-            <span class="text-muted">Don’t have an account?</span>
-            <a asp-controller="Account" asp-action="Register" class="fw-semibold text-decoration-none text-primary">
+            Don't have an account?
+            <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@returnUrl" class="fw-semibold text-decoration-none text-primary">
                 Register here
             </a>
         </p>
@@ -84,7 +89,5 @@
 </script>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }
