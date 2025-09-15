@@ -1,4 +1,4 @@
-using Car_Rental_Management.Models;
+﻿using Car_Rental_Management.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -28,5 +28,6 @@ namespace Car_Rental_Management.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
     }
 }

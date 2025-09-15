@@ -4,7 +4,7 @@ using Car_Rental_Management.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
+using System.Linq;
 
 namespace Car_Rental_Management.Controllers
 {
@@ -16,8 +16,13 @@ namespace Car_Rental_Management.Controllers
         // GET: BookCar
         public IActionResult BookCar(int id)
         {
+            // Ensure the user is logged in
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
+
+            // Ensure user exists in Users table
+            var userExists = _db.Users.Any(u => u.UserId == userId.Value);
+            if (!userExists) return RedirectToAction("Login", "Account");
 
             var car = _db.Cars.Include(c => c.CarModel).FirstOrDefault(c => c.CarID == id);
             if (car == null) return NotFound();
@@ -44,6 +49,10 @@ namespace Car_Rental_Management.Controllers
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
 
+            // Validate user exists in Users table
+            var userExists = _db.Users.Any(u => u.UserId == userId.Value);
+            if (!userExists) return RedirectToAction("Login", "Account");
+
             if (!ModelState.IsValid)
             {
                 vm.LocationList = _db.Locations
@@ -62,7 +71,7 @@ namespace Car_Rental_Management.Controllers
             var booking = new Booking
             {
                 CarID = vm.CarID,
-                CustomerID = userId.Value,
+                CustomerID = userId.Value, // safe now, FK guaranteed
                 LocationID = vm.LocationID,
                 PickupDate = vm.PickupDate,
                 ReturnDate = vm.ReturnDate,
@@ -78,10 +87,6 @@ namespace Car_Rental_Management.Controllers
             _db.SaveChanges();
 
             return RedirectToAction("Method", "Payment", new { id = booking.BookingID });
-
         }
-
-
     }
 }
-

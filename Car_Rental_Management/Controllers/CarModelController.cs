@@ -1,6 +1,8 @@
 ﻿using Car_Rental_Management.Data;
 using Car_Rental_Management.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Car_Rental_Management.Controllers
 {
@@ -14,9 +16,9 @@ namespace Car_Rental_Management.Controllers
         }
 
         // GET: CarModel
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var models = _dbcontext.CarModels.ToList();
+            var models = await _dbcontext.CarModels.ToListAsync();
             return View(models);
         }
 
@@ -29,66 +31,99 @@ namespace Car_Rental_Management.Controllers
         // POST: CarModel/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CarModel model)
+        public async Task<IActionResult> Create(CarModel model)
         {
             if (ModelState.IsValid)
             {
-                _dbcontext.CarModels.Add(model);
-                _dbcontext.SaveChanges();
-                TempData["SuccessMessage"] = "✅ Car model created successfully!";
-                return RedirectToAction("Index");
+                try
+                {
+                    await _dbcontext.CarModels.AddAsync(model);
+                    await _dbcontext.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "✅ Car model created successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch
+                {
+                    TempData["ErrorMessage"] = "❌ Error occurred while creating car model.";
+                }
             }
-            TempData["ErrorMessage"] = "❌ Failed to create car model.";
             return View(model);
         }
 
         // GET: CarModel/Edit/5
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var model = _dbcontext.CarModels.Find(id);
-            if (model == null) return NotFound();
+            var model = await _dbcontext.CarModels.FindAsync(id);
+            if (model == null)
+            {
+                TempData["ErrorMessage"] = "❌ Car model not found!";
+                return RedirectToAction(nameof(Index));
+            }
             return View(model);
         }
 
+        // POST: CarModel/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(CarModel model)
+        public async Task<IActionResult> Edit(CarModel model)
         {
             if (ModelState.IsValid)
             {
-                _dbcontext.CarModels.Update(model);
-                _dbcontext.SaveChanges();
-                TempData["SuccessMessage"] = "✅ Car model updated successfully!";
-                return RedirectToAction("Index");
+                try
+                {
+                    _dbcontext.CarModels.Update(model);
+                    await _dbcontext.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "✅ Car model updated successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    TempData["ErrorMessage"] = "❌ Car model update failed due to concurrency issue.";
+                }
+                catch
+                {
+                    TempData["ErrorMessage"] = "❌ Error occurred while updating car model.";
+                }
             }
-            TempData["ErrorMessage"] = "❌ Failed to update car model.";
             return View(model);
         }
 
         // GET: CarModel/Delete/5
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var model = _dbcontext.CarModels.Find(id);
-            if (model == null) return NotFound();
-            return View(model);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
-        {
-            var model = _dbcontext.CarModels.Find(id);
+            var model = await _dbcontext.CarModels.FindAsync(id);
             if (model == null)
             {
                 TempData["ErrorMessage"] = "❌ Car model not found!";
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
-
-            _dbcontext.CarModels.Remove(model);
-            _dbcontext.SaveChanges();
-            TempData["SuccessMessage"] = "✅ Car model deleted successfully!";
-            return RedirectToAction("Index");
+            return View(model);
         }
 
+        // POST: CarModel/Delete
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var model = await _dbcontext.CarModels.FindAsync(id);
+            if (model == null)
+            {
+                TempData["ErrorMessage"] = "❌ Car model not found!";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                _dbcontext.CarModels.Remove(model);
+                await _dbcontext.SaveChangesAsync();
+                TempData["SuccessMessage"] = "✅ Car model deleted successfully!";
+            }
+            catch
+            {
+                TempData["ErrorMessage"] = "❌ Error occurred while deleting car model.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

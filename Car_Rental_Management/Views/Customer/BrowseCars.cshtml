@@ -1,42 +1,90 @@
 ﻿@model Car_Rental_Management.ViewModels.CustomerBrowseCarVM
 
+@{
+    ViewData["Title"] = "🚘 Browse Cars";
+}
+
 <h2 class="mb-4">🚘 Available Cars</h2>
 
+<!-- Filters Container -->
+<div class="card shadow p-3 mb-4 border border-primary filter-highlight" style="background-color: #f8f9fa;">
+    <h5 class="mb-3">Filter Cars</h5>
+    <form method="get">
+        <div class="row g-3 justify-content-center">
+
+            <div class="col-md-2">
+                <select asp-for="SelectedCarModelID" asp-items="Model.CarModelList" class="form-select">
+                    <option value="">-- All Models --</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input asp-for="MinRate" type="number" min="0" step="100" class="form-control" placeholder="Min Rate (LKR)" />
+            </div>
+
+            <div class="col-md-2">
+                <input asp-for="MaxRate" type="number" min="0" step="100" class="form-control" placeholder="Max Rate (LKR)" />
+            </div>
+
+            <div class="col-md-2">
+                <select asp-for="Status" asp-items="Model.StatusList" class="form-select">
+                    <option value="">-- All Status --</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input asp-for="Keyword" class="form-control" placeholder="Keyword in description" />
+            </div>
+
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<!-- Car Listing -->
 <div class="row">
     @foreach (var car in Model.Cars)
     {
         <div class="col-md-4 mb-4">
             <div class="card shadow border-0 h-100">
-                <!-- Main Car Image -->
                 <img src="@car.ImageUrl" class="card-img-top" alt="Car Image" style="height:200px; object-fit:cover;" />
-
                 <div class="card-body">
-                    <!-- Car Title -->
                     <h5 class="card-title">@car.CarModel.Brand @car.CarModel.ModelName</h5>
                     <p><strong>Price/Day:</strong> @car.DailyRate.ToString("C")</p>
 
-                    <!-- Buttons -->
-                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#carModal-@car.CarID">
-                        🔍 More
-                    </button>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#carModal-@car.CarID">
+                            🔍 More
+                        </button>
 
-                    <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success btn-sm">
-                        🏷 Book Now
-                    </a>
+                        <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success btn-sm">
+                            🏷 Book Now
+                        </a>
+                    </div>
+
+                    <!-- Compare Checkbox -->
+                    <div class="form-check mt-2">
+                        <input class="form-check-input compare-checkbox" type="checkbox" value="@car.CarID" id="compare-@car.CarID">
+                        <label class="form-check-label" for="compare-@car.CarID">
+                            Compare
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal for Car Details -->
+        <!-- Car Details Modal -->
         <div class="modal fade" id="carModal-@car.CarID" tabindex="-1" aria-labelledby="carModalLabel-@car.CarID" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="carModalLabel-@car.CarID">@car.CarModel.Brand @car.CarModel.ModelName - Details</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title">@car.CarModel.Brand @car.CarModel.ModelName - Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- Car Images -->
                         <div id="carousel-@car.CarID" class="carousel slide mb-3" data-bs-ride="carousel">
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
@@ -69,7 +117,6 @@
                             </button>
                         </div>
 
-                        <!-- Car Specs -->
                         <ul class="list-group">
                             <li class="list-group-item"><strong>Brand:</strong> @car.CarModel.Brand</li>
                             <li class="list-group-item"><strong>Model:</strong> @car.CarModel.ModelName</li>
@@ -85,9 +132,7 @@
                         </ul>
                     </div>
                     <div class="modal-footer">
-                        <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success">
-                            🏷 Book This Car
-                        </a>
+                        <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success">🏷 Book This Car</a>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Close</button>
                     </div>
                 </div>
@@ -95,3 +140,73 @@
         </div>
     }
 </div>
+
+<!-- Compare Button -->
+<button type="button" class="btn btn-warning mt-3" id="compareBtn">Compare Selected Cars</button>
+
+<!-- Compare Modal -->
+<div class="modal fade" id="compareModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Car Comparison</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="compareContent">
+                <!-- Compare content will be inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .filter-highlight {
+        animation: popIn 0.5s ease-in-out;
+        border-radius: 10px;
+    }
+
+    @@keyframes popIn {
+        0% { transform: scale(0.95); opacity: 0; }
+        50% { transform: scale(1.02); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.getElementById("compareBtn").addEventListener("click", function () {
+            let selectedIds = Array.from(document.querySelectorAll(".compare-checkbox:checked")).map(cb => cb.value);
+            if (selectedIds.length < 2) {
+                alert("Select at least 2 cars to compare!");
+                return;
+            }
+
+            // Build comparison table
+            let compareHtml = '<table class="table table-bordered"><thead><tr><th>Feature</th>';
+            selectedIds.forEach(id => {
+                let carCard = document.getElementById("carModal-" + id);
+                let title = carCard.querySelector(".modal-title").innerText;
+                let specs = Array.from(carCard.querySelectorAll(".list-group-item")).map(li => li.innerHTML);
+                compareHtml += `<th>${title}</th>`;
+                if (!window.compareData) window.compareData = {};
+                window.compareData[id] = specs;
+            });
+            compareHtml += '</tr></thead><tbody>';
+
+            let features = ["Brand", "Model", "Year", "Body Type", "Fuel", "Transmission", "Seats", "Engine", "Mileage", "Rate/Day", "Description"];
+            features.forEach((feat, index) => {
+                compareHtml += `<tr><td>${feat}</td>`;
+                selectedIds.forEach(id => {
+                    compareHtml += `<td>${window.compareData[id][index]}</td>`;
+                });
+                compareHtml += '</tr>';
+            });
+
+            compareHtml += '</tbody></table>';
+
+            document.getElementById("compareContent").innerHTML = compareHtml;
+            var compareModal = new bootstrap.Modal(document.getElementById('compareModal'));
+            compareModal.show();
+        });
+    </script>
+}

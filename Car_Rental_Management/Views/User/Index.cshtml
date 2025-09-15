@@ -1,0 +1,41 @@
+﻿@* @model IEnumerable<Car_Rental_Management.Models.User>
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<h2>Users</h2>
+
+<form asp-action="Index" method="get">
+    <p>
+        <input type="text" name="searchRole" placeholder="Filter by Role (Admin, Staff, Student...)" value="@Context.Request.Query["searchRole"]" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </p>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Username</td>
+                <td>@item.Email</td>
+                <td>@item.Role</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.UserId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.UserId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.UserId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+ *@

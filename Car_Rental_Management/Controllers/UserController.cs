@@ -15,10 +15,18 @@ namespace Car_Rental_Management.Controllers
         }
 
         // GET: User
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchRole)
         {
-            var users = await _context.Users.ToListAsync();
-            return View(users);
+            var users = from u in _context.Users
+                        select u;
+
+            // Filtering by Role
+            if (!string.IsNullOrEmpty(searchRole))
+            {
+                users = users.Where(u => u.Role.Contains(searchRole));
+            }
+
+            return View(await users.ToListAsync());
         }
 
         // GET: User/Details/5
@@ -119,4 +127,3 @@ namespace Car_Rental_Management.Controllers
         }
     }
 }
-
