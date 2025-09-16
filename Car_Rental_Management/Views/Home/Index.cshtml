@@ -6,6 +6,26 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 
+<nav class="navbar navbar-expand-lg navbar-dark custom-navbar shadow-sm fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-white animate__animated animate__fadeInLeft" href="/">
+            🚗 Universal Car Rental
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#homeNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse animate__animated animate__fadeInRight" id="homeNavbar">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link text-white nav-hover" asp-controller="Account" asp-action="Login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white nav-hover" asp-controller="Account" asp-action="Register">Register</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 <!-- Hero Section -->
 <div class="hero-section text-white text-center d-flex align-items-center justify-content-center"
      style="background: url('@Url.Content("~/Images/Cars/Home.jpg")') no-repeat center center; background-size: cover; height: 90vh;">
@@ -155,6 +175,39 @@
 
 <!-- Styles -->
 <style>
+    .custom-navbar {
+        background: linear-gradient(90deg, #0d6efd, #6610f2);
+        transition: background 0.5s ease-in-out;
+    }
+
+    .navbar-brand {
+        font-size: 1.5rem;
+        letter-spacing: 1px;
+    }
+
+    .nav-hover {
+        position: relative;
+        transition: color 0.3s ease-in-out;
+    }
+
+        .nav-hover::after {
+            content: "";
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: #fff;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .nav-hover:hover {
+            color: #ffdf00 !important;
+        }
+
+            .nav-hover:hover::after {
+                width: 100%;
+            }
 /* Hero Section Overlay */
 .hero-section {
     position: relative;
