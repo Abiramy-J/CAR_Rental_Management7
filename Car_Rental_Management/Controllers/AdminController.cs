@@ -478,11 +478,13 @@ public class AdminController : Controller
         if (role != "Admin") return RedirectToAction("Login", "Account");
 
         var bookings = _context.Bookings
-            .Include(b => b.Car)
-                .ThenInclude(c => c.CarModel)
-            .Include(b => b.Customer)
-            .Include(b => b.Location)
-            .ToList();
+        .Include(b => b.Car).ThenInclude(c => c.CarModel)
+        .Include(b => b.Customer)
+        .Include(b => b.Location)
+        .Include(b => b.DriverBookings) // include driver bookings
+            .ThenInclude(db => db.Driver) // get driver info
+        .ToList();
+
 
         return View(bookings);
     }

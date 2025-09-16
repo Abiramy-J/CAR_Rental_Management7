@@ -133,15 +133,29 @@ namespace Car_Rental_Management.Controllers
             return RedirectToAction("Method", "Payment", new { id = booking.BookingID });
         }
 
-        // API endpoint: Get available drivers for given time slot
         [HttpGet]
         public IActionResult AvailableDrivers(DateTime pickup, DateTime returnDate)
         {
-            var drivers = GetAvailableDrivers(pickup, returnDate)
-                .Select(d => new { d.DriverId, d.FullName, d.PhoneNo, d.LicenseNo })
-                .ToList();
-            return Json(drivers);
+            if (pickup >= returnDate)
+                return BadRequest("Return date must be after pickup date.");
+
+            var drivers = GetAvailableDrivers(pickup, returnDate);
+
+            if (drivers == null || !drivers.Any())
+                return Json(new List<object>()); // empty list if no drivers
+
+            var result = drivers.Select(d => new
+            {
+                d.DriverId,
+                d.FullName,
+                d.PhoneNo,
+                d.LicenseNo
+            }).ToList();
+
+            return Json(result);
         }
+
+
 
         // Helper: Get available drivers
         private List<Driver> GetAvailableDrivers(DateTime pickup, DateTime returnDate)

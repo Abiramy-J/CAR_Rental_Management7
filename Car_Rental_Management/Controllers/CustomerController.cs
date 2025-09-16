@@ -118,6 +118,7 @@ namespace Car_Rental_Management.Controllers
             var bookings = _context.Bookings
             .Include(b => b.Car).ThenInclude(c => c.CarModel)
             .Include(b => b.Location)
+            .Include(b => b.Driver)
             .Where(b => b.CustomerID == userId.Value)
             .ToList();
 
