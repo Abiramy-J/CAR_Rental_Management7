@@ -70,11 +70,10 @@ namespace Car_Rental_Management.Controllers
             int days = Math.Max(1, (vm.ReturnDate - vm.PickupDate).Days); // at least 1 day
             decimal total = days * car.DailyRate;
             if (vm.NeedDriver) total += days * 2000;
-
             var booking = new Booking
             {
                 CarID = vm.CarID,
-                CustomerID = userId.Value, // safe now, FK guaranteed
+                CustomerID = userId.Value,
                 LocationID = vm.LocationID,
                 PickupDate = vm.PickupDate,
                 ReturnDate = vm.ReturnDate,
@@ -87,7 +86,12 @@ namespace Car_Rental_Management.Controllers
             };
 
             _db.Bookings.Add(booking);
-            _db.SaveChanges();// BookingID generated here
+
+            // ✅ Mark the car as Booked
+            car.Status = "Booked";
+            _db.Cars.Update(car);
+
+            _db.SaveChanges(); // Save both booking and car status
 
 
             // Assign company driver if selected
