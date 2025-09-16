@@ -1,0 +1,112 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    // Get session values
+    var username = HttpContextAccessor.HttpContext?.Session.GetString("Username");
+    var profileImage = HttpContextAccessor.HttpContext?.Session.GetString("ProfileImageUrl") ?? "/images/default-profile.png";
+    var role = HttpContextAccessor.HttpContext?.Session.GetString("Role") ?? "Guest";
+    bool isLoggedIn = !string.IsNullOrEmpty(username) && role == "Customer";
+}
+
+<nav class="navbar navbar-expand-lg navbar-dark custom-navbar shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-white animate__animated animate__fadeInLeft" href="@Url.Action("Index", "Home")">
+            🚗 Universal Car Rental
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse animate__animated animate__fadeInRight" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                @if (!isLoggedIn)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-white nav-hover" asp-controller="Account" asp-action="Login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white nav-hover" asp-controller="Account" asp-action="Register">Register Now</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-white nav-hover" asp-controller="Customer" asp-action="BrowseCars">Browse Cars</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white nav-hover" asp-controller="Account" asp-action="Profile">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white nav-hover" asp-controller="CustomerBooking" asp-action="History">Booking History</a>
+                    </li>
+                }
+            </ul>
+
+            <ul class="navbar-nav ms-auto align-items-center">
+                @if (isLoggedIn)
+                {
+                    <li class="nav-item me-2">
+                        <span class="text-white fw-semibold">Hello, @username!</span>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a href="@Url.Action("Profile", "Account")">
+                            <img src="@profileImage" class="rounded-circle" width="40" height="40" style="object-fit: cover; border: 2px solid #fff;" />
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light px-3 py-1 fw-semibold shadow-sm nav-button" asp-controller="Account" asp-action="Logout">Logout</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .custom-navbar {
+        background: linear-gradient(90deg, #0d6efd, #6610f2);
+        transition: background 0.2s ease-in-out;
+    }
+
+    .navbar-brand {
+        font-size: 1.5rem;
+        letter-spacing: 1px;
+    }
+
+    .nav-hover {
+        position: relative;
+        transition: color 0.2s ease-in-out;
+    }
+
+        .nav-hover::after {
+            content: "";
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: #ffdf00;
+            transition: width 0.2s ease-in-out;
+        }
+
+        .nav-hover:hover {
+            color: #ffdf00 !important;
+        }
+
+            .nav-hover:hover::after {
+                width: 100%;
+            }
+
+    .nav-button {
+        border-radius: 20px;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .nav-button:hover {
+            background: #fff;
+            color: #0d6efd !important;
+            transform: translateY(-2px);
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+</style>

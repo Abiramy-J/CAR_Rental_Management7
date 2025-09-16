@@ -1,0 +1,26 @@
+﻿@model Car_Rental_Management.Models.User
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "_CustomerLayout";
+}
+
+<div class="card shadow-lg p-4" style="max-width: 650px; margin:auto; margin-top:30px;">
+    <div class="text-center mb-3">
+        <img src="@(string.IsNullOrEmpty(Model.ProfileImageUrl) ? "/images/default-profile.png" : Model.ProfileImageUrl)"
+             class="rounded-circle"
+             width="130"
+             height="130"
+             style="object-fit:cover; border:3px solid #2563EB;" />
+    </div>
+
+    <h4 class="text-center">@Model.FullName</h4>
+    <p class="text-center text-muted">@Model.Email</p>
+
+    <hr />
+
+    <div class="mb-2"><b>Phone:</b> @Model.PhoneNumber</div>
+
+    <div class="text-center mt-4">
+        <a asp-action="EditProfile" class="btn btn-primary">✏️ Edit Profile</a>
+    </div>
+</div>
