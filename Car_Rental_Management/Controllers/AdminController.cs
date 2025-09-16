@@ -470,4 +470,21 @@ public class AdminController : Controller
     }
 
 
+    [Route("Booking")]
+    public IActionResult Booking()
+    {
+        // Optional: check if admin
+        var role = HttpContext.Session.GetString("Role");
+        if (role != "Admin") return RedirectToAction("Login", "Account");
+
+        var bookings = _context.Bookings
+            .Include(b => b.Car)
+                .ThenInclude(c => c.CarModel)
+            .Include(b => b.Customer)
+            .Include(b => b.Location)
+            .ToList();
+
+        return View(bookings);
+    }
+
 }

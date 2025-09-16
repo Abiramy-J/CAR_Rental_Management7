@@ -50,6 +50,7 @@ namespace Car_Rental_Management.Controllers
             var booking = _db.Bookings
                              .Include(b => b.Car)
                              .ThenInclude(c => c.CarModel)
+                             .Include(b => b.Location)
                              .FirstOrDefault(b => b.BookingID == id);
 
             if (booking == null) return NotFound();
@@ -62,6 +63,7 @@ namespace Car_Rental_Management.Controllers
             var booking = _db.Bookings
                              .Include(b => b.Car).ThenInclude(c => c.CarModel)
                              .Include(b => b.Customer)
+                             .Include(b => b.Location)
                              .FirstOrDefault(b => b.BookingID == id);
 
             if (booking == null) return NotFound();

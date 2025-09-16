@@ -29,13 +29,13 @@
 
     <div class="mb-3">
         <label asp-for="PickupDate" class="form-label">Pickup Date</label>
-        <input asp-for="PickupDate" type="date" class="form-control" />
+        <input asp-for="PickupDate" type="date" class="form-control" id="PickupDate" />
         <span asp-validation-for="PickupDate" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label asp-for="ReturnDate" class="form-label">Return Date</label>
-        <input asp-for="ReturnDate" type="date" class="form-control" />
+        <input asp-for="ReturnDate" type="date" class="form-control" id="ReturnDate" />
         <span asp-validation-for="ReturnDate" class="text-danger"></span>
     </div>
 
@@ -44,6 +44,16 @@
         <label asp-for="NeedDriver" class="form-check-label">Need Company Driver?</label>
     </div>
 
+    <!-- Company Driver Dropdown -->
+    <div class="mb-3" id="driverSection" style="display:none;">
+        <label asp-for="SelectedDriverId" class="form-label">Select Company Driver</label>
+        <select asp-for="SelectedDriverId" class="form-select">
+            <option value="">-- Select Driver --</option>
+        </select>
+        <span asp-validation-for="SelectedDriverId" class="text-danger"></span>
+    </div>
+
+    <!-- Alternate Driver Fields -->
     <div id="altDriverFields" style="display:@(Model.NeedDriver ? "none" : "block")">
         <h5>Alternate Driver Details</h5>
         <div class="mb-3">
@@ -67,12 +77,55 @@
 </form>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         const checkbox = document.getElementById('needDriverCheckbox');
         const altDriverFields = document.getElementById('altDriverFields');
+        const driverSection = document.getElementById('driverSection');
 
-        checkbox.addEventListener('change', function () {
-            altDriverFields.style.display = this.checked ? 'none' : 'block';
+        function toggleDriverFields() {
+            if (checkbox.checked) {
+                altDriverFields.style.display = 'none';
+                driverSection.style.display = 'block';
+                loadDrivers();
+            } else {
+                altDriverFields.style.display = 'block';
+                driverSection.style.display = 'none';
+                $('#SelectedDriverId').empty().append('<option value="">-- Select Driver --</option>');
+            }
+        }
+
+        checkbox.addEventListener('change', toggleDriverFields);
+
+        // Load drivers when dates change
+        $('#PickupDate, #ReturnDate').change(function () {
+            if (checkbox.checked) loadDrivers();
         });
+
+        function loadDrivers() {
+            var pickup = $('#PickupDate').val();
+            var returnDate = $('#ReturnDate').val();
+            if (!pickup || !returnDate) return;
+
+            $.ajax({
+                url: '/CustomerBooking/AvailableDrivers',
+                type: 'GET',
+                data: { pickup: pickup, returnDate: returnDate },
+                success: function (data) {
+                    var select = $('#SelectedDriverId');
+                    select.empty();
+                    select.append('<option value="">-- Select Driver --</option>');
+                    $.each(data, function (i, driver) {
+                        select.append('<option value="' + driver.driverId + '">' + driver.fullName + ' (' + driver.phoneNo + ')</option>');
+                    });
+                },
+                error: function () {
+                    alert('Error loading drivers. Please try again.');
+                }
+            });
+        }
+
+        // Initialize on page load
+        toggleDriverFields();
     </script>
 }

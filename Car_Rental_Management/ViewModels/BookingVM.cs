@@ -29,5 +29,9 @@ namespace Car_Rental_Management.ViewModels
         public string? AltDriverName { get; set; }
         public string? AltDriverIC { get; set; }
         public string? AltDriverLicenseNo { get; set; }
+
+        public int? SelectedDriverId { get; set; } // nullable in case customer uses own driver
+        public List<SelectListItem>? AvailableDrivers { get; set; }
+
     }
 }

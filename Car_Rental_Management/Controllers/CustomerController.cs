@@ -60,6 +60,22 @@ namespace Car_Rental_Management.Controllers
 
 
         }
+
+        // GET: MyBookings
+        public IActionResult MyBookings()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            var bookings = _context.Bookings
+            .Include(b => b.Car).ThenInclude(c => c.CarModel)
+            .Include(b => b.Location)
+            .Where(b => b.CustomerID == userId.Value)
+            .ToList();
+
+            return View(bookings);
+        }
+
         public IActionResult Dashboard()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
@@ -68,19 +84,7 @@ namespace Car_Rental_Management.Controllers
             return View(); // Your Customer dashboard view
             
         }
-        public IActionResult MyBookings()
-        {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login", "Account");
-
-            var bookings = _context.Bookings
-                .Include(b => b.Car).ThenInclude(c => c.CarModel)
-                // .Include(b => b.Payment)
-                .Where(b => b.CustomerID == userId.Value)
-                .ToList();
-
-            return View(bookings);
-        }
+        
 
     }
 }

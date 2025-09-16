@@ -16,6 +16,7 @@ namespace Car_Rental_Management.Data
         public DbSet<Location> Locations { get; set; }
         public DbSet<Driver> Drivers { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<DriverBooking> DriverBookings { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
