@@ -47,7 +47,7 @@
     <!-- Company Driver Dropdown -->
     <div class="mb-3" id="driverSection" style="display:none;">
         <label asp-for="SelectedDriverId" class="form-label">Select Company Driver</label>
-        <select asp-for="SelectedDriverId" class="form-select">
+        <select asp-for="SelectedDriverId" id="SelectedDriverId" class="form-select">
             <option value="">-- Select Driver --</option>
         </select>
         <span asp-validation-for="SelectedDriverId" class="text-danger"></span>
@@ -97,7 +97,7 @@
 
         checkbox.addEventListener('change', toggleDriverFields);
 
-        // Load drivers when dates change
+        // Reload drivers when dates change
         $('#PickupDate, #ReturnDate').change(function () {
             if (checkbox.checked) loadDrivers();
         });
@@ -114,10 +114,16 @@
                 success: function (data) {
                     var select = $('#SelectedDriverId');
                     select.empty();
-                    select.append('<option value="">-- Select Driver --</option>');
-                    $.each(data, function (i, driver) {
-                        select.append('<option value="' + driver.driverId + '">' + driver.fullName + ' (' + driver.phoneNo + ')</option>');
-                    });
+
+                    if (data.length === 0) {
+                        select.append('<option value="">No drivers available</option>');
+                    } else {
+                        select.append('<option value="">-- Select Driver --</option>');
+                        $.each(data, function (i, driver) {
+                            select.append('<option value="' + driver.driverId + '">' +
+                                driver.fullName + ' (' + driver.phoneNo + ')</option>');
+                        });
+                    }
                 },
                 error: function () {
                     alert('Error loading drivers. Please try again.');
@@ -125,7 +131,7 @@
             });
         }
 
-        // Initialize on page load
+        // Initialize fields on page load
         toggleDriverFields();
     </script>
 }
