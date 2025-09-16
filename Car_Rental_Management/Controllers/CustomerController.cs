@@ -16,12 +16,54 @@ namespace Car_Rental_Management.Controllers
             _context = context;
         }
 
-        public IActionResult BrowseCars(int? SelectedCarModelID, decimal? MinRate, decimal? MaxRate, string? Status, string? Keyword)
+        //public IActionResult BrowseCars(int? SelectedCarModelID, decimal? MinRate, decimal? MaxRate, string? Status, string? Keyword)
+        //{
+        //    // Base query
+        //    var carsQuery = _context.Cars.Include(c => c.CarModel).AsQueryable();
+
+        //    // Filters
+        //    if (SelectedCarModelID.HasValue)
+        //        carsQuery = carsQuery.Where(c => c.CarModelID == SelectedCarModelID.Value);
+
+        //    if (MinRate.HasValue)
+        //        carsQuery = carsQuery.Where(c => c.DailyRate >= MinRate.Value);
+
+        //    if (MaxRate.HasValue)
+        //        carsQuery = carsQuery.Where(c => c.DailyRate <= MaxRate.Value);
+
+        //    if (!string.IsNullOrEmpty(Status))
+        //        carsQuery = carsQuery.Where(c => c.Status == Status);
+
+        //    if (!string.IsNullOrEmpty(Keyword))
+        //        carsQuery = carsQuery.Where(c => c.Description.Contains(Keyword));
+
+        //    // Prepare ViewModel
+        //    var vm = new CustomerBrowseCarVM
+        //    {
+        //        Cars = carsQuery.ToList(),
+        //        CarModelList = _context.CarModels
+        //                               .Select(cm => new SelectListItem { Value = cm.CarModelID.ToString(), Text = cm.ModelName })
+        //                               .ToList(),
+        //        StatusList = new List<SelectListItem>
+        //        {
+        //            new SelectListItem { Value = "Available", Text = "Available" },
+        //            new SelectListItem { Value = "Booked", Text = "Booked" }
+        //        },
+        //        SelectedCarModelID = SelectedCarModelID,
+        //        MinRate = MinRate,
+        //        MaxRate = MaxRate,
+        //        Status = Status,
+        //        Keyword = Keyword
+        //    };
+
+        //    return View(vm);
+
+
+        //}
+        public async Task<IActionResult> BrowseCars(int? SelectedCarModelID, decimal? MinRate, decimal? MaxRate, string? Status, string? Keyword)
         {
-            // Base query
             var carsQuery = _context.Cars.Include(c => c.CarModel).AsQueryable();
 
-            // Filters
             if (SelectedCarModelID.HasValue)
                 carsQuery = carsQuery.Where(c => c.CarModelID == SelectedCarModelID.Value);
 
@@ -31,24 +73,31 @@ namespace Car_Rental_Management.Controllers
             if (MaxRate.HasValue)
                 carsQuery = carsQuery.Where(c => c.DailyRate <= MaxRate.Value);
 
+            // ✅ Only show "Available" cars by default
             if (!string.IsNullOrEmpty(Status))
+            {
                 carsQuery = carsQuery.Where(c => c.Status == Status);
+            }
+            else
+            {
+                // Default filter: Only available cars
+                carsQuery = carsQuery.Where(c => c.Status == "Available");
+            }
 
             if (!string.IsNullOrEmpty(Keyword))
                 carsQuery = carsQuery.Where(c => c.Description.Contains(Keyword));
 
-            // Prepare ViewModel
             var vm = new CustomerBrowseCarVM
             {
-                Cars = carsQuery.ToList(),
-                CarModelList = _context.CarModels
-                                       .Select(cm => new SelectListItem { Value = cm.CarModelID.ToString(), Text = cm.ModelName })
-                                       .ToList(),
+                Cars = await carsQuery.ToListAsync(),
+                CarModelList = await _context.CarModels
+                    .Select(cm => new SelectListItem { Value = cm.CarModelID.ToString(), Text = cm.ModelName })
+                    .ToListAsync(),
                 StatusList = new List<SelectListItem>
-                {
-                    new SelectListItem { Value = "Available", Text = "Available" },
-                    new SelectListItem { Value = "Booked", Text = "Booked" }
-                },
+        {
+            new SelectListItem { Value = "Available", Text = "Available" },
+            new SelectListItem { Value = "Booked", Text = "Booked" }
+        },
                 SelectedCarModelID = SelectedCarModelID,
                 MinRate = MinRate,
                 MaxRate = MaxRate,
@@ -57,9 +106,8 @@ namespace Car_Rental_Management.Controllers
             };
 
             return View(vm);
-
-
         }
+
 
         // GET: MyBookings
         public IActionResult MyBookings()
