@@ -119,7 +119,54 @@ namespace Car_Rental_Management.Controllers
             return RedirectToAction("Dashboard", "Customer");
         }
 
-        // ------------------- LOGOUT -------------------
+        // GET: /Account/ForgotPassword
+        public IActionResult ForgotPassword()
+        {
+            return View(new ForgotPasswordViewModel());
+        }
+
+        // POST: /Account/ForgotPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = _db.Users.FirstOrDefault(u =>
+                u.Username.ToLower() == model.Username.Trim().ToLower() &&
+                u.Email.ToLower() == model.Email.Trim().ToLower());
+
+            if (user == null)
+            {
+                ViewBag.Error = "Invalid username or email.";
+                return View(model);
+            }
+
+            // Update password (⚠️ hashing recommended)
+            user.Password = model.NewPassword.Trim();
+            _db.Users.Update(user);
+            await _db.SaveChangesAsync();
+
+            // Set session
+            HttpContext.Session.SetInt32("UserId", user.UserId);
+            HttpContext.Session.SetString("Username", user.Username);
+            HttpContext.Session.SetString("Role", user.Role);
+
+            // Redirect based on role
+            return user.Role switch
+            {
+                "Admin" => RedirectToAction("Dashboard", "Admin"),
+                "Staff" => RedirectToAction("Dashboard", "Staff"),
+                "Customer" => RedirectToAction("Dashboard", "Customer"),
+                _ => RedirectToAction("Login")
+            };
+        }
+
+        // GET: /Account/Logout
+
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
