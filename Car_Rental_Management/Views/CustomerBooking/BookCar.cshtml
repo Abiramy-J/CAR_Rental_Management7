@@ -1,84 +1,116 @@
 ﻿@model Car_Rental_Management.ViewModels.BookingVM
 
-<h2>Book @Model.Car.CarModel.Brand @Model.Car.CarModel.ModelName</h2>
+@{
+    ViewData["Title"] = "Book Car";
+}
 
-<div class="card mb-3" style="max-width: 600px;">
-    <div class="row g-0">
-        <div class="col-md-4">
-            <img src="@Model.Car.ImageUrl" class="img-fluid rounded-start" alt="Car Logo">
-        </div>
-        <div class="col-md-8">
-            <div class="card-body">
-                <h5 class="card-title">@Model.Car.CarModel.Brand @Model.Car.CarModel.ModelName</h5>
-                <p class="card-text"><strong>Price per day:</strong> @Model.Car.DailyRate.ToString("C")</p>
-                <p class="card-text"><strong>Body Type:</strong> @Model.Car.CarModel.BodyType</p>
-                <p class="card-text"><strong>Transmission:</strong> @Model.Car.CarModel.Transmission</p>
+<div class="container my-5">
+    <h2 class="text-center mb-4 animate__animated animate__fadeInDown">
+        Book @Model.Car.CarModel.Brand @Model.Car.CarModel.ModelName
+    </h2>
+
+    <div class="card shadow-lg border-0 mb-4 animate__animated animate__fadeInUp" style="max-width: 700px; margin:auto;">
+        <div class="row g-0">
+            <div class="col-md-5">
+                <img src="@Model.Car.ImageUrl" class="img-fluid rounded-start" alt="Car Image" style="height:100%; object-fit:cover;">
+            </div>
+            <div class="col-md-7">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">@Model.Car.CarModel.Brand @Model.Car.CarModel.ModelName</h5>
+                    <p class="card-text"><strong>Price per day:</strong> @Model.Car.DailyRate.ToString("C")</p>
+                    <p class="card-text"><strong>Body Type:</strong> @Model.Car.CarModel.BodyType</p>
+                    <p class="card-text"><strong>Transmission:</strong> @Model.Car.CarModel.Transmission</p>
+                </div>
             </div>
         </div>
     </div>
+
+    <form asp-action="BookCar" asp-controller="CustomerBooking" method="post" class="needs-validation animate__animated animate__fadeIn" novalidate>
+        <input type="hidden" asp-for="CarID" />
+
+        <div class="mb-3">
+            <label asp-for="LocationID" class="form-label fw-semibold">Pickup Location</label>
+            <select asp-for="LocationID" class="form-select" asp-items="Model.LocationList" required>
+                <option value="">-- Select Location --</option>
+            </select>
+            <div class="invalid-feedback">
+                Please select a pickup location.
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label asp-for="PickupDate" class="form-label fw-semibold">Pickup Date</label>
+                <input asp-for="PickupDate" type="date" class="form-control" id="PickupDate" required />
+                <div class="invalid-feedback">Please select a pickup date.</div>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ReturnDate" class="form-label fw-semibold">Return Date</label>
+                <input asp-for="ReturnDate" type="date" class="form-control" id="ReturnDate" required />
+                <div class="invalid-feedback">Please select a return date.</div>
+            </div>
+        </div>
+
+        <div class="form-check form-switch mb-3">
+            <input asp-for="NeedDriver" class="form-check-input" type="checkbox" id="needDriverCheckbox" />
+            <label asp-for="NeedDriver" class="form-check-label fw-semibold">Need Company Driver?</label>
+        </div>
+
+        <!-- Company Driver Dropdown -->
+        <div class="mb-3" id="driverSection" style="display:none;">
+            <label asp-for="SelectedDriverId" class="form-label fw-semibold">Select Company Driver</label>
+            <select asp-for="SelectedDriverId" class="form-select" id="SelectedDriverId">
+                <option value="">-- Select Driver --</option>
+            </select>
+            <span asp-validation-for="SelectedDriverId" class="text-danger"></span>
+        </div>
+
+        <!-- Alternate Driver Fields -->
+        <div id="altDriverFields" style="display:@(Model.NeedDriver ? "none" : "block")">
+            <h5 class="fw-bold mb-3">Alternate Driver Details</h5>
+            <div class="mb-3">
+                <label asp-for="AltDriverName" class="form-label">Driver Name</label>
+                <input asp-for="AltDriverName" class="form-control" />
+                <div class="invalid-feedback">Please enter driver name.</div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="AltDriverIC" class="form-label">Driver IC</label>
+                <input asp-for="AltDriverIC" class="form-control" />
+                <div class="invalid-feedback">Please enter driver IC.</div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="AltDriverLicenseNo" class="form-label">License No</label>
+                <input asp-for="AltDriverLicenseNo" class="form-control" />
+                <div class="invalid-feedback">Please enter license number.</div>
+            </div>
+        </div>
+
+
+        <button type="submit" class="btn btn-success btn-lg w-100 fw-bold mt-3 animate__animated animate__pulse animate__infinite">Proceed to Payment</button>
+    </form>
 </div>
-
-<form asp-action="BookCar" asp-controller="CustomerBooking" method="post">
-    <input type="hidden" asp-for="CarID" />
-
-    <div class="mb-3">
-        <label asp-for="LocationID" class="form-label">Pickup Location</label>
-        <select asp-for="LocationID" class="form-control" asp-items="Model.LocationList"></select>
-        <span asp-validation-for="LocationID" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="PickupDate" class="form-label">Pickup Date</label>
-        <input asp-for="PickupDate" type="date" class="form-control" id="PickupDate" />
-        <span asp-validation-for="PickupDate" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="ReturnDate" class="form-label">Return Date</label>
-        <input asp-for="ReturnDate" type="date" class="form-control" id="ReturnDate" />
-        <span asp-validation-for="ReturnDate" class="text-danger"></span>
-    </div>
-
-    <div class="form-check mb-3">
-        <input asp-for="NeedDriver" class="form-check-input" type="checkbox" id="needDriverCheckbox" />
-        <label asp-for="NeedDriver" class="form-check-label">Need Company Driver?</label>
-    </div>
-
-    <!-- Company Driver Dropdown -->
-    <div class="mb-3" id="driverSection" style="display:none;">
-        <label asp-for="SelectedDriverId" class="form-label">Select Company Driver</label>
-        <select asp-for="SelectedDriverId" class="form-select">
-            <option value="">-- Select Driver --</option>
-        </select>
-        <span asp-validation-for="SelectedDriverId" class="text-danger"></span>
-    </div>
-
-    <!-- Alternate Driver Fields -->
-    <div id="altDriverFields" style="display:@(Model.NeedDriver ? "none" : "block")">
-        <h5>Alternate Driver Details</h5>
-        <div class="mb-3">
-            <label asp-for="AltDriverName" class="form-label">Driver Name</label>
-            <input asp-for="AltDriverName" class="form-control" />
-            <span asp-validation-for="AltDriverName" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="AltDriverIC" class="form-label">Driver IC</label>
-            <input asp-for="AltDriverIC" class="form-control" />
-            <span asp-validation-for="AltDriverIC" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="AltDriverLicenseNo" class="form-label">License No</label>
-            <input asp-for="AltDriverLicenseNo" class="form-control" />
-            <span asp-validation-for="AltDriverLicenseNo" class="text-danger"></span>
-        </div>
-    </div>
-
-    <button type="submit" class="btn btn-success">Proceed to Payment</button>
-</form>
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.js"></script>
+
     <script>
+        // Bootstrap 5 validation
+        (function () {
+            'use strict';
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+
         const checkbox = document.getElementById('needDriverCheckbox');
         const altDriverFields = document.getElementById('altDriverFields');
         const driverSection = document.getElementById('driverSection');
@@ -87,13 +119,28 @@
             if (checkbox.checked) {
                 altDriverFields.style.display = 'none';
                 driverSection.style.display = 'block';
+
+                // Make alternate driver fields not required
+                $('#altDriverFields input').prop('required', false);
+
+                // Make company driver dropdown required
+                $('#SelectedDriverId').prop('required', true);
+
                 loadDrivers();
             } else {
                 altDriverFields.style.display = 'block';
                 driverSection.style.display = 'none';
+
+                // Make alternate driver fields required
+                $('#altDriverFields input').prop('required', true);
+
+                // Make company driver dropdown not required
+                $('#SelectedDriverId').prop('required', false);
+
                 $('#SelectedDriverId').empty().append('<option value="">-- Select Driver --</option>');
             }
         }
+
 
         checkbox.addEventListener('change', toggleDriverFields);
 

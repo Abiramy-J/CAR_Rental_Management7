@@ -84,9 +84,10 @@ namespace Car_Rental_Management.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+                return View(model);
 
             if (_db.Users.Any(u => u.Username.ToLower() == model.Username.Trim().ToLower()))
             {
@@ -94,11 +95,11 @@ namespace Car_Rental_Management.Controllers
                 return View(model);
             }
 
-            var user = new User
+            var user = new Models.User
             {
                 FullName = model.FullName.Trim(),
                 Username = model.Username.Trim(),
-                Password = model.Password.Trim(),
+                Password = model.Password.Trim(), // ⚠ plaintext password
                 Email = model.Email.Trim(),
                 PhoneNumber = model.PhoneNumber.Trim(),
                 Role = "Customer",
@@ -113,12 +114,11 @@ namespace Car_Rental_Management.Controllers
             HttpContext.Session.SetString("Role", user.Role);
             HttpContext.Session.SetString("ProfileImageUrl", user.ProfileImageUrl);
 
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
-
+            // ✅ Redirect directly to Customer Dashboard
             return RedirectToAction("Dashboard", "Customer");
         }
 
+<<<<<<< HEAD
         // GET: /Account/ForgotPassword
         public IActionResult ForgotPassword()
         {
@@ -167,6 +167,10 @@ namespace Car_Rental_Management.Controllers
 
         // GET: /Account/Logout
 
+=======
+
+        // ------------------- LOGOUT -------------------
+>>>>>>> c368554 (Register Page Features Added, Book Car Image Errord Fixed,payment Methods Additioanal Details Added, Modern Nav bar Fixed For Home page and Customer User Journey pages, Customer Profile Created)
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();

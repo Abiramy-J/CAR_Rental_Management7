@@ -14,7 +14,7 @@
             <div class="row mb-4">
                 <!-- Car image -->
                 <div class="col-md-4 text-center">
-                    <img src="@Model.Car.ImageUrl ?? " /images/default-car.png"" class="img-fluid rounded shadow-sm" alt="Car Image">
+                    <img src="@(Model.Car.ImageUrl ?? "/images/default-car.png")" class="img-fluid rounded shadow-sm" alt="Car Image">
                 </div>
 
                 <!-- Booking details -->
@@ -69,7 +69,7 @@
                 <a asp-controller="Customer" asp-action="MyBookings" class="btn btn-primary btn-lg">
                     📖 My Bookings
                 </a>
-                <a asp-controller="Car" asp-action="BrowseCars" class="btn btn-secondary btn-lg">
+                <a asp-controller="Customer" asp-action="BrowseCars" class="btn btn-secondary btn-lg">
                     🚘 Browse Cars
                 </a>
                 <a asp-controller="Home" asp-action="Index" class="btn btn-outline-dark btn-lg">
