@@ -118,7 +118,7 @@ namespace Car_Rental_Management.Controllers
             return RedirectToAction("Dashboard", "Customer");
         }
 
-<<<<<<< HEAD
+
         // GET: /Account/ForgotPassword
         public IActionResult ForgotPassword()
         {
@@ -167,10 +167,10 @@ namespace Car_Rental_Management.Controllers
 
         // GET: /Account/Logout
 
-=======
+
 
         // ------------------- LOGOUT -------------------
->>>>>>> c368554 (Register Page Features Added, Book Car Image Errord Fixed,payment Methods Additioanal Details Added, Modern Nav bar Fixed For Home page and Customer User Journey pages, Customer Profile Created)
+
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();

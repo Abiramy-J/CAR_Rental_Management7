@@ -13,7 +13,13 @@
     </div>
 }
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+@{
+    ViewData["Title"] = "Manage Model";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+@* <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
     body {
@@ -135,7 +141,7 @@
         <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-users"></i> Users</a></li>
         <li class="nav-item"><a class="nav-link" href="@Url.Action("CreateUser", "Admin")"><i class="fa fa-users"></i> AddStaff</a></li>
     </ul>
-</div>
+</div> *@
 
 <!-- Main Content -->
 <div class="main-content">
