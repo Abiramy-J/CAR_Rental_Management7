@@ -22,7 +22,7 @@
             <th>Phone No</th>
             <th>NIC</th>
             <th>License No</th>
-            <th>Available</th>
+            @* <th>Available</th> *@
             <th>Actions</th>
         </tr>
     </thead>
@@ -34,7 +34,7 @@
                 <td>@driver.PhoneNo</td>
                 <td>@driver.NIC</td>
                 <td>@driver.LicenseNo</td>
-                <td>@(driver.IsAvailable ? "Yes" : "No")</td>
+                @* <td>@(driver.IsAvailable ? "Yes" : "No")</td> *@
                 <td>
                     <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@driver.DriverId">Edit</a>
                     <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@driver.DriverId"

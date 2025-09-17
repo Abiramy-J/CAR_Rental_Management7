@@ -199,9 +199,6 @@ namespace Car_Rental_Management.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LicenseNo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -290,13 +287,21 @@ namespace Car_Rental_Management.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfileImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -360,7 +365,7 @@ namespace Car_Rental_Management.Migrations
             modelBuilder.Entity("Car_Rental_Management.Models.DriverBooking", b =>
                 {
                     b.HasOne("Car_Rental_Management.Models.Booking", "Booking")
-                        .WithMany()
+                        .WithMany("DriverBookings")
                         .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -374,6 +379,11 @@ namespace Car_Rental_Management.Migrations
                     b.Navigation("Booking");
 
                     b.Navigation("Driver");
+                });
+
+            modelBuilder.Entity("Car_Rental_Management.Models.Booking", b =>
+                {
+                    b.Navigation("DriverBookings");
                 });
 #pragma warning restore 612, 618
         }

@@ -19,6 +19,6 @@ namespace Car_Rental_Management.Models
         [Required]
         public string LicenseNo { get; set; }
 
-        public bool IsAvailable { get; set; } = true;
+        //public bool IsAvailable { get; set; } = true;
     }
 }
