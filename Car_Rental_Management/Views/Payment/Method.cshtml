@@ -1,54 +1,140 @@
 ﻿@model Car_Rental_Management.Models.Booking
 
-<h2>Payment for Booking #@Model.BookingID</h2>
-<p>Car: @Model.Car.CarModel.Brand @Model.Car.CarModel.ModelName</p>
-<p>Total Amount: @Model.TotalAmount</p>
+@{
+    ViewData["Title"] = "Payment";
+}
 
-<form asp-action="Confirm" method="post">
-    <input type="hidden" name="bookingId" value="@Model.BookingID" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 
-    <div class="mb-3">
-        <label>Choose Payment Method:</label><br />
-        <input type="radio" name="paymentType" value="Cash" checked /> Cash
-        <input type="radio" name="paymentType" value="Card" /> Card
+<div class="container my-5">
+    <div class="card shadow-lg border-0">
+        <!-- Header -->
+        <div class="card-header bg-primary text-white text-center">
+            <h3 class="mb-0"><i class="bi bi-credit-card-2-front-fill"></i> Payment for Booking #@Model.BookingID</h3>
+        </div>
+
+        <!-- Booking Details -->
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-4 text-center">
+                    <img src="@(Model.Car.ImageUrl ?? "/images/default-car.png")" class="img-fluid rounded shadow-sm" alt="Car Image" style="max-height:180px;">
+                </div>
+                <div class="col-md-8">
+                    <h5 class="card-title border-bottom pb-2 mb-3">Booking Summary</h5>
+                    <p><strong>Car:</strong> @Model.Car.CarModel.Brand @Model.Car.CarModel.ModelName</p>
+                    <p><strong>Total Amount:</strong> <span class="text-success fs-5 fw-bold">Rs. @Model.TotalAmount:N2</span></p>
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <form asp-action="Confirm" method="post" class="needs-validation" novalidate>
+                <input type="hidden" name="bookingId" value="@Model.BookingID" />
+
+                <!-- Payment Method -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Choose Payment Method:</label><br />
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="paymentType" id="cashRadio" value="Cash" checked>
+                        <label class="form-check-label" for="cashRadio">Cash</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="paymentType" id="cardRadio" value="Card">
+                        <label class="form-check-label" for="cardRadio">Card</label>
+                    </div>
+                </div>
+
+                <!-- Card Details -->
+                <div id="cardFields" style="display:none;">
+                    <div class="mb-3">
+                        <label for="cardNumber" class="form-label">Card Number</label>
+                        <input name="cardNumber" id="cardNumber" class="form-control" pattern="\d{16}" maxlength="16" />
+                        <div class="invalid-feedback">Enter a valid 16-digit card number.</div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="expiry" class="form-label">Expiry (MM/YY)</label>
+                            <input name="expiry" id="expiry" class="form-control" pattern="(0[1-9]|1[0-2])\/\d{2}" placeholder="MM/YY" />
+                            <div class="invalid-feedback">Enter a valid expiry date.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="cvv" class="form-label">CVV</label>
+                            <input name="cvv" id="cvv" class="form-control" pattern="\d{3}" maxlength="3" />
+                            <div class="invalid-feedback">Enter a valid 3-digit CVV.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardName" class="form-label">Name on Card</label>
+                        <input name="cardName" id="cardName" class="form-control" />
+                        <div class="invalid-feedback">Enter the cardholder's name.</div>
+                    </div>
+                </div>
+
+                <!-- Disclaimer -->
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="disclaimerCheck" required>
+                    <label class="form-check-label" for="disclaimerCheck">I agree to the no-refund policy</label>
+                    <div class="invalid-feedback">You must agree before proceeding.</div>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-lg w-100">Pay Now</button>
+            </form>
+        </div>
+
+        <div class="card-footer text-center text-muted small">
+            <i class="bi bi-info-circle-fill"></i> All payments are secure and encrypted.
+        </div>
     </div>
-
-    <div id="cardFields" style="display:none;">
-        <div class="mb-3">
-            <label>Card Number</label>
-            <input name="cardNumber" class="form-control" />
-        </div>
-        <div class="mb-3">
-            <label>Expiry</label>
-            <input name="expiry" class="form-control" placeholder="MM/YY" />
-        </div>
-        <div class="mb-3">
-            <label>CVV</label>
-            <input name="cvv" class="form-control" />
-        </div>
-        <div class="mb-3">
-            <label>Name on Card</label>
-            <input name="cardName" class="form-control" />
-        </div>
-    </div>
-
-    <div class="form-check mb-3">
-        <input type="checkbox" class="form-check-input" id="disclaimerCheck" required />
-        <label class="form-check-label">I agree to the no-refund policy</label>
-    </div>
-
-    <button type="submit" class="btn btn-success">Pay Now</button>
-</form>
+</div>
 
 @section Scripts {
-    <script>
-        const radios = document.querySelectorAll('input[name="paymentType"]');
-        const cardFields = document.getElementById('cardFields');
+<script>
+    // Toggle card fields
+    const radios = document.querySelectorAll('input[name="paymentType"]');
+    const cardFields = document.getElementById('cardFields');
 
-        radios.forEach(r => {
-            r.addEventListener('change', () => {
-                cardFields.style.display = r.value === "Card" ? "block" : "none";
-            });
+    radios.forEach(r => {
+        r.addEventListener('change', () => {
+            cardFields.style.display = r.value === "Card" ? "block" : "none";
         });
-    </script>
+    });
+
+    // Bootstrap 5 validation
+    (() => {
+        'use strict';
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
 }
+
+<style>
+    .card-title {
+        border-bottom: 2px dashed #dee2e6;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+
+    .btn-lg {
+        min-height: 50px;
+        font-size: 1.2rem;
+    }
+
+    img {
+        max-height: 180px;
+    }
+
+    @@media (max-width: 768px) {
+        .row > div {
+            margin-bottom: 15px;
+        }
+    }
+</style>
