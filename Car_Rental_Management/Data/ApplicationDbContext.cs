@@ -22,8 +22,8 @@ namespace Car_Rental_Management.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Car>()
-    .Property(c => c.DailyRate)
-    .HasColumnType("decimal(18,2)");
+                .Property(c => c.DailyRate)
+                .HasColumnType("decimal(18,2)");
 
             modelBuilder.Entity<Booking>()
                 .Property(b => b.TotalAmount)

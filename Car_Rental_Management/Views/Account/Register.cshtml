@@ -11,9 +11,14 @@
          style="width: 100%; max-width: 400px; backdrop-filter: blur(10px); background: rgba(255,255,255,0.9);">
 
         <h2 class="text-center mb-4 fw-bold text-primary">Create Account</h2>
-
         <form asp-action="Register" method="post">
             <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+            <div class="form-group mb-3">
+                <label asp-for="FullName" class="fw-semibold"></label>
+                <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
 
             <div class="form-group mb-3">
                 <label asp-for="Username" class="fw-semibold"></label>
@@ -25,6 +30,12 @@
                 <label asp-for="Email" class="fw-semibold"></label>
                 <input asp-for="Email" class="form-control" placeholder="Enter your email" />
                 <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PhoneNumber" class="fw-semibold"></label>
+                <input asp-for="PhoneNumber" class="form-control" placeholder="Enter your phone number" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
@@ -49,10 +60,11 @@
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3" style="transition: transform 0.2s;">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3">
                 Register
             </button>
         </form>
+
 
         <p class="text-center mt-3 mb-0">
             Already have an account?

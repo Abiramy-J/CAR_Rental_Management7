@@ -406,69 +406,78 @@ public class AdminController : Controller
     // ========================
     // GET: /Admin/User
     // ========================
+    //public async Task<IActionResult> User()
+    //{
+    //    var customers = await _context.Users
+    //                                  .Where(u => u.Role == "Customer")
+    //                                  .ToListAsync();
+
+    //    return View(customers);
+    //}
+
+    // ---------- User List ----------
     public async Task<IActionResult> User()
     {
-        var customers = await _context.Users
-                                      .Where(u => u.Role == "Customer")
-                                      .ToListAsync();
-
-        return View(customers);
+        var users = await _context.Users.ToListAsync();
+        return View(users);
     }
 
-    // GET: Admin/CreateUser
+    // ---------- CreateUser : GET ----------
+    [HttpGet]
     public IActionResult CreateUser()
     {
-        ViewBag.Roles = new List<SelectListItem>
-    {
-        new SelectListItem { Value = "Admin", Text = "Admin" },
-        new SelectListItem { Value = "Staff", Text = "Staff" }
-    };
-
-        return View(new CreateUserViewModel());
+        LoadRoles();
+        return View();
     }
 
+    // ---------- CreateUser : POST ----------
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateUser(CreateUserViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            ViewBag.Roles = new List<SelectListItem>
-        {
-            new SelectListItem { Value = "Admin", Text = "Admin" },
-            new SelectListItem { Value = "Staff", Text = "Staff" }
-        };
+            LoadRoles();
             return View(model);
         }
 
-        // Check duplicate username
-        if (_context.Users.Any(u => u.Username == model.Username))
+        // username duplicate check
+        var existUser = await _context.Users
+            .FirstOrDefaultAsync(u => u.Username.ToLower() == model.Username.Trim().ToLower());
+        if (existUser != null)
         {
             ModelState.AddModelError("Username", "Username already exists");
-            ViewBag.Roles = new List<SelectListItem>
-        {
-            new SelectListItem { Value = "Admin", Text = "Admin" },
-            new SelectListItem { Value = "Staff", Text = "Staff" }
-        };
+            LoadRoles();
             return View(model);
         }
 
         var user = new User
         {
+            FullName = model.FullName.Trim(),
             Username = model.Username.Trim(),
-            Password = model.Password,   // ⚠️ later hash this
-            Role = model.Role
-            // If you have a Name column in User entity, save it too:
-            // Name = model.Name
+            Password = model.Password.Trim(), // 👉 production-ல் hash செய்யவும்
+            Email = model.Email.Trim(),
+            PhoneNumber = model.PhoneNumber.Trim(),
+            Role = model.Role,
+            ProfileImageUrl = "/images/default-profile.png"
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        TempData["Success"] = "User created successfully!";
-        return RedirectToAction("User"); // goes to list of users
+        TempData["SuccessMessage"] = "User created successfully!";
+        return RedirectToAction(nameof(User));
     }
 
+    // ---------- Helper for Roles ----------
+    private void LoadRoles()
+    {
+        ViewBag.Roles = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "Admin", Text = "Admin" },
+                new SelectListItem { Value = "Staff", Text = "Staff" }
+            };
+    }
 
     [Route("Booking")]
     public IActionResult Booking()
