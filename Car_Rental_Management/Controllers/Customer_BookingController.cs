@@ -70,11 +70,10 @@ namespace Car_Rental_Management.Controllers
             int days = Math.Max(1, (vm.ReturnDate - vm.PickupDate).Days); // at least 1 day
             decimal total = days * car.DailyRate;
             if (vm.NeedDriver) total += days * 2000;
-
             var booking = new Booking
             {
                 CarID = vm.CarID,
-                CustomerID = userId.Value, // safe now, FK guaranteed
+                CustomerID = userId.Value,
                 LocationID = vm.LocationID,
                 PickupDate = vm.PickupDate,
                 ReturnDate = vm.ReturnDate,
@@ -87,7 +86,12 @@ namespace Car_Rental_Management.Controllers
             };
 
             _db.Bookings.Add(booking);
-            _db.SaveChanges();// BookingID generated here
+
+            // ✅ Mark the car as Booked
+            car.Status = "Booked";
+            _db.Cars.Update(car);
+
+            _db.SaveChanges(); // Save both booking and car status
 
 
             // Assign company driver if selected
@@ -129,15 +133,29 @@ namespace Car_Rental_Management.Controllers
             return RedirectToAction("Method", "Payment", new { id = booking.BookingID });
         }
 
-        // API endpoint: Get available drivers for given time slot
         [HttpGet]
         public IActionResult AvailableDrivers(DateTime pickup, DateTime returnDate)
         {
-            var drivers = GetAvailableDrivers(pickup, returnDate)
-                .Select(d => new { d.DriverId, d.FullName, d.PhoneNo, d.LicenseNo })
-                .ToList();
-            return Json(drivers);
+            if (pickup >= returnDate)
+                return BadRequest("Return date must be after pickup date.");
+
+            var drivers = GetAvailableDrivers(pickup, returnDate);
+
+            if (drivers == null || !drivers.Any())
+                return Json(new List<object>()); // empty list if no drivers
+
+            var result = drivers.Select(d => new
+            {
+                d.DriverId,
+                d.FullName,
+                d.PhoneNo,
+                d.LicenseNo
+            }).ToList();
+
+            return Json(result);
         }
+
+
 
         // Helper: Get available drivers
         private List<Driver> GetAvailableDrivers(DateTime pickup, DateTime returnDate)

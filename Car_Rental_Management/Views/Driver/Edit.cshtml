@@ -29,10 +29,10 @@
         <input asp-for="LicenseNo" class="form-control" />
         <span asp-validation-for="LicenseNo" class="text-danger"></span>
     </div>
-    <div class="form-check mb-3">
+    @* <div class="form-check mb-3">
         <input asp-for="IsAvailable" class="form-check-input" />
         <label asp-for="IsAvailable" class="form-check-label">Available</label>
-    </div>
+    </div> *@
     <button type="submit" class="btn btn-success">Update</button>
     <a asp-action="Index" class="btn btn-secondary">Back</a>
 </form>

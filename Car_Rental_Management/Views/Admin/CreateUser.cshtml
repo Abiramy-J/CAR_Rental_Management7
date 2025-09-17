@@ -65,85 +65,50 @@
         margin-bottom: 30px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-
-    /* Stat Cards */
-    .card {
-        border: none;
-        border-radius: 16px;
-        padding: 20px;
-        color: white;
-        height: 150px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        transition: 0.3s ease-in-out;
-        backdrop-filter: blur(10px);
-    }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-
-        .card .icon {
-            font-size: 30px;
-            margin-bottom: 10px;
-        }
-
-    .bg-blue {
-        background: linear-gradient(135deg, #2563EB, #1E40AF);
-    }
-
-    .bg-green {
-        background: linear-gradient(135deg, #16A34A, #065F46);
-    }
-
-    .bg-orange {
-        background: linear-gradient(135deg, #F59E0B, #B45309);
-    }
 </style>
 
 <!-- Sidebar -->
 <div class="sidebar">
     <h4>⚙ Admin Panel</h4>
     <ul class="nav flex-column">
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("Dashboard", "Admin")"><i class="fa fa-home"></i> Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("AddCar", "Admin")"><i class="fa fa-plus"></i> Add Car</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car"></i> Manage Cars</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Booking")"><i class="fa fa-book"></i> Bookings</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot"></i> Locations</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-users"></i> Users</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("CreateUser", "Admin")"><i class="fa fa-users"></i> AddStaff</a></li>
+        <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Dashboard"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="AddCar"><i class="fa fa-plus"></i> Add Car</a></li>
+        <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="CarList"><i class="fa fa-car"></i> Manage Cars</a></li>
+        <li class="nav-item"><a class="nav-link" asp-controller="CarModel" asp-action="Index"><i class="fa fa-tags"></i> Manage Models</a></li>
+        <li class="nav-item"><a class="nav-link" asp-controller="Booking" asp-action="Index"><i class="fa fa-book"></i> Bookings</a></li>
+        <li class="nav-item"><a class="nav-link" asp-controller="Location" asp-action="Index"><i class="fa fa-location-dot"></i> Locations</a></li>
+        <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="User"><i class="fa fa-users"></i> Users</a></li>
+        <li class="nav-item"><a class="nav-link active" asp-controller="Admin" asp-action="CreateUser"><i class="fa fa-user-plus"></i> Add User</a></li>
     </ul>
 </div>
+
+<!-- Main -->
 <div class="main-content">
     <div class="dashboard-header">
         <h2 class="mb-0">Create New User</h2>
     </div>
-
 
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">@TempData["Success"]</div>
     }
 
-    <form asp-action="CreateUser" method="post">
+    <form asp-action="CreateUser" method="post" class="card p-4 shadow-sm" style="max-width:600px;">
         <div class="mb-3">
-            <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger"></span>
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Username" class="form-label"></label>
-            <input asp-for="Username" class="form-control" />
+            <input asp-for="Username" class="form-control" placeholder="Choose username" />
             <span asp-validation-for="Username" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" class="form-control" type="password" />
+            <input asp-for="Password" type="password" class="form-control" placeholder="Create password" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
 
@@ -155,12 +120,23 @@
             <span asp-validation-for="Role" class="text-danger"></span>
         </div>
 
-        <button type="submit" class="btn btn-primary">Create</button>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" placeholder="Email (optional)" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PhoneNumber" class="form-label"></label>
+            <input asp-for="PhoneNumber" class="form-control" placeholder="Phone (optional)" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary me-2">Create</button>
         <a asp-action="User" class="btn btn-secondary">Back to List</a>
     </form>
-
-    @section Scripts {
-        <partial name="_ValidationScriptsPartial" />
-    }
-
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

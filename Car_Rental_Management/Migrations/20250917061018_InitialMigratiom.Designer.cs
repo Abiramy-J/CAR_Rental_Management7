@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Car_Rental_Management.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250915162403_AddPaymentFieldsToBooking")]
-    partial class AddPaymentFieldsToBooking
+    [Migration("20250917061018_InitialMigratiom")]
+    partial class InitialMigratiom
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -202,9 +202,6 @@ namespace Car_Rental_Management.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LicenseNo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -220,6 +217,41 @@ namespace Car_Rental_Management.Migrations
                     b.HasKey("DriverId");
 
                     b.ToTable("Drivers");
+                });
+
+            modelBuilder.Entity("Car_Rental_Management.Models.DriverBooking", b =>
+                {
+                    b.Property<int>("DriverBookingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DriverBookingId"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CarId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DriverId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PickupDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ReturnDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("DriverBookingId");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("DriverId");
+
+                    b.ToTable("DriverBookings");
                 });
 
             modelBuilder.Entity("Car_Rental_Management.Models.Location", b =>
@@ -258,13 +290,21 @@ namespace Car_Rental_Management.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfileImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -323,6 +363,30 @@ namespace Car_Rental_Management.Migrations
                         .IsRequired();
 
                     b.Navigation("CarModel");
+                });
+
+            modelBuilder.Entity("Car_Rental_Management.Models.DriverBooking", b =>
+                {
+                    b.HasOne("Car_Rental_Management.Models.Booking", "Booking")
+                        .WithMany("DriverBookings")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Car_Rental_Management.Models.Driver", "Driver")
+                        .WithMany()
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Driver");
+                });
+
+            modelBuilder.Entity("Car_Rental_Management.Models.Booking", b =>
+                {
+                    b.Navigation("DriverBookings");
                 });
 #pragma warning restore 612, 618
         }

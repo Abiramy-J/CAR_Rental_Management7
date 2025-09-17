@@ -53,19 +53,27 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
                                         <div class="modal-body">
-                                            @if (b.NeedDriver && string.IsNullOrEmpty(b.AltDriverName))
+                                            @if (b.NeedDriver)
                                             {
-                                                <p><strong>Our Driver Assigned</strong></p>
-                                                <p>Name: John Doe</p>
-                                                <p>Phone: 077-XXXXXXX</p>
-                                                <p>License: ABC1234</p>
-                                            }
-                                            else if (!string.IsNullOrEmpty(b.AltDriverName))
-                                            {
-                                                <p><strong>Customer's Alternate Driver</strong></p>
-                                                <p>Name: @b.AltDriverName</p>
-                                                <p>IC: @b.AltDriverIC</p>
-                                                <p>License: @b.AltDriverLicenseNo</p>
+                                                @if (b.DriverBookings != null && b.DriverBookings.Any())
+                                                {
+                                                    var driver = b.DriverBookings.First().Driver;
+                                                    <p><strong>Our Driver Assigned</strong></p>
+                                                    <p>Name: @driver.FullName</p>
+                                                    <p>Phone: @driver.PhoneNo</p>
+                                                    <p>License: @driver.LicenseNo</p>
+                                                }
+                                                else if (!string.IsNullOrEmpty(b.AltDriverName))
+                                                {
+                                                    <p><strong>Customer's Alternate Driver</strong></p>
+                                                    <p>Name: @b.AltDriverName</p>
+                                                    <p>IC: @b.AltDriverIC</p>
+                                                    <p>License: @b.AltDriverLicenseNo</p>
+                                                }
+                                                else
+                                                {
+                                                    <p>No driver assigned yet</p>
+                                                }
                                             }
                                             else
                                             {
@@ -79,7 +87,6 @@
                                 </div>
                             </div>
                         </td>
-
                     </tr>
                 }
             </tbody>

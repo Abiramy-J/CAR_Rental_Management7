@@ -43,6 +43,7 @@ namespace Car_Rental_Management.Models
         public DateTime? PaymentDate { get; set; }
         public string? Status { get; set; } // PendingPayment, Paid, Confirmed
         public string? PaymentMethod { get; set; } // "Card" or "Cash"
+        public ICollection<DriverBooking> DriverBookings { get; set; } = new List<DriverBooking>();
 
 
 

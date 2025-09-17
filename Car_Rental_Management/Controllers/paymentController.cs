@@ -47,28 +47,33 @@ namespace Car_Rental_Management.Controllers
 
         public IActionResult Receipt(int id)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login", "Account");
+
             var booking = _db.Bookings
-                             .Include(b => b.Car)
-                             .ThenInclude(c => c.CarModel)
-                             .Include(b => b.Location)
-                             .FirstOrDefault(b => b.BookingID == id);
+                .Include(b => b.Car).ThenInclude(c => c.CarModel)
+                .Include(b => b.Location)
+                .Include(b => b.Driver)
+                .FirstOrDefault(b => b.BookingID == id && b.CustomerID == userId.Value);
 
             if (booking == null) return NotFound();
 
-            return View(booking);
+            return View(booking); // Receipt.cshtml will show details
         }
+
 
         public IActionResult DownloadReceipt(int id)
         {
             var booking = _db.Bookings
-                             .Include(b => b.Car).ThenInclude(c => c.CarModel)
-                             .Include(b => b.Customer)
-                             .Include(b => b.Location)
-                             .FirstOrDefault(b => b.BookingID == id);
+                .Include(b => b.Car).ThenInclude(c => c.CarModel)
+                .Include(b => b.Customer)
+                .Include(b => b.Location)
+                .Include(b => b.Driver)
+                .FirstOrDefault(b => b.BookingID == id);
 
             if (booking == null) return NotFound();
 
-            QuestPDF.Settings.License = LicenseType.Community; // Or LicenseType.Commercial if applicable
+            QuestPDF.Settings.License = LicenseType.Community;
 
             var pdf = Document.Create(container =>
             {
@@ -79,16 +84,15 @@ namespace Car_Rental_Management.Controllers
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(12));
 
-                    // 🔹 Header
+                    // Header
                     page.Header().Row(row =>
                     {
                         row.RelativeItem().AlignLeft().Text("🚘 Car Rental Management")
                             .Bold().FontSize(18);
-
                         row.RelativeItem().AlignRight().Text($"Date: {DateTime.Now:dd/MM/yyyy}");
                     });
 
-                    // 🔹 Content
+                    // Content
                     page.Content().Column(col =>
                     {
                         col.Spacing(15);
@@ -107,7 +111,7 @@ namespace Car_Rental_Management.Controllers
                             table.Cell().Text(booking.BookingID.ToString());
 
                             //table.Cell().Text("Customer:").SemiBold();
-                            //table.Cell().Text(booking.Customer.FullName);
+                            //table.Cell().Text(booking.Customer?.FullName ?? "N/A");
 
                             table.Cell().Text("Car:").SemiBold();
                             table.Cell().Text($"{booking.Car.CarModel.Brand} {booking.Car.CarModel.ModelName}");
@@ -118,15 +122,35 @@ namespace Car_Rental_Management.Controllers
                             table.Cell().Text("Return Date:").SemiBold();
                             table.Cell().Text($"{booking.ReturnDate:dd/MM/yyyy}");
 
+                            table.Cell().Text("Pickup Location:").SemiBold();
+                            table.Cell().Text(booking.Location.Address);
+
+                            table.Cell().Text("Payment Method:").SemiBold();
+                            table.Cell().Text(booking.PaymentMethod ?? "Not specified");
+
                             table.Cell().Text("Driver Needed:").SemiBold();
                             table.Cell().Text(booking.NeedDriver ? "Yes" : "No");
+
+                            if (booking.NeedDriver)
+                            {
+                                if (booking.Driver != null)
+                                {
+                                    table.Cell().Text("Driver:").SemiBold();
+                                    table.Cell().Text(booking.Driver.FullName);
+                                }
+                                else if (!string.IsNullOrEmpty(booking.AltDriverName))
+                                {
+                                    table.Cell().Text("Alt Driver:").SemiBold();
+                                    table.Cell().Text($"{booking.AltDriverName} (IC: {booking.AltDriverIC}, License: {booking.AltDriverLicenseNo})");
+                                }
+                            }
 
                             table.Cell().Text("Total Paid:").SemiBold();
                             table.Cell().Text($"Rs. {booking.TotalAmount:N2}");
                         });
                     });
 
-                    // 🔹 Footer
+                    // Footer
                     page.Footer().AlignCenter().Text("⚠️ No Refund Policy | Thank you for booking with us!")
                         .FontSize(10).Italic();
                 });
@@ -134,5 +158,6 @@ namespace Car_Rental_Management.Controllers
 
             return File(pdf, "application/pdf", $"Receipt_{booking.BookingID}.pdf");
         }
+
     }
 }
