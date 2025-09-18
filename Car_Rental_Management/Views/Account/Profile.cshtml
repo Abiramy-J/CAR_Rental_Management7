@@ -1,26 +1,53 @@
 ﻿@model Car_Rental_Management.Models.User
+
 @{
     ViewData["Title"] = "My Profile";
     Layout = "_CustomerLayout";
 }
 
-<div class="card shadow-lg p-4" style="max-width: 650px; margin:auto; margin-top:30px;">
-    <div class="text-center mb-3">
-        <img src="@(string.IsNullOrEmpty(Model.ProfileImageUrl) ? "/images/default-profile.png" : Model.ProfileImageUrl)"
-             class="rounded-circle"
-             width="130"
-             height="130"
-             style="object-fit:cover; border:3px solid #2563EB;" />
-    </div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg p-4">
+                <!-- Profile Image -->
+                <div class="text-center mb-4">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfileImageUrl)
+                                ? "/images/default-profile.png"
+                                : Model.ProfileImageUrl)"
+                         class="rounded-circle"
+                         width="150"
+                         height="150"
+                         style="object-fit:cover; border:2px solid #2563EB;" />
+                </div>
 
-    <h4 class="text-center">@Model.FullName</h4>
-    <p class="text-center text-muted">@Model.Email</p>
+                <!-- Name -->
+                <h3 class="text-center mb-4">@Model.FullName</h3>
 
-    <hr />
+                <!-- User Info -->
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item">
+                        <strong>Username:</strong> @Model.Username
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Email:</strong> @Model.Email
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Phone:</strong> @Model.PhoneNumber
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Role:</strong> @Model.Role
+                    </li>
+                </ul>
 
-    <div class="mb-2"><b>Phone:</b> @Model.PhoneNumber</div>
-
-    <div class="text-center mt-4">
-        <a asp-action="EditProfile" class="btn btn-primary">✏️ Edit Profile</a>
+                <!-- Edit Button -->
+                <div class="text-center">
+                    <a asp-action="EditProfile"
+                       asp-controller="Account"
+                       class="btn btn-primary w-50">
+                        ✏️ Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

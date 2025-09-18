@@ -1,4 +1,5 @@
 ﻿@model Car_Rental_Management.ViewModels.EditProfileViewModel
+
 @{
     ViewData["Title"] = "Edit Profile";
     Layout = "_CustomerLayout";
@@ -7,10 +8,19 @@
 <div class="card shadow-lg p-4" style="max-width: 650px; margin:auto; margin-top:50px;">
     <h3 class="text-center mb-4">✏️ Edit Profile</h3>
 
-    <form asp-action="EditProfile" asp-controller="Account" method="post" enctype="multipart/form-data">
+    <form asp-action="EditProfile"
+          asp-controller="Account"
+          method="post"
+          enctype="multipart/form-data"
+          class="needs-validation"
+          novalidate>
+
         @Html.AntiForgeryToken()
+
+        <!-- Hidden UserId -->
         <input type="hidden" asp-for="UserId" />
 
+        <!-- Profile Image Preview & Upload -->
         <div class="text-center mb-3">
             <img id="profilePreview"
                  src="@(string.IsNullOrEmpty(Model.ProfileImageUrl) ? "/images/default-profile.png" : Model.ProfileImageUrl)"
@@ -18,26 +28,55 @@
                  width="120"
                  height="120"
                  style="object-fit:cover; border:2px solid #2563EB;" />
-
-            <input asp-for="ProfileImage" type="file" class="form-control mt-2" accept="image/*" />
+            <input asp-for="ProfileImage"
+                   type="file"
+                   class="form-control mt-2"
+                   accept="image/*" />
         </div>
 
+        <!-- Full Name -->
         <div class="mb-3">
-            <label asp-for="FullName" class="form-label"></label>
-            <input asp-for="FullName" class="form-control" />
+            <label asp-for="FullName" class="form-label fw-semibold"></label>
+            <input asp-for="FullName"
+                   class="form-control"
+                   placeholder="Enter full name"
+                   required
+                   pattern="^[a-zA-Z\s]{3,50}$" />
             <span asp-validation-for="FullName" class="text-danger"></span>
+            <div class="invalid-feedback">
+                Enter a valid name (3-50 letters only).
+            </div>
         </div>
 
+        <!-- Email -->
         <div class="mb-3">
-            <label asp-for="Email" class="form-label"></label>
-            <input asp-for="Email" class="form-control" />
+            <label asp-for="Email" class="form-label fw-semibold"></label>
+            <input asp-for="Email"
+                   type="email"
+                   class="form-control"
+                   placeholder="Enter your email"
+                   required />
             <span asp-validation-for="Email" class="text-danger"></span>
+            <div class="invalid-feedback">
+                Enter a valid email address.
+            </div>
         </div>
 
+        <!-- Phone Number -->
         <div class="mb-3">
-            <label asp-for="PhoneNumber" class="form-label"></label>
-            <input asp-for="PhoneNumber" class="form-control" />
+            <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
+            <input asp-for="PhoneNumber"
+                   type="tel"
+                   class="form-control"
+                   placeholder="Enter your phone number"
+                   required
+                   pattern="^\d{10}$"
+                   maxlength="10"
+                   oninput="this.value=this.value.replace(/[^0-9]/g,'');" />
             <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            <div class="invalid-feedback">
+                Enter a valid 10-digit phone number.
+            </div>
         </div>
 
         <button type="submit" class="btn btn-success w-100">Save Changes</button>
@@ -46,7 +85,9 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
     <script>
+        // Preview uploaded profile image
         const fileInput = document.querySelector('input[name="ProfileImage"]');
         const previewImg = document.getElementById('profilePreview');
 
@@ -60,5 +101,20 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        // Bootstrap form validation
+        (() => {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
     </script>
 }

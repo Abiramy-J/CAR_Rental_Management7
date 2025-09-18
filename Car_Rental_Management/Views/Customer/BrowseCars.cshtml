@@ -4,47 +4,47 @@
 
 @{
     ViewData["Title"] = "🚘 Browse Cars";
-}
-@{
-    Layout = "_CustomerLayout"; // full customer layout with navbar
+    Layout = "_CustomerLayout";
 }
 
 <h2 class="mb-4">🚘 Available Cars</h2>
 
-<!-- Filters Container -->
+<!-- Display TempData Errors -->
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <strong>❌ Error:</strong> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Filters -->
 <div class="card shadow p-3 mb-4 border border-primary filter-highlight" style="background-color: #f8f9fa;">
     <h5 class="mb-3">Filter Cars</h5>
     <form method="get">
         <div class="row g-3 justify-content-center">
-
             <div class="col-md-2">
                 <select asp-for="SelectedCarModelID" asp-items="Model.CarModelList" class="form-select">
                     <option value="">-- All Models --</option>
                 </select>
             </div>
-
             <div class="col-md-2">
                 <input asp-for="MinRate" type="number" min="0" step="100" class="form-control" placeholder="Min Rate (LKR)" />
             </div>
-
             <div class="col-md-2">
                 <input asp-for="MaxRate" type="number" min="0" step="100" class="form-control" placeholder="Max Rate (LKR)" />
             </div>
-
             <div class="col-md-2">
                 <select asp-for="Status" asp-items="Model.StatusList" class="form-select">
                     <option value="">-- All Status --</option>
                 </select>
             </div>
-
             <div class="col-md-2">
                 <input asp-for="Keyword" class="form-control" placeholder="Keyword in description" />
             </div>
-
             <div class="col-md-1">
                 <button type="submit" class="btn btn-primary w-100">Filter</button>
             </div>
-
         </div>
     </form>
 </div>
@@ -53,44 +53,46 @@
 <div class="row">
     @foreach (var car in Model.Cars)
     {
+        // Booking validation
+        var isBooked = Model.BookedCarIds != null && Model.BookedCarIds.Contains(car.CarID);
+
         <div class="col-md-4 mb-4">
-            <div class="card shadow border-0 h-100">
+            <div class="card shadow border-0 h-100 @(isBooked ? "booked-card" : "")">
                 <img src="@car.ImageUrl" class="card-img-top" alt="Car Image" style="height:200px; object-fit:cover;" />
+
                 <div class="card-body">
                     <h5 class="card-title">@car.CarModel.Brand @car.CarModel.ModelName</h5>
                     <p><strong>Price/Day:</strong> @car.DailyRate.ToString("C")</p>
 
-                    <div class="d-flex justify-content-between">
+                    <!-- Status Badge -->
+                    @if (isBooked)
+                    {
+                        <span class="badge booked-badge">❌ Already Booked</span>
+                    }
+
+                    <div class="d-flex justify-content-between mt-2">
                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#carModal-@car.CarID">
                             🔍 More
                         </button>
 
-                        <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success btn-sm">
-                            🏷 Book Now
-                        </a>
-
-        @*                 @if (HttpContextAccessor.HttpContext.Session.GetInt32("UserId") != null)
-        {
-            <!-- Already logged in -->
-            <a asp-controller="CustomerBooking" asp-action="BookCar" asp-route-carId="@car.CarID"
-               class="btn btn-success">Book Now</a>
-        }
-        else
-        {
-            <!-- Guest (redirect to login with returnUrl) -->
-            <a asp-controller="Account" asp-action="Login"
-               asp-route-returnUrl="/CustomerBooking/BookCar?carId=@car.CarID"
-               class="btn btn-warning">Book Now</a>
-        } *@
-
+                        @if (isBooked)
+                        {
+                            <button type="button" class="btn btn-danger btn-sm" disabled>
+                                ❌ Booked
+                            </button>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success btn-sm">
+                                🏷 Book Now
+                            </a>
+                        }
                     </div>
 
                     <!-- Compare Checkbox -->
                     <div class="form-check mt-2">
-                        <input class="form-check-input compare-checkbox" type="checkbox" value="@car.CarID" id="compare-@car.CarID">
-                        <label class="form-check-label" for="compare-@car.CarID">
-                            Compare
-                        </label>
+                        <input class="form-check-input compare-checkbox" type="checkbox" value="@car.CarID" id="compare-@car.CarID" @(isBooked ? "disabled" : "")>
+                        <label class="form-check-label" for="compare-@car.CarID">Compare</label>
                     </div>
                 </div>
             </div>
@@ -152,7 +154,14 @@
                         </ul>
                     </div>
                     <div class="modal-footer">
-                        <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success">🏷 Book This Car</a>
+                        @if (isBooked)
+                        {
+                            <button class="btn btn-danger" disabled>❌ Booked</button>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success">🏷 Book This Car</a>
+                        }
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Close</button>
                     </div>
                 </div>
@@ -172,9 +181,7 @@
                 <h5 class="modal-title">Car Comparison</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="compareContent">
-                <!-- Compare content will be inserted here -->
-            </div>
+            <div class="modal-body" id="compareContent"></div>
         </div>
     </div>
 </div>
@@ -190,6 +197,19 @@
         50% { transform: scale(1.02); opacity: 0.8; }
         100% { transform: scale(1); opacity: 1; }
     }
+
+    /* Booked styling */
+    .booked-badge {
+        background-color: maroon;
+        color: white;
+        font-size: 14px;
+        padding: 6px 10px;
+        border-radius: 6px;
+    }
+
+    .booked-card {
+        opacity: 0.85;
+    }
 </style>
 
 @section Scripts {
@@ -201,7 +221,6 @@
                 return;
             }
 
-            // Build comparison table
             let compareHtml = '<table class="table table-bordered"><thead><tr><th>Feature</th>';
             selectedIds.forEach(id => {
                 let carCard = document.getElementById("carModal-" + id);
@@ -223,7 +242,6 @@
             });
 
             compareHtml += '</tbody></table>';
-
             document.getElementById("compareContent").innerHTML = compareHtml;
             var compareModal = new bootstrap.Modal(document.getElementById('compareModal'));
             compareModal.show();

@@ -3,10 +3,10 @@ using Car_Rental_Management.Models;
 using Car_Rental_Management.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
-using Microsoft.AspNetCore.Hosting;
 using System;
 
 namespace Car_Rental_Management.Controllers
@@ -54,10 +54,7 @@ namespace Car_Rental_Management.Controllers
 
             if (user != null)
             {
-                HttpContext.Session.SetInt32("UserId", user.UserId);
-                HttpContext.Session.SetString("Username", user.Username);
-                HttpContext.Session.SetString("Role", user.Role);
-                HttpContext.Session.SetString("ProfileImageUrl", user.ProfileImageUrl ?? "/images/default-profile.png");
+                SetUserSession(user);
 
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
@@ -86,8 +83,7 @@ namespace Car_Rental_Management.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(model);
 
             if (_db.Users.Any(u => u.Username.ToLower() == model.Username.Trim().ToLower()))
             {
@@ -95,7 +91,7 @@ namespace Car_Rental_Management.Controllers
                 return View(model);
             }
 
-            var user = new Models.User
+            var user = new User
             {
                 FullName = model.FullName.Trim(),
                 Username = model.Username.Trim(),
@@ -109,31 +105,22 @@ namespace Car_Rental_Management.Controllers
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
 
-            HttpContext.Session.SetInt32("UserId", user.UserId);
-            HttpContext.Session.SetString("Username", user.Username);
-            HttpContext.Session.SetString("Role", user.Role);
-            HttpContext.Session.SetString("ProfileImageUrl", user.ProfileImageUrl);
+            SetUserSession(user);
 
-            // ✅ Redirect directly to Customer Dashboard
             return RedirectToAction("Dashboard", "Customer");
         }
 
-
-        // GET: /Account/ForgotPassword
+        // ------------------- FORGOT PASSWORD -------------------
         public IActionResult ForgotPassword()
         {
             return View(new ForgotPasswordViewModel());
         }
 
-        // POST: /Account/ForgotPassword
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+            if (!ModelState.IsValid) return View(model);
 
             var user = _db.Users.FirstOrDefault(u =>
                 u.Username.ToLower() == model.Username.Trim().ToLower() &&
@@ -145,17 +132,12 @@ namespace Car_Rental_Management.Controllers
                 return View(model);
             }
 
-            // Update password (⚠️ hashing recommended)
             user.Password = model.NewPassword.Trim();
             _db.Users.Update(user);
             await _db.SaveChangesAsync();
 
-            // Set session
-            HttpContext.Session.SetInt32("UserId", user.UserId);
-            HttpContext.Session.SetString("Username", user.Username);
-            HttpContext.Session.SetString("Role", user.Role);
+            SetUserSession(user);
 
-            // Redirect based on role
             return user.Role switch
             {
                 "Admin" => RedirectToAction("Dashboard", "Admin"),
@@ -165,12 +147,7 @@ namespace Car_Rental_Management.Controllers
             };
         }
 
-        // GET: /Account/Logout
-
-
-
         // ------------------- LOGOUT -------------------
-
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
@@ -181,7 +158,7 @@ namespace Car_Rental_Management.Controllers
         public IActionResult Profile()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login");
+            if (!userId.HasValue) return RedirectToAction("Login");
 
             var user = _db.Users.FirstOrDefault(u => u.UserId == userId.Value);
             if (user == null) return RedirectToAction("Login");
@@ -189,11 +166,12 @@ namespace Car_Rental_Management.Controllers
             return View(user);
         }
 
+        // ------------------- EDIT PROFILE -------------------
         [HttpGet]
         public IActionResult EditProfile()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login");
+            if (!userId.HasValue) return RedirectToAction("Login");
 
             var user = _db.Users.Find(userId.Value);
             if (user == null) return RedirectToAction("Login");
@@ -215,15 +193,14 @@ namespace Car_Rental_Management.Controllers
         public async Task<IActionResult> EditProfile(EditProfileViewModel model)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Login");
+            if (!userId.HasValue) return RedirectToAction("Login");
 
             var user = await _db.Users.FindAsync(userId.Value);
             if (user == null) return RedirectToAction("Login");
 
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(model);
 
-            // Update image if uploaded
+            // Profile Image Upload
             if (model.ProfileImage != null && model.ProfileImage.Length > 0)
             {
                 var uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/uploads");
@@ -242,17 +219,26 @@ namespace Car_Rental_Management.Controllers
                 HttpContext.Session.SetString("ProfileImageUrl", user.ProfileImageUrl);
             }
 
-            // Update other fields
-            user.FullName = model.FullName;
-            user.Email = model.Email;
-            user.PhoneNumber = model.PhoneNumber;
+            // Update other details
+            user.FullName = model.FullName.Trim();
+            user.Email = model.Email.Trim();
+            user.PhoneNumber = model.PhoneNumber?.Trim();
 
-            _db.Update(user);
+            _db.Users.Update(user);
             await _db.SaveChangesAsync();
 
-            // ✅ Redirect to Profile after success
-            return RedirectToAction("Profile");
+            TempData["SuccessMessage"] = "Profile updated successfully!";
+            return RedirectToAction("Profile"); // ✅ Back to profile page
         }
 
+
+        // ------------------- PRIVATE HELPERS -------------------
+        private void SetUserSession(User user)
+        {
+            HttpContext.Session.SetInt32("UserId", user.UserId);
+            HttpContext.Session.SetString("Username", user.Username);
+            HttpContext.Session.SetString("Role", user.Role);
+            HttpContext.Session.SetString("ProfileImageUrl", user.ProfileImageUrl ?? "/images/default-profile.png");
+        }
     }
 }
