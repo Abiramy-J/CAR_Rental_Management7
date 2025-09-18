@@ -1,153 +1,334 @@
 ﻿@{
     ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
+    /* ===== BODY ===== */
     body {
-        background: #F1F5F9;
+        background-color: #1f2937;
+        color: #f9fafb;
         font-family: 'Segoe UI', sans-serif;
     }
 
-    /* Sidebar */
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 220px;
-        background: linear-gradient(180deg, #1E3A8A, #2563EB);
-        color: #fff;
-        padding-top: 20px;
-    }
-
-        .sidebar h4 {
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 30px;
-        }
-
-        .sidebar .nav-link {
-            color: #E2E8F0;
-            font-size: 15px;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            transition: 0.3s;
-        }
-
-            .sidebar .nav-link i {
-                margin-right: 12px;
-                font-size: 18px;
-            }
-
-            .sidebar .nav-link:hover {
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 8px;
-                color: white;
-                padding-left: 25px;
-            }
-
-    /* Main */
-    .main-content {
-        margin-left: 220px;
-        padding: 30px;
-    }
-
-    /* Header */
-    .dashboard-header {
-        background: linear-gradient(90deg, #2563EB, #7C3AED);
-        color: white;
-        padding: 25px;
+    /* ===== HERO SECTION ===== */
+    .dashboard-hero {
+        position: relative;
+        height: 220px;
+        background: url('@Url.Content("~/images/cars/hero-car.jpg")') center/cover no-repeat;
         border-radius: 12px;
+        overflow: hidden;
         margin-bottom: 30px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* Stat Cards */
-    .card {
-        border: none;
-        border-radius: 16px;
-        padding: 20px;
-        color: white;
-        height: 150px;
+        .dashboard-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+        }
+
+    .dashboard-hero-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        z-index: 2;
+    }
+
+    .dashboard-hero h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-hero p {
+        font-size: 1.1rem;
+        color: #d1d5db;
+    }
+
+    /* ===== FLOATING STAT CARDS ===== */
+    .stat-cards-container {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        transition: 0.3s ease-in-out;
-        backdrop-filter: blur(10px);
+        justify-content: space-around;
+        flex-wrap: wrap;
+        margin-top: -50px;
+        gap: 20px;
+        position: relative;
+        z-index: 3;
     }
 
-        .card:hover {
+    .stat-card {
+        background: #111827;
+        padding: 20px;
+        border-radius: 12px;
+        min-width: 180px;
+        flex: 1 1 180px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.6);
         }
 
-        .card .icon {
-            font-size: 30px;
+        .stat-card .icon {
+            font-size: 28px;
             margin-bottom: 10px;
+            color: #3b82f6;
         }
 
-    .bg-blue {
-        background: linear-gradient(135deg, #2563EB, #1E40AF);
+        .stat-card h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stat-card h5 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #9ca3af;
+        }
+
+    /* ===== CHART CARDS ===== */
+    .card-chart {
+        background: #111827;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.4);
     }
 
-    .bg-green {
-        background: linear-gradient(135deg, #16A34A, #065F46);
+        .card-chart .card-header {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #f9fafb;
+        }
+
+    /* ===== RECENT BOOKINGS TABLE ===== */
+    .card.mb-4 {
+        background-color: #111827;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
 
-    .bg-orange {
-        background: linear-gradient(135deg, #F59E0B, #B45309);
+    .card-header {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #f9fafb;
+        border-bottom: 1px solid #374151;
+    }
+
+    .table {
+        background-color: transparent;
+    }
+
+        .table thead th {
+            color: #e5e7eb;
+            border-bottom: 2px solid #374151;
+        }
+
+        .table tbody tr {
+            background-color: #1e293b;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+            .table tbody tr:hover {
+                background-color: #2c3a59;
+                transform: translateX(2px);
+            }
+
+        .table td, .table th {
+            color: #f3f4f6;
+            vertical-align: middle;
+        }
+
+    .car-img {
+        height: 45px;
+        width: 65px;
+        object-fit: cover;
+        border-radius: 0%;
+        margin-right: 10px;
+        vertical-align: middle;
+        border: 1px solid #374151;
+    }
+
+    .badge {
+        padding: 0.35em 0.7em;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .bg-success {
+        background-color: #10b981;
+    }
+
+    .bg-warning {
+        background-color: #fbbf24;
+    }
+
+    .bg-danger {
+        background-color: #f87171;
+    }
+
+    .bg-secondary {
+        background-color: #6b7280;
     }
 </style>
 
-<!-- Sidebar -->
-<div class="sidebar">
-    <h4>⚙ Admin Panel</h4>
-    <ul class="nav flex-column">
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("Dashboard", "Admin")"><i class="fa fa-home"></i> Dashboard</a></li>
-        @* <li class="nav-item"><a class="nav-link" href="@Url.Action("AddCar", "Admin")"><i class="fa fa-plus"></i> Add Car</a></li> *@
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car"></i> Manage Cars</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("Booking", "Admin")"><i class="fa fa-book"></i> Bookings</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot"></i> Locations</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-users"></i> Users</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Driver")"><i class="fa fa-id-card"></i> Manage Drivers</a></li>
-        <li class="nav-item"><a class="nav-link" href="@Url.Action("Logout", "Account")"><i class="fa fa-id-card"></i> Logout</a></li>
-       
-    </ul>
+<!-- HERO -->
+<div class="dashboard-hero">
+    <div class="dashboard-hero-content">
+        <h2>Welcome back, Admin!</h2>
+        <p>Monitor your car rental operations in real-time</p>
+    </div>
 </div>
 
-<!-- Main Content -->
-<div class="main-content">
-    <div class="dashboard-header">
-        <h2>👋 Welcome back, Admin!</h2>
-        <p>Here’s what’s happening with your car rentals today.</p>
+<!-- FLOATING STAT CARDS -->
+<div class="stat-cards-container">
+    <div class="stat-card">
+        <div class="icon"><i class="fa fa-car"></i></div>
+        <h5>Total Cars</h5>
+        <h2>@ViewBag.TotalCars</h2>
     </div>
+    <div class="stat-card">
+        <div class="icon"><i class="fa fa-check-circle"></i></div>
+        <h5>Available Cars</h5>
+        <h2>@ViewBag.AvailableCars</h2>
+    </div>
+    <div class="stat-card">
+        <div class="icon"><i class="fa fa-book"></i></div>
+        <h5>Bookings</h5>
+        <h2>@ViewBag.TotalBookings</h2>
+    </div>
+    <div class="stat-card">
+        <div class="icon"><i class="fa fa-dollar-sign"></i></div>
+        <h5>Revenue</h5>
+        <h2>$@ViewBag.Revenue</h2>
+    </div>
+</div>
 
-    <!-- Stats -->
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card bg-blue text-center shadow">
-                <div class="icon"><i class="fa fa-car"></i></div>
-                <h5>Total Cars</h5>
-                <h2>@ViewBag.TotalCars</h2>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card bg-green text-center shadow">
-                <div class="icon"><i class="fa fa-check-circle"></i></div>
-                <h5>Available Cars</h5>
-                <h2>@ViewBag.AvailableCars</h2>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card bg-orange text-center shadow">
-                <div class="icon"><i class="fa fa-calendar-check"></i></div>
-                <h5>Bookings</h5>
-                <h2>--</h2>
+<!-- CHARTS -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card-chart">
+            <div class="card-header">Bookings Trend</div>
+            <div class="card-body">
+                <canvas id="lineChart"></canvas>
             </div>
         </div>
     </div>
+    <div class="col-md-4">
+        <div class="card-chart">
+            <div class="card-header">Top Locations</div>
+            <div class="card-body">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- RECENT BOOKINGS -->
+<div class="card mb-4">
+    <div class="card-header">Recent Bookings</div>
+    <div class="card-body table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Customer</th>
+                    <th>Car</th>
+                    <th>Brand</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.RecentBookings != null)
+                {
+                    foreach (var booking in ViewBag.RecentBookings)
+                    {
+                        <tr>
+                            <td>@booking.BookingID</td>
+                            <td>@booking.CustomerName</td>
+                            <!-- Car image + name -->
+                            <td>
+                                @{
+                                    string imgSrc = booking.CarImagePath.StartsWith("/")
+                                    ? booking.CarImagePath
+                                    : Url.Content("~/images/cars/" + booking.CarImagePath);
+                                }
+                                <img src="@imgSrc"
+                                     alt="@booking.CarName"
+                                     class="car-img" />
+                                <span>@booking.CarName</span>
+                            </td>
+                            <td>@booking.CarName</td>
+                            <td>@booking.LocationName</td>
+                            <td>
+                                <span class="badge @(booking.Status == "Paid" ? "bg-success" :
+                                                                                                                                 booking.Status == "Pending" ? "bg-warning" :
+                                                                                                                                 booking.Status == "Cancelled" ? "bg-danger" : "bg-secondary")">
+                            @booking.Status
+                        </span>
+                    </td>
+                </tr>
+                                }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.BookingsTrendDates)),
+                datasets: [{
+                    label: 'Bookings',
+                    data: @Html.Raw(Json.Serialize(ViewBag.BookingsTrendCount)),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                plugins: { legend: { labels: { color: '#f9fafb' } } },
+                scales: {
+                    x: { ticks: { color: '#f9fafb' }, grid: { color: '#374151' } },
+                    y: { ticks: { color: '#f9fafb' }, grid: { color: '#374151' } }
+                }
+            }
+        });
+
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.LocationNames)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(ViewBag.LocationCounts)),
+                    backgroundColor: ['#3b82f6','#10b981','#fbbf24','#9333ea','#6b7280']
+                }]
+            },
+            options: { plugins: { legend: { labels: { color: '#f9fafb' } } } }
+        });
+    </script>
+}
+

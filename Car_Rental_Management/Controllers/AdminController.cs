@@ -388,18 +388,57 @@ public class AdminController : Controller
         var totalCustomers = _context.Users.Count(u => u.Role == "Customer");
 
         // Pass data to View via ViewBag
-        ViewBag.TotalCars = totalCars;
+        //ViewBag.TotalCars = totalCars;
+        //ViewBag.AvailableCars = availableCars;
+        //ViewBag.TotalBookings = totalBookings;
+        //ViewBag.TotalCustomers = totalCustomers;
+
+        // Optional: Recent Bookings - last 5
+        var recentBookings = _context.Bookings
+            .OrderByDescending(b => b.PaymentDate)
+           .Take(5)
+            .Select(b => new {
+                b.BookingID,
+                CustomerName = b.Customer.FullName,
+                CarName = b.Car.CarModel.Brand,                // Car model/brand
+                CarImagePath = b.Car.ImageUrl,
+                LocationName = b.Location.Address,
+                b.Status
+            })
+               .ToList();
+
+        ViewBag.RecentBookings = recentBookings;
+
+        // Booking Trend (last 7 days)
+        var bookingsTrend = _context.Bookings
+            .Where(b => b.PaymentDate >= DateTime.Now.AddDays(-7))
+            .GroupBy(b => b.PaymentDate)
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .OrderBy(g => g.Date)
+            .ToList();
+        ViewBag.BookingsTrendDates = bookingsTrend
+            .Select(b => b.Date.HasValue ? b.Date.Value.ToString("MMM dd") : string.Empty)
+            .ToList();
+        ViewBag.BookingsTrendCount = bookingsTrend.Select(b => b.Count).ToList();
+
+
+        // Top Locations (most bookings)
+        var locationStats = _context.Bookings
+            .GroupBy(b => b.Location.Address)
+            .Select(g => new { Location = g.Key, Count = g.Count() })
+            .OrderByDescending(g => g.Count)
+            .Take(5)
+            .ToList();
+        ViewBag.LocationNames = locationStats.Select(l => l.Location).ToList();
+        ViewBag.LocationCounts = locationStats.Select(l => l.Count).ToList();
+
+
+        ViewBag.TotalCars = _context.Cars.Count();
+        // ViewBag.AvailableCars = _context.Cars.Count(c => c.IsAvailable);
+        // ViewBag.TotalBookings = _context.Bookings.Count();
         ViewBag.AvailableCars = availableCars;
         ViewBag.TotalBookings = totalBookings;
-        ViewBag.TotalCustomers = totalCustomers;
-
-        // (Optional) Recent Bookings - last 5
-        //var recentBookings = _context.Bookings
-        //    .OrderByDescending(b => b.BookingDate)
-        //    .Take(5)
-        //    .ToList();
-
-        //ViewBag.RecentBookings = recentBookings;
+        ViewBag.Revenue = _context.Bookings.Sum(b => b.TotalAmount);
 
         return View();
     }
