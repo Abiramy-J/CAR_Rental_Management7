@@ -520,7 +520,7 @@ public class AdminController : Controller
             };
     }
 
-    [Route("Booking")]
+    [Route("Admin/booking")]
     public IActionResult Booking()
     {
         // Optional: check if admin

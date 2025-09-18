@@ -406,7 +406,7 @@ namespace Car_Rental_Management.Controllers
 
 
 
-        [Route("Booking")]
+        [Route("Staff/booking")]
         public IActionResult Bookings()
         {
             // Optional: check if admin
