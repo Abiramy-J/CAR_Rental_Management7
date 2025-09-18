@@ -424,17 +424,19 @@ public class AdminController : Controller
 
     // ---------- CreateUser : GET ----------
     [HttpGet]
-    public IActionResult CreateUser()
+    public IActionResult CreateUser()   // GET
     {
         LoadRoles();
         return View();
     }
 
-    // ---------- CreateUser : POST ----------
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateUser(CreateUserViewModel model)
     {
+        //var cs = _context.Database.GetDbConnection().ConnectionString;
+        //Console.WriteLine(cs);   // Debug window-ல் connection string பாப்போம்
+
         if (!ModelState.IsValid)
         {
             LoadRoles();

@@ -136,6 +136,12 @@
         <a asp-action="User" class="btn btn-secondary">Back to List</a>
     </form>
 </div>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
