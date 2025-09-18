@@ -141,7 +141,6 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
 
         <form asp-action="AddCar" method="post" enctype="multipart/form-data">
-
             <div class="row g-3">
                 <div class="col-md-6">
                     <label asp-for="Car.CarModelID" class="form-label">Select Model</label>
@@ -169,18 +168,22 @@
                     <span asp-validation-for="Car.DailyRate" class="text-danger"></span>
                 </div>
 
+                <!-- Main Image -->
                 <div class="col-md-6">
                     <label asp-for="ImageFile" class="form-label">Main Image</label>
                     <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event, 'mainPreview')" />
                     <img id="mainPreview" class="preview-img d-none" />
                 </div>
 
+                <!-- Optional Images -->
                 <div class="col-md-6">
                     <label class="form-label">Optional Images</label>
                     <input asp-for="ImageFile2" type="file" class="form-control mb-1" accept="image/*" onchange="previewImage(event, 'opt1')" />
                     <img id="opt1" class="preview-img d-none" />
+
                     <input asp-for="ImageFile3" type="file" class="form-control mb-1" accept="image/*" onchange="previewImage(event, 'opt2')" />
                     <img id="opt2" class="preview-img d-none" />
+
                     <input asp-for="ImageFile4" type="file" class="form-control mb-1" accept="image/*" onchange="previewImage(event, 'opt3')" />
                     <img id="opt3" class="preview-img d-none" />
                 </div>
@@ -225,15 +228,26 @@
             </ul>
         </div>
     }
-
-    @section Scripts {
-        <partial name="_ValidationScriptsPartial" />
-        <script>
-            function previewImage(event, previewId) {
-                var output = document.getElementById(previewId);
-                output.src = URL.createObjectURL(event.target.files[0]);
-                output.classList.remove("d-none");
-            }
-        </script>
-    }
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewImage(event, previewId) {
+            var output = document.getElementById(previewId);
+            output.src = URL.createObjectURL(event.target.files[0]);
+            output.classList.remove("d-none");
+        }
+    </script>
+}
+
+<style>
+    .preview-img {
+        width: 100px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+    }
+</style>

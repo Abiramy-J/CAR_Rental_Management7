@@ -1,5 +1,5 @@
 ﻿using Car_Rental_Management.Data;
-using Car_Rental_Management.ViewModels; 
+using Car_Rental_Management.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -72,38 +72,38 @@ public class AdminController : Controller
         }
 
         // Folder to save images
-    string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/cars");
-    if (!Directory.Exists(folder))
-        Directory.CreateDirectory(folder);
+        string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/cars");
+        if (!Directory.Exists(folder))
+            Directory.CreateDirectory(folder);
 
-    // Handle uploaded images
-    if (vm.ImageFile != null)
-    {
-        string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile.FileName);
-        string filePath = Path.Combine(folder, fileName);
-        using (var stream = new FileStream(filePath, FileMode.Create))
-            await vm.ImageFile.CopyToAsync(stream);
+        // Handle uploaded images
+        if (vm.ImageFile != null)
+        {
+            string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile.FileName);
+            string filePath = Path.Combine(folder, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+                await vm.ImageFile.CopyToAsync(stream);
 
-        vm.Car.ImageUrl = "/images/cars/" + fileName;
+            vm.Car.ImageUrl = "/images/cars/" + fileName;
+        }
+
+        if (vm.ImageFile2 != null)
+        {
+            string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile2.FileName);
+            string filePath = Path.Combine(folder, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+                await vm.ImageFile2.CopyToAsync(stream);
+
+            vm.Car.ImageUrl2 = "/images/cars/" + fileName;
+        }
+
+        // Repeat for ImageFile3 and ImageFile4
+
+        _context.Cars.Add(vm.Car);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("CarList");
     }
-
-    if (vm.ImageFile2 != null)
-    {
-        string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile2.FileName);
-        string filePath = Path.Combine(folder, fileName);
-        using (var stream = new FileStream(filePath, FileMode.Create))
-            await vm.ImageFile2.CopyToAsync(stream);
-
-        vm.Car.ImageUrl2 = "/images/cars/" + fileName;
-    }
-
-    // Repeat for ImageFile3 and ImageFile4
-
-    _context.Cars.Add(vm.Car);
-    await _context.SaveChangesAsync();
-
-    return RedirectToAction("CarList");
-}
 
     // OPTIONAL: To show list of cars
     //public IActionResult CarList(CarFilterVM filter)

@@ -19,5 +19,8 @@ namespace Car_Rental_Management.ViewModels
         public IEnumerable<SelectListItem> StatusList { get; set; } = new List<SelectListItem>();
 
         public string? Keyword { get; set; }
+
+        // <-- Add this property to track booked cars
+        public List<int> BookedCarIds { get; set; } = new();
     }
 }

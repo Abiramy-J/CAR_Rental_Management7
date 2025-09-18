@@ -1,12 +1,13 @@
 ﻿using Car_Rental_Management.Data;
 using Car_Rental_Management.Models;
 using Car_Rental_Management.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
-
 
 namespace Car_Rental_Management.Controllers
 {
@@ -18,45 +19,47 @@ namespace Car_Rental_Management.Controllers
         // GET: BookCar
         public IActionResult BookCar(int id)
         {
-            // Ensure the user is logged in
             var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return RedirectToAction("Register", "Account", new { returnUrl = $"/CustomerBooking/BookCar/{id}" });
+            if (userId == null)
+                return RedirectToAction("Register", "Account", new { returnUrl = $"/CustomerBooking/BookCar/{id}" });
 
-            // Ensure user exists in Users table
-            var userExists = _db.Users.Any(u => u.UserId == userId.Value);
-            if (!userExists) return RedirectToAction("Login", "Account");
+            if (!_db.Users.Any(u => u.UserId == userId.Value))
+                return RedirectToAction("Login", "Account");
 
             var car = _db.Cars.Include(c => c.CarModel).FirstOrDefault(c => c.CarID == id);
             if (car == null) return NotFound();
 
-             var vm = new BookingVM
+            var vm = new BookingVM
             {
                 CarID = car.CarID,
                 Car = car,
-                LocationList = _db.Locations
-                                  .Select(l => new SelectListItem { Value = l.LocationID.ToString(), Text = l.Address })
-                                  .ToList(),
+                LocationList = GetLocations(),
                 AltDriverName = "",
                 AltDriverIC = "",
                 AltDriverLicenseNo = "",
-                AvailableDrivers = new List<SelectListItem>() // initially empty, will be loaded via JS if needed
+                AvailableDrivers = new List<SelectListItem>()
+            };
 
-             };
-
+            // Optional: send existing booked dates to view for info
+            var bookedDates = _db.Bookings
+                .Where(b => b.CarID == id)
+                .Select(b => new { b.PickupDate, b.ReturnDate })
+                .ToList();
+            ViewBag.BookedDates = bookedDates;
 
             return View(vm);
         }
 
         // POST: BookCar
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult BookCar(BookingVM vm)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
 
-            // Validate user exists in Users table
-            var userExists = _db.Users.Any(u => u.UserId == userId.Value);
-            if (!userExists) return RedirectToAction("Login", "Account");
+            if (!_db.Users.Any(u => u.UserId == userId.Value))
+                return RedirectToAction("Login", "Account");
 
             if (!ModelState.IsValid)
             {
@@ -67,9 +70,22 @@ namespace Car_Rental_Management.Controllers
             var car = _db.Cars.Find(vm.CarID);
             if (car == null) return NotFound();
 
-            int days = Math.Max(1, (vm.ReturnDate - vm.PickupDate).Days); // at least 1 day
+            // Prevent double booking for overlapping dates
+            bool isCarBooked = _db.Bookings.Any(b =>
+                b.CarID == vm.CarID &&
+                b.ReturnDate >= vm.PickupDate &&
+                b.PickupDate <= vm.ReturnDate
+            );
+            if (isCarBooked)
+            {
+                TempData["Error"] = "This car is already booked for the selected dates!";
+                return RedirectToAction("BrowseCars", "Customer");
+            }
+
+            int days = Math.Max(1, (vm.ReturnDate - vm.PickupDate).Days);
             decimal total = days * car.DailyRate;
             if (vm.NeedDriver) total += days * 2000;
+
             var booking = new Booking
             {
                 CarID = vm.CarID,
@@ -86,15 +102,9 @@ namespace Car_Rental_Management.Controllers
             };
 
             _db.Bookings.Add(booking);
+            _db.SaveChanges(); // BookingID generated
 
-            // ✅ Mark the car as Booked
-            car.Status = "Booked";
-            _db.Cars.Update(car);
-
-            _db.SaveChanges(); // Save both booking and car status
-
-
-            // Assign company driver if selected
+            // Assign driver if selected
             if (vm.NeedDriver && vm.SelectedDriverId.HasValue)
             {
                 var driver = _db.Drivers.Find(vm.SelectedDriverId.Value);
@@ -105,15 +115,16 @@ namespace Car_Rental_Management.Controllers
                     return View(vm);
                 }
 
-                bool isDriverAvailable = !_db.DriverBookings
-                    .Any(dbk => dbk.DriverId == driver.DriverId &&
-                                (vm.PickupDate < dbk.ReturnDateTime && vm.ReturnDate > dbk.PickupDateTime));
+                bool isDriverAvailable = !_db.DriverBookings.Any(dbk =>
+                    dbk.DriverId == driver.DriverId &&
+                    vm.PickupDate < dbk.ReturnDateTime &&
+                    vm.ReturnDate > dbk.PickupDateTime
+                );
 
                 if (!isDriverAvailable)
                 {
-                    ModelState.AddModelError("", "Selected driver is already booked for this time slot.");
-                    vm.LocationList = GetLocations();
-                    return View(vm);
+                    TempData["Error"] = "Selected driver is already booked for this time slot.";
+                    return RedirectToAction("BrowseCars", "Customer");
                 }
 
                 var driverBooking = new DriverBooking
@@ -130,34 +141,21 @@ namespace Car_Rental_Management.Controllers
                 _db.SaveChanges();
             }
 
+            // Redirect to Payment page
             return RedirectToAction("Method", "Payment", new { id = booking.BookingID });
         }
 
+        // API: Get available drivers for a date range
         [HttpGet]
         public IActionResult AvailableDrivers(DateTime pickup, DateTime returnDate)
         {
-            if (pickup >= returnDate)
-                return BadRequest("Return date must be after pickup date.");
-
-            var drivers = GetAvailableDrivers(pickup, returnDate);
-
-            if (drivers == null || !drivers.Any())
-                return Json(new List<object>()); // empty list if no drivers
-
-            var result = drivers.Select(d => new
-            {
-                d.DriverId,
-                d.FullName,
-                d.PhoneNo,
-                d.LicenseNo
-            }).ToList();
-
-            return Json(result);
+            var drivers = GetAvailableDrivers(pickup, returnDate)
+                .Select(d => new { d.DriverId, d.FullName, d.PhoneNo, d.LicenseNo })
+                .ToList();
+            return Json(drivers);
         }
 
-
-
-        // Helper: Get available drivers
+        // Helper: Filter available drivers
         private List<Driver> GetAvailableDrivers(DateTime pickup, DateTime returnDate)
         {
             var allDrivers = _db.Drivers.ToList();

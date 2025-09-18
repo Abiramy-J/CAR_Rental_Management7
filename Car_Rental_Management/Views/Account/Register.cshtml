@@ -6,68 +6,78 @@
 <div class="d-flex justify-content-center align-items-center vh-100"
      style="background: url('/images/car.png') no-repeat center center; background-size: cover;">
     <div class="card shadow-lg p-4 rounded-4"
-         style="width: 100%; max-width: 400px; backdrop-filter: blur(10px); background: rgba(255,255,255,0.9);">
+         style="width: 100%; max-width: 400px; backdrop-filter: blur(10px); background: rgba(255,255,255,0.95);">
         <h2 class="text-center mb-4 fw-bold text-primary">Create Account</h2>
 
+        <form asp-action="Register" method="post" novalidate class="needs-validation">
+            @Html.AntiForgeryToken()
 
-        <form asp-action="Register" method="post" novalidate>
+            <!-- Full Name -->
             <div class="mb-3">
                 <label asp-for="FullName" class="form-label fw-semibold"></label>
-                <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
+                <input asp-for="FullName" class="form-control" placeholder="Enter full name" required pattern="^[a-zA-Z\s]{3,50}$" />
+                <div class="invalid-feedback">
+                    Enter a valid name (3-50 letters only).
+                </div>
             </div>
 
+            <!-- Username -->
             <div class="mb-3">
                 <label asp-for="Username" class="form-label fw-semibold"></label>
-
-                <input asp-for="Username" class="form-control" placeholder="Choose a username" />
-                <span asp-validation-for="Username" class="text-danger"></span>
+                <input asp-for="Username" class="form-control" placeholder="Choose a username" required pattern="^[a-zA-Z0-9]{4,20}$" />
+                <div class="invalid-feedback">
+                    Username must be 4-20 alphanumeric characters.
+                </div>
             </div>
 
+            <!-- Email -->
             <div class="mb-3">
                 <label asp-for="Email" class="form-label fw-semibold"></label>
-                <input asp-for="Email" class="form-control" placeholder="Enter your email" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+                <input asp-for="Email" type="email" class="form-control" placeholder="Enter your email" required />
+                <div class="invalid-feedback">
+                    Enter a valid email address.
+                </div>
             </div>
 
-
+            <!-- Phone Number -->
             <div class="mb-3">
                 <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
-
-                <input asp-for="PhoneNumber" class="form-control" placeholder="Enter your phone number" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="Enter your phone number" required pattern="^\d{10}$" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'');" />
+                <div class="invalid-feedback">
+                    Enter a valid 10-digit phone number.
+                </div>
             </div>
 
-
+            <!-- Password -->
             <div class="mb-3">
                 <label asp-for="Password" class="form-label fw-semibold"></label>
-
-           
                 <div class="input-group">
-                    <input asp-for="Password" type="password" class="form-control" id="PasswordField" placeholder="Create a password" />
+                    <input asp-for="Password" type="password" class="form-control" id="PasswordField" placeholder="Create a password" required pattern=".{6,}">
                     <span class="input-group-text bg-white" style="cursor:pointer;" onclick="togglePassword('PasswordField', this)">
                         <i class="bi bi-eye-slash"></i>
                     </span>
                 </div>
-                <span asp-validation-for="Password" class="text-danger"></span>
+                <div class="invalid-feedback">
+                    Password must be at least 6 characters.
+                </div>
             </div>
 
+            <!-- Confirm Password -->
             <div class="mb-3">
                 <label asp-for="ConfirmPassword" class="form-label fw-semibold"></label>
                 <div class="input-group">
-                    <input asp-for="ConfirmPassword" type="password" class="form-control" id="ConfirmPasswordField" placeholder="Confirm your password" />
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" id="ConfirmPasswordField" placeholder="Confirm your password" required />
                     <span class="input-group-text bg-white" style="cursor:pointer;" onclick="togglePassword('ConfirmPasswordField', this)">
                         <i class="bi bi-eye-slash"></i>
                     </span>
                 </div>
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                <div class="invalid-feedback" id="confirmPasswordFeedback">
+                    Passwords do not match.
+                </div>
             </div>
 
-
             <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3">Register</button>
-
         </form>
-
 
         <p class="text-center mt-3 mb-0">
             Already have an account?
@@ -79,20 +89,50 @@
 </div>
 
 @section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
-}
+    <partial name="_ValidationScriptsPartial" />
 
-<script>
-    function togglePassword(inputId, iconElement) {
-        const input = document.getElementById(inputId);
-        const icon = iconElement.querySelector("i");
-
-        if (input.type === "password") {
-            input.type = "text";
-            icon.classList.replace("bi-eye-slash", "bi-eye");
-        } else {
-            input.type = "password";
-            icon.classList.replace("bi-eye", "bi-eye-slash");
+    <script>
+        // Toggle password visibility
+        function togglePassword(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            const icon = iconElement.querySelector("i");
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace("bi-eye-slash", "bi-eye");
+            } else {
+                input.type = "password";
+                icon.classList.replace("bi-eye", "bi-eye-slash");
+            }
         }
-    }
-</script>
+
+        // Confirm password validation
+        const password = document.getElementById("PasswordField");
+        const confirmPassword = document.getElementById("ConfirmPasswordField");
+        const confirmFeedback = document.getElementById("confirmPasswordFeedback");
+
+        confirmPassword.addEventListener("input", () => {
+            if (confirmPassword.value !== password.value) {
+                confirmPassword.setCustomValidity("Passwords do not match");
+                confirmFeedback.style.display = "block";
+            } else {
+                confirmPassword.setCustomValidity("");
+                confirmFeedback.style.display = "none";
+            }
+        });
+
+        // Bootstrap validation
+        (() => {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+}
