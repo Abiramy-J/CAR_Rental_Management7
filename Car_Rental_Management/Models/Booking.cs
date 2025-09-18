@@ -39,6 +39,7 @@ namespace Car_Rental_Management.Models
         public string? AltDriverIC { get; set; }
         public string? AltDriverLicenseNo { get; set; }
 
+
         public decimal TotalAmount { get; set; }
         public DateTime? PaymentDate { get; set; }
         public string? Status { get; set; } // PendingPayment, Paid, Confirmed

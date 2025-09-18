@@ -41,5 +41,7 @@ namespace Car_Rental_Management.Models
 
         [Required]
         public string Status { get; set; } // Available, Maintenance
+
+
     }
 }

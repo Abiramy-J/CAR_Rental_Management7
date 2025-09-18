@@ -49,8 +49,6 @@ namespace Car_Rental_Management.Controllers
 
             return View(vm);
         }
-
-        // POST: BookCar
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult BookCar(BookingVM vm)
@@ -102,7 +100,12 @@ namespace Car_Rental_Management.Controllers
             };
 
             _db.Bookings.Add(booking);
-            _db.SaveChanges(); // BookingID generated
+
+            // Update Car Status to "Booked"
+            car.Status = "Booked";  // இங்கு Car Status-ஐ மாற்றுகிறோம்
+            _db.Cars.Update(car);   // Car table-இல் update செய்யப்படுகிறது
+
+            _db.SaveChanges();  // Booking மற்றும் Car Status ஒரே save-இல் commit
 
             // Assign driver if selected
             if (vm.NeedDriver && vm.SelectedDriverId.HasValue)

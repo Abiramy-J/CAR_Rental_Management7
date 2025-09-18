@@ -15,13 +15,15 @@ namespace Car_Rental_Management.Controllers
         {
             _context = context;
         }
-
-        //public IActionResult BrowseCars(int? SelectedCarModelID, decimal? MinRate, decimal? MaxRate, string? Status, string? Keyword)
+        //public async Task<IActionResult> BrowseCars(
+        //int? SelectedCarModelID, decimal? MinRate, decimal? MaxRate,
+        //string? Status, string? Keyword, DateTime? FromDate, DateTime? ToDate)
         //{
-        //    // Base query
-        //    var carsQuery = _context.Cars.Include(c => c.CarModel).AsQueryable();
+        //    var carsQuery = _context.Cars
+        //        .Include(c => c.CarModel)
+        //        .Include(c => c.Bookings)
+        //        .AsQueryable();
 
-        //    // Filters
         //    if (SelectedCarModelID.HasValue)
         //        carsQuery = carsQuery.Where(c => c.CarModelID == SelectedCarModelID.Value);
 
@@ -31,24 +33,34 @@ namespace Car_Rental_Management.Controllers
         //    if (MaxRate.HasValue)
         //        carsQuery = carsQuery.Where(c => c.DailyRate <= MaxRate.Value);
 
-        //    if (!string.IsNullOrEmpty(Status))
-        //        carsQuery = carsQuery.Where(c => c.Status == Status);
+        //    // Only cars with status Available
+        //    carsQuery = carsQuery.Where(c => c.Status == "Available");
 
-        //    if (!string.IsNullOrEmpty(Keyword))
+        //    if (!string.IsNullOrWhiteSpace(Keyword))
         //        carsQuery = carsQuery.Where(c => c.Description.Contains(Keyword));
 
-        //    // Prepare ViewModel
+        //    // ❗️ Hide cars that have bookings overlapping given date range (or today if none given)
+        //    var start = FromDate ?? DateTime.Today;
+        //    var end = ToDate ?? DateTime.Today;
+
+        //    carsQuery = carsQuery.Where(c =>
+        //        !c.Bookings.Any(b =>
+        //            b.StartDate <= end && b.EndDate >= start));
+
         //    var vm = new CustomerBrowseCarVM
         //    {
-        //        Cars = carsQuery.ToList(),
-        //        CarModelList = _context.CarModels
-        //                               .Select(cm => new SelectListItem { Value = cm.CarModelID.ToString(), Text = cm.ModelName })
-        //                               .ToList(),
+        //        Cars = await carsQuery.ToListAsync(),
+        //        CarModelList = await _context.CarModels
+        //            .Select(cm => new SelectListItem
+        //            {
+        //                Value = cm.CarModelID.ToString(),
+        //                Text = cm.ModelName
+        //            }).ToListAsync(),
         //        StatusList = new List<SelectListItem>
-        //        {
-        //            new SelectListItem { Value = "Available", Text = "Available" },
-        //            new SelectListItem { Value = "Booked", Text = "Booked" }
-        //        },
+        //{
+        //    new() { Value = "Available", Text = "Available" },
+        //    new() { Value = "Booked", Text = "Booked" }
+        //},
         //        SelectedCarModelID = SelectedCarModelID,
         //        MinRate = MinRate,
         //        MaxRate = MaxRate,
@@ -57,9 +69,8 @@ namespace Car_Rental_Management.Controllers
         //    };
 
         //    return View(vm);
-
-
         //}
+
         public async Task<IActionResult> BrowseCars(int? SelectedCarModelID, decimal? MinRate, decimal? MaxRate, string? Status, string? Keyword)
         {
             var carsQuery = _context.Cars.Include(c => c.CarModel).AsQueryable();

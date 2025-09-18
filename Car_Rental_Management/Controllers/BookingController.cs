@@ -1,8 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
 
-public class Class1
+namespace Car_Rental_Management.Controllers
 {
-	public Class1()
-	{
-	}
+    public class BookingController : Controller
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+    }
 }
