@@ -113,5 +113,80 @@
     img {
         max-height: 180px;
     }
+
+    /* Bottom to top animation */
+    @@keyframes slideUp {
+        from
+
+    {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    }
+
+    .animate-bottom {
+        animation: slideUp 0.8s ease-out;
+    }
 </style>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // Show popup after page load
+        window.addEventListener("load", () => {
+            Swal.fire({
+                title: "🎉 Thank You!",
+                text: "Thank you so much for your successful booking!",
+                icon: "success",
+                confirmButtonText: "OK",
+                backdrop: `
+                    rgba(0,0,123,0.4)
+                    url("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
+                    left top
+                    no-repeat
+                `
+            });
+
+            // Launch confetti
+            fireConfetti();
+        });
+
+        // Confetti animation
+        function fireConfetti() {
+            var duration = 3 * 1000; // 3 seconds
+            var end = Date.now() + duration;
+
+            (function frame() {
+                // Confetti burst
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 }
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 }
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+    </script>
+}
+
 

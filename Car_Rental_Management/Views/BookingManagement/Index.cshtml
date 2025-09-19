@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Car_Rental_Management.Models.Booking>
+
+<h2 class="mb-4">📖 All Customer Bookings</h2>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Booking ID</th>
+            <th>Customer</th>
+            <th>Car</th>
+            <th>Pickup</th>
+            <th>Return</th>
+            <th>Driver Needed</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var b in Model)
+        {
+            <tr>
+                <td>@b.BookingID</td>
+                <td>@b.Customer.FullName</td>
+                <td>@b.Car.CarModel.Brand @b.Car.CarModel.ModelName</td>
+                <td>@b.PickupDate.ToString("dd-MMM-yyyy")</td>
+                <td>@b.ReturnDate.ToString("dd-MMM-yyyy")</td>
+                <td>@(b.NeedDriver ? "Yes" : "No")</td>
+                <td><span class="badge bg-info">@b.Status</span></td>
+                <td class="fw-bold text-success">Rs. @b.TotalAmount:N2</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@b.BookingID" class="btn btn-sm btn-primary">View</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

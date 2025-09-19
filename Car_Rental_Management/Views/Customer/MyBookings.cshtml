@@ -24,6 +24,7 @@
                     <th>Return Date</th>
                     <th>Location</th>
                     <th>Payment</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -32,23 +33,65 @@
                 {
                     <tr>
                         <td>
-                            <img src="@b.Car.ImageUrl" alt="Car Image"
-                                 style="width:100px; height:auto; border-radius:8px;" />
+                            <img src="@(!string.IsNullOrEmpty(b.Car?.ImageUrl) ? b.Car.ImageUrl : "/images/default-car.png")"
+                                 alt="Car Image" style="width:100px; height:auto; border-radius:8px;" />
                         </td>
-                        <td>@b.Car.CarModel.Brand (@b.Car.CarModel.ModelName)</td>
+                        <td>@b.Car?.CarModel?.Brand (@b.Car?.CarModel?.ModelName)</td>
                         <td>@b.PickupDate.ToShortDateString()</td>
                         <td>@b.ReturnDate.ToShortDateString()</td>
-                        <td>@b.Location.Address</td>
-                        <td>@(string.IsNullOrEmpty(b.PaymentMethod) ? "Pending" : b.PaymentMethod)</td>
+                        <td>@b.Location?.Address</td>
                         <td>
-                            <a asp-controller="Payment" asp-action="Receipt" asp-route-id="@b.BookingID" class="btn btn-info btn-sm">
-                                View
-                            </a>
-                            <a asp-controller="Payment" asp-action="DownloadReceipt" asp-route-id="@b.BookingID" class="btn btn-success btn-sm">
-                                Download
-                            </a>
+                            @(string.IsNullOrEmpty(b.PaymentMethod) ? "Pending" : b.PaymentMethod)
                         </td>
-                        >
+                        <td>
+                            @if (b.Status == "Cancelled")
+                            {
+                                <span class="badge bg-danger">Cancelled</span>
+                                @if (b.RefundIssued)
+                                {
+                                    <span class="badge bg-success ms-1">Refunded</span>
+                                }
+                            }
+                            else if (b.Status == "Completed")
+                            {
+                                <span class="badge bg-success">Completed</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">@b.Status</span>
+                            }
+                        </td>
+                        <td>
+                            @* Payment actions *@
+                            @if (b.Status != "Cancelled" && string.IsNullOrEmpty(b.PaymentMethod))
+                            {
+                                <a asp-controller="Payment" asp-action="Method" asp-route-id="@b.BookingID"
+                                   class="btn btn-warning btn-sm mb-1">
+                                    Continue Payment
+                                </a>
+                            }
+                            else if (b.Status != "Cancelled" && !string.IsNullOrEmpty(b.PaymentMethod))
+                            {
+                                <a asp-controller="Payment" asp-action="Receipt" asp-route-id="@b.BookingID"
+                                   class="btn btn-info btn-sm mb-1">
+                                    View
+                                </a>
+                                <a asp-controller="Payment" asp-action="DownloadReceipt" asp-route-id="@b.BookingID"
+                                   class="btn btn-success btn-sm mb-1">
+                                    Download
+                                </a>
+                            }
+
+                            @* Cancel action (if not already cancelled) *@
+                            @if (b.Status != "Cancelled")
+                            {
+                                <a asp-controller="Customer" asp-action="CancelBooking" asp-route-id="@b.BookingID"
+                                   class="btn btn-danger btn-sm mb-1"
+                                   onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                    Cancel
+                                </a>
+                            }
+                        </td>
                     </tr>
                 }
             </tbody>
