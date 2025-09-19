@@ -1,0 +1,72 @@
+﻿@model IEnumerable<Car_Rental_Management.Models.Booking>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // <-- admin layout with sidebar
+}
+
+<div class="container mt-4">
+    <div class="card bg-dark text-light shadow-lg">
+        <div class="card-header bg-secondary">
+            <h2 class="mb-0">❌ Cancelled Bookings (Refund Details)</h2>
+        </div>
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info text-dark">No cancelled bookings found.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-dark table-hover text-light shadow-sm">
+                        <thead class="table-secondary text-dark">
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Customer</th>
+                                <th>Car</th>
+                                <th>Pickup</th>
+                                <th>Return</th>
+                                <th>Location</th>
+                                <th>Total Amount</th>
+                                <th>Refund Amount</th>
+                                <th>Refund Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var b in Model)
+                            {
+                                <tr>
+                                    <td>@b.BookingID</td>
+                                    <td>@b.Customer?.Username</td>
+                                    <td>@b.Car?.CarModel?.Brand (@b.Car?.CarModel?.ModelName)</td>
+                                    <td>@b.PickupDate.ToString("dd-MMM-yyyy")</td>
+                                    <td>@b.ReturnDate.ToString("dd-MMM-yyyy")</td>
+                                    <td>@b.Location?.Address</td>
+                                    <td>Rs. @b.TotalAmount:N2</td>
+                                    <td>
+                                        @if (b.RefundAmount.HasValue)
+                                        {
+                                            <span class="text-success fw-bold">Rs. @b.RefundAmount.Value:N2</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (b.RefundIssued)
+                                        {
+                                            <span class="badge bg-success">Refund Issued</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

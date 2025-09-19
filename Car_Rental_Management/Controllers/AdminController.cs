@@ -519,6 +519,19 @@ public class AdminController : Controller
                 new SelectListItem { Value = "Staff", Text = "Staff" }
             };
     }
+    // Cancelled Bookings with refund details
+    public async Task<IActionResult> CancelledBookings()
+    {
+        var cancelledBookings = await _context.Bookings
+            .Include(b => b.Car).ThenInclude(c => c.CarModel)
+            .Include(b => b.Customer)
+            .Include(b => b.Location)
+            .Where(b => b.Status == "Cancelled")
+            .OrderByDescending(b => b.PickupDate)
+            .ToListAsync();
+
+        return View(cancelledBookings);
+    }
 
     [Route("Admin/booking")]
     public IActionResult Booking()

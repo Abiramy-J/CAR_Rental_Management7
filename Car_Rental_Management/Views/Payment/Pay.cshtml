@@ -2,12 +2,10 @@
 
 @{
     ViewData["Title"] = "Payment";
+    var duration = (Model.ReturnDate - Model.PickupDate).Days;
 }
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
-
-<div class="container my-5">
+<div class="container my-5 animate-bottom">
     <div class="card shadow-lg border-0">
         <!-- Header -->
         <div class="card-header bg-primary text-white text-center">
@@ -25,18 +23,17 @@
                 <!-- Booking Details -->
                 <div class="col-md-8">
                     <h5 class="card-title border-bottom pb-2 mb-3">Booking Summary</h5>
-
                     <div class="row mb-2">
                         <div class="col-5 fw-semibold">Car:</div>
                         <div class="col-7">@Model.Car.CarModel.Brand @Model.Car.CarModel.ModelName</div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-5 fw-semibold">Pickup Date:</div>
-                        <div class="col-7">@Model.PickupDate.ToString("dd MMM yyyy")</div>
+                        <div class="col-7">@Model.PickupDate.ToString("ddd, dd MMM yyyy")</div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-5 fw-semibold">Return Date:</div>
-                        <div class="col-7">@Model.ReturnDate.ToString("dd MMM yyyy")</div>
+                        <div class="col-7">@Model.ReturnDate.ToString("ddd, dd MMM yyyy") <span class="text-muted">(@duration days)</span></div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-5 fw-semibold">Total Amount:</div>
@@ -52,36 +49,54 @@
             <form asp-action="Confirm" asp-controller="Payment" method="post" class="needs-validation" novalidate>
                 <input type="hidden" name="bookingId" value="@Model.BookingID" />
 
+                <!-- Cardholder Name -->
                 <div class="mb-3">
                     <label for="cardName" class="form-label">Cardholder Name</label>
-                    <input type="text" class="form-control" id="cardName" name="CardName" required />
-                    <div class="invalid-feedback">
-                        Please enter the cardholder name.
-                    </div>
+                    <input type="text" class="form-control" id="cardName" name="CardName" pattern="^[A-Za-z\s]{3,}$" required />
+                    <div class="invalid-feedback">Enter a valid cardholder name (letters only).</div>
                 </div>
 
+                <!-- Card Number -->
                 <div class="mb-3">
                     <label for="cardNumber" class="form-label">Card Number</label>
-                    <input type="text" class="form-control" id="cardNumber" name="CardNumber" pattern="\d{16}" maxlength="16" required />
-                    <div class="invalid-feedback">
-                        Please enter a valid 16-digit card number.
-                    </div>
+                    <input type="text" class="form-control" id="cardNumber" name="CardNumber" maxlength="19" required />
+                    <div class="invalid-feedback">Enter a valid 16-digit card number.</div>
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label for="expiry" class="form-label">Expiry Date (MM/YY)</label>
-                        <input type="text" class="form-control" id="expiry" name="Expiry" pattern="(0[1-9]|1[0-2])\/\d{2}" placeholder="MM/YY" required />
-                        <div class="invalid-feedback">
-                            Enter a valid expiry date (MM/YY).
-                        </div>
+                        <input type="text" class="form-control" id="expiry" name="Expiry" placeholder="MM/YY" required />
+                        <div class="invalid-feedback">Enter a valid expiry date.</div>
                     </div>
                     <div class="col-md-6">
                         <label for="cvv" class="form-label">CVV</label>
-                        <input type="text" class="form-control" id="cvv" name="CVV" pattern="\d{3}" maxlength="3" required />
-                        <div class="invalid-feedback">
-                            Enter a valid 3-digit CVV.
-                        </div>
+                        <input type="text" class="form-control" id="cvv" name="CVV" maxlength="3" required />
+                        <div class="invalid-feedback">Enter a valid 3-digit CVV.</div>
+                    </div>
+                </div>
+
+                <!-- Alternate Driver -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="altDriverCheck" />
+                    <label class="form-check-label" for="altDriverCheck">Add Alternate Driver Details</label>
+                </div>
+
+                <div id="altDriverFields" style="display:none;">
+                    <div class="mb-3">
+                        <label for="driverName" class="form-label">Driver Full Name</label>
+                        <input type="text" class="form-control" id="driverName" name="DriverName" pattern="^[A-Za-z\s]{3,}$" />
+                        <div class="invalid-feedback">Enter a valid name (letters only).</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="driverLicense" class="form-label">Driver License Number</label>
+                        <input type="text" class="form-control" id="driverLicense" name="DriverLicense" pattern="^[A-Za-z0-9]{6,}$" />
+                        <div class="invalid-feedback">Enter a valid license number (min 6 chars).</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="driverPhone" class="form-label">Driver Contact Number</label>
+                        <input type="text" class="form-control" id="driverPhone" name="DriverPhone" pattern="^\d{10}$" />
+                        <div class="invalid-feedback">Enter a valid 10-digit phone number.</div>
                     </div>
                 </div>
 
@@ -95,11 +110,47 @@
     </div>
 </div>
 
-<!-- Bootstrap validation script -->
 <script>
     (() => {
         'use strict';
+
         const forms = document.querySelectorAll('.needs-validation');
+        const altDriverCheck = document.getElementById("altDriverCheck");
+        const altDriverFields = document.getElementById("altDriverFields");
+
+        // Toggle alternate driver fields
+        altDriverCheck.addEventListener("change", () => {
+            altDriverFields.style.display = altDriverCheck.checked ? "block" : "none";
+            if (!altDriverCheck.checked) {
+                altDriverFields.querySelectorAll("input").forEach(i => {
+                    i.value = "";
+                    i.classList.remove("is-valid", "is-invalid");
+                });
+            }
+        });
+
+        // Card Number formatting #### #### #### ####
+        const cardNumber = document.getElementById("cardNumber");
+        cardNumber.addEventListener("input", () => {
+            let value = cardNumber.value.replace(/\D/g, "").substring(0,16);
+            cardNumber.value = value.replace(/(.{4})/g, "$1 ").trim();
+        });
+
+        // Expiry auto-format MM/YY
+        const expiry = document.getElementById("expiry");
+        expiry.addEventListener("input", () => {
+            let value = expiry.value.replace(/\D/g, "").substring(0,4);
+            if (value.length > 2) value = value.substring(0,2) + "/" + value.substring(2);
+            expiry.value = value;
+        });
+
+        // CVV numeric only
+        const cvv = document.getElementById("cvv");
+        cvv.addEventListener("input", () => {
+            cvv.value = cvv.value.replace(/\D/g, "").substring(0,3);
+        });
+
+        // Bootstrap + live validation
         Array.from(forms).forEach(form => {
             form.addEventListener('submit', event => {
                 if (!form.checkValidity()) {
@@ -108,6 +159,18 @@
                 }
                 form.classList.add('was-validated');
             }, false);
+
+            form.querySelectorAll("input").forEach(input => {
+                input.addEventListener("input", () => {
+                    if (input.checkValidity()) {
+                        input.classList.remove("is-invalid");
+                        input.classList.add("is-valid");
+                    } else {
+                        input.classList.remove("is-valid");
+                        input.classList.add("is-invalid");
+                    }
+                });
+            });
         });
     })();
 </script>
@@ -129,8 +192,31 @@
     }
 
     @@media (max-width: 768px) {
-        .row > div {
-            margin-bottom: 15px;
-        }
+        .row > div
+
+    {
+        margin-bottom: 15px;
+    }
+
+    }
+
+    /* Bottom to top animation */
+    @@keyframes slideUp {
+        from
+
+    {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    }
+
+    .animate-bottom {
+        animation: slideUp 0.8s ease-out;
     }
 </style>

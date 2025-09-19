@@ -1,0 +1,37 @@
+﻿@model Car_Rental_Management.Models.Booking
+
+<h3>Booking Details - #@Model.BookingID</h3>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <h5>Customer</h5>
+        <p><strong>Name:</strong> @Model.Customer.FullName</p>
+        <p><strong>Email:</strong> @Model.Customer.Email</p>
+        <p><strong>Phone:</strong> @Model.Customer.PhoneNumber</p>
+    </div>
+
+    <div class="col-md-6">
+        <h5>Car</h5>
+        <p>@Model.Car.CarModel.Brand @Model.Car.CarModel.ModelName</p>
+        <p><strong>Pickup:</strong> @Model.PickupDate.ToString("dd MMM yyyy")</p>
+        <p><strong>Return:</strong> @Model.ReturnDate.ToString("dd MMM yyyy")</p>
+    </div>
+</div>
+
+<hr />
+
+@if (Model.NeedDriver && Model.DriverBookings.Any())
+{
+    <h5>Assigned Driver</h5>
+    @foreach (var dbk in Model.DriverBookings)
+    {
+        <p><strong>Name:</strong> @dbk.Driver.FullName</p>
+        <p><strong>Phone:</strong> @dbk.Driver.PhoneNo</p>
+        <p><strong>License:</strong> @dbk.Driver.LicenseNo</p>
+    }
+}
+else
+{
+    <p><em>No driver assigned.</em></p>
+}

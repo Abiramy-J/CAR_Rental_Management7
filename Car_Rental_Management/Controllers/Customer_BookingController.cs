@@ -8,72 +8,82 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Car_Rental_Management.Controllers
 {
+    [Route("Customer/[action]/{id?}")]
     public class CustomerBookingController : Controller
     {
         private readonly ApplicationDbContext _db;
-        public CustomerBookingController(ApplicationDbContext db) => _db = db;
+
+        public CustomerBookingController(ApplicationDbContext db)
+        {
+            _db = db;
+        }
 
         // GET: BookCar
-        public IActionResult BookCar(int id)
+        public async Task<IActionResult> BookCar(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
                 return RedirectToAction("Register", "Account", new { returnUrl = $"/CustomerBooking/BookCar/{id}" });
 
-            if (!_db.Users.Any(u => u.UserId == userId.Value))
+            var userExists = await _db.Users.AnyAsync(u => u.UserId == userId.Value);
+            if (!userExists)
                 return RedirectToAction("Login", "Account");
 
-            var car = _db.Cars.Include(c => c.CarModel).FirstOrDefault(c => c.CarID == id);
+            var car = await _db.Cars.Include(c => c.CarModel).FirstOrDefaultAsync(c => c.CarID == id);
             if (car == null) return NotFound();
 
             var vm = new BookingVM
             {
                 CarID = car.CarID,
                 Car = car,
-                LocationList = GetLocations(),
+                LocationList = await GetLocationsAsync(),
                 AltDriverName = "",
                 AltDriverIC = "",
                 AltDriverLicenseNo = "",
                 AvailableDrivers = new List<SelectListItem>()
             };
 
-            // Optional: send existing booked dates to view for info
-            var bookedDates = _db.Bookings
+            // Existing booked dates
+            var bookedDates = await _db.Bookings
                 .Where(b => b.CarID == id)
                 .Select(b => new { b.PickupDate, b.ReturnDate })
-                .ToList();
+                .ToListAsync();
+
             ViewBag.BookedDates = bookedDates;
 
             return View(vm);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult BookCar(BookingVM vm)
+        public async Task<IActionResult> BookCar(BookingVM vm)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
 
-            if (!_db.Users.Any(u => u.UserId == userId.Value))
-                return RedirectToAction("Login", "Account");
+            var userExists = await _db.Users.AnyAsync(u => u.UserId == userId.Value);
+            if (!userExists) return RedirectToAction("Login", "Account");
 
             if (!ModelState.IsValid)
             {
-                vm.LocationList = GetLocations();
+                vm.LocationList = await GetLocationsAsync();
                 return View(vm);
             }
 
-            var car = _db.Cars.Find(vm.CarID);
+            var car = await _db.Cars.FindAsync(vm.CarID);
             if (car == null) return NotFound();
 
-            // Prevent double booking for overlapping dates
-            bool isCarBooked = _db.Bookings.Any(b =>
+            // Prevent overlapping bookings
+            bool isCarBooked = await _db.Bookings.AnyAsync(b =>
                 b.CarID == vm.CarID &&
                 b.ReturnDate >= vm.PickupDate &&
                 b.PickupDate <= vm.ReturnDate
             );
+
             if (isCarBooked)
             {
                 TempData["Error"] = "This car is already booked for the selected dates!";
@@ -96,29 +106,31 @@ namespace Car_Rental_Management.Controllers
                 AltDriverIC = vm.AltDriverIC,
                 AltDriverLicenseNo = vm.AltDriverLicenseNo,
                 TotalAmount = total,
-                Status = "PendingPayment"
+                Status = "PendingPayment",
+                PaymentMethod = null,
+                RefundIssued = false
             };
 
-            _db.Bookings.Add(booking);
+            await _db.Bookings.AddAsync(booking);
 
-            // Update Car Status to "Booked"
-            car.Status = "Booked";  // இங்கு Car Status-ஐ மாற்றுகிறோம்
-            _db.Cars.Update(car);   // Car table-இல் update செய்யப்படுகிறது
+            // Update Car status
+            car.Status = "Booked";
+            _db.Cars.Update(car);
 
-            _db.SaveChanges();  // Booking மற்றும் Car Status ஒரே save-இல் commit
+            await _db.SaveChangesAsync();
 
-            // Assign driver if selected
+            // Assign driver if needed
             if (vm.NeedDriver && vm.SelectedDriverId.HasValue)
             {
-                var driver = _db.Drivers.Find(vm.SelectedDriverId.Value);
+                var driver = await _db.Drivers.FindAsync(vm.SelectedDriverId.Value);
                 if (driver == null)
                 {
                     ModelState.AddModelError("", "Selected driver not found.");
-                    vm.LocationList = GetLocations();
+                    vm.LocationList = await GetLocationsAsync();
                     return View(vm);
                 }
 
-                bool isDriverAvailable = !_db.DriverBookings.Any(dbk =>
+                bool isDriverAvailable = !await _db.DriverBookings.AnyAsync(dbk =>
                     dbk.DriverId == driver.DriverId &&
                     vm.PickupDate < dbk.ReturnDateTime &&
                     vm.ReturnDate > dbk.PickupDateTime
@@ -140,38 +152,114 @@ namespace Car_Rental_Management.Controllers
                     ReturnDateTime = vm.ReturnDate
                 };
 
-                _db.DriverBookings.Add(driverBooking);
-                _db.SaveChanges();
+                await _db.DriverBookings.AddAsync(driverBooking);
+                await _db.SaveChangesAsync();
             }
 
             // Redirect to Payment page
             return RedirectToAction("Method", "Payment", new { id = booking.BookingID });
         }
 
-        // API: Get available drivers for a date range
         [HttpGet]
-        public IActionResult AvailableDrivers(DateTime pickup, DateTime returnDate)
+        public async Task<IActionResult> AvailableDrivers(DateTime pickup, DateTime returnDate)
         {
-            var drivers = GetAvailableDrivers(pickup, returnDate)
-                .Select(d => new { d.DriverId, d.FullName, d.PhoneNo, d.LicenseNo })
-                .ToList();
-            return Json(drivers);
+            var drivers = await GetAvailableDriversAsync(pickup, returnDate);
+            var result = drivers.Select(d => new { d.DriverId, d.FullName, d.PhoneNo, d.LicenseNo }).ToList();
+            return Json(result);
         }
 
-        // Helper: Filter available drivers
-        private List<Driver> GetAvailableDrivers(DateTime pickup, DateTime returnDate)
+        private async Task<List<Driver>> GetAvailableDriversAsync(DateTime pickup, DateTime returnDate)
         {
-            var allDrivers = _db.Drivers.ToList();
-            var overlappingBookings = _db.DriverBookings
+            var allDrivers = await _db.Drivers.ToListAsync();
+            var overlappingBookings = await _db.DriverBookings
                 .Where(db => pickup < db.ReturnDateTime && returnDate > db.PickupDateTime)
                 .Select(db => db.DriverId)
-                .ToList();
+                .ToListAsync();
 
             return allDrivers.Where(d => !overlappingBookings.Contains(d.DriverId)).ToList();
         }
 
-        // Helper: Get locations
-        private List<SelectListItem> GetLocations() =>
-            _db.Locations.Select(l => new SelectListItem { Value = l.LocationID.ToString(), Text = l.Address }).ToList();
+        // Cancel Booking with refund logic
+        public async Task<IActionResult> CancelBooking(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            var booking = await _db.Bookings
+                .Include(b => b.Car)
+                .Include(b => b.Customer)
+                .FirstOrDefaultAsync(b => b.BookingID == id && b.CustomerID == userId.Value);
+
+            if (booking == null) return NotFound();
+
+            if (booking.Status == "Cancelled")
+            {
+                TempData["Error"] = "Booking already cancelled.";
+                return RedirectToAction("MyBookings");
+            }
+
+            // Allow cancel only within 24 hours of pickup
+            if ((booking.PickupDate - DateTime.Now).TotalHours > 24)
+            {
+                TempData["Error"] = "Cannot cancel booking after 24 hours of pickup.";
+                return RedirectToAction("MyBookings");
+            }
+
+            booking.Status = "Cancelled";
+
+            // Refund Logic
+            if (booking.PaymentMethod == "Card")
+            {
+                booking.RefundIssued = true;
+                booking.RefundAmount = booking.TotalAmount;  // Full refund
+            }
+            else
+            {
+                booking.RefundIssued = false;
+                booking.RefundAmount = 0; // Cash – refund not auto issued
+            }
+
+            _db.Bookings.Update(booking);
+
+            if (booking.Car != null)
+            {
+                booking.Car.Status = "Available";
+                _db.Cars.Update(booking.Car);
+            }
+
+            await _db.SaveChangesAsync();
+
+            TempData["Success"] = "Booking cancelled successfully.";
+            return RedirectToAction("MyBookings");
+        }
+
+
+
+        // Helper: Get Locations
+        private async Task<List<SelectListItem>> GetLocationsAsync()
+        {
+            return await _db.Locations.Select(l => new SelectListItem
+            {
+                Value = l.LocationID.ToString(),
+                Text = l.Address
+            }).ToListAsync();
+        }
+
+        // Customer MyBookings
+        public async Task<IActionResult> MyBookings()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            var bookings = await _db.Bookings
+                .Include(b => b.Car).ThenInclude(c => c.CarModel)
+                .Include(b => b.Location)
+                .Where(b => b.CustomerID == userId.Value)
+                .OrderByDescending(b => b.PickupDate)
+                .ToListAsync();
+
+            // Specify the correct view path
+            return View("~/Views/Customer/MyBookings.cshtml", bookings);
+        }
     }
 }
