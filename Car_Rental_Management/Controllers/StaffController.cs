@@ -407,7 +407,7 @@ namespace Car_Rental_Management.Controllers
 
 
         [Route("Staff/booking")]
-        public IActionResult Bookings()
+        public IActionResult Booking()
         {
             // Optional: check if admin
             var role = HttpContext.Session.GetString("Role");

@@ -533,12 +533,12 @@ public class AdminController : Controller
         return View(cancelledBookings);
     }
 
-    [Route("Admin/booking")]
+    //[Route("Admin/booking")]
     public IActionResult Booking()
     {
         // Optional: check if admin
         var role = HttpContext.Session.GetString("Role");
-        if (role != "Admin") return RedirectToAction("Login", "Account");
+        if (role != "Admin" && role != "Staff") return RedirectToAction("Login", "Account");
 
         var bookings = _context.Bookings
         .Include(b => b.Car).ThenInclude(c => c.CarModel)

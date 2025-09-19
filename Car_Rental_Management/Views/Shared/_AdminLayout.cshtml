@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] - Admin</title>
+    <title>@ViewData["Title"] - @Context.Session.GetString("Role") Panel</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -18,7 +18,6 @@
             padding: 0;
         }
 
-        /* Sidebar */
         .sidebar {
             position: fixed;
             top: 0;
@@ -50,8 +49,7 @@
                 transition: all 0.3s ease;
             }
 
-                .sidebar .nav-link:hover,
-                .sidebar .nav-link.active {
+                .sidebar .nav-link:hover, .sidebar .nav-link.active {
                     background-color: #34495e;
                     color: #fff;
                 }
@@ -60,7 +58,6 @@
                     margin-right: 10px;
                 }
 
-        /* Main Content */
         .main-content {
             margin-left: 250px;
             padding: 30px;
@@ -68,7 +65,6 @@
             background-color: #F1F5F9;
         }
 
-        /* Content Container for Dashboard */
         .content-container {
             background-color: #fff;
             padding: 25px;
@@ -76,19 +72,6 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.1);
             min-height: calc(100vh - 60px);
         }
-
-        /* Topbar */
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-            .topbar h2 {
-                font-weight: 600;
-                color: #2c3e50;
-            }
 
         .btn-primary {
             background-color: #3498db;
@@ -103,7 +86,6 @@
                 background-color: #2980b9;
             }
 
-        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -113,7 +95,6 @@
             border-radius: 4px;
         }
 
-        /* Cards inside content */
         .card {
             border: none;
             border-radius: 16px;
@@ -129,46 +110,57 @@
     </style>
 </head>
 <body>
+    @* Get user role *@
+    @{
+        var role = Context.Session.GetString("Role");
+    }
+
     <!-- Sidebar -->
     <div class="sidebar">
-        @if (!string.IsNullOrEmpty(Context.Session.GetString("Role")) && Context.Session.GetString("Role") == "Admin")
-        {
-            <h4>Admin Panel</h4>
-        }
-        @if (!string.IsNullOrEmpty(Context.Session.GetString("Role")) && Context.Session.GetString("Role") == "Staff")
-        {
-            <h4>Staff Panel</h4>
-        }
-        
+        <h4>@(role == "Admin" ? "Admin Panel" : "Staff Panel")</h4>
+
         <ul class="nav flex-column">
-            <li class="nav-item"><a class="nav-link active" href="@Url.Action("Dashboard", "Admin")" aria-current="page"><i class="fa fa-home" aria-hidden="true"></i> Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car" aria-hidden="true"></i> Manage Cars</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags" aria-hidden="true"></i> Manage Models</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot" aria-hidden="true"></i> Locations</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("Booking", "Admin")"><i class="fa fa-book" aria-hidden="true"></i> Booking History</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("CancelledBookings", "Admin")"><i class="fa fa-ban" aria-hidden="true"></i> Cancelled Bookings / Refunds</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Driver")"><i class="fa fa-id-card" aria-hidden="true"></i> Manage Drivers</a></li>
+            <li class="nav-item">
+                @if (role == "Admin")
+                {
+                    <a class="nav-link active" href="@Url.Action("Dashboard", "Admin")"><i class="fa fa-home"></i> Dashboard</a>
+                }
+                else if (role == "Staff")
+                {
+                    <a class="nav-link active" href="@Url.Action("Dashboard", "Staff")"><i class="fa fa-home"></i> Dashboard</a>
+                }
+            </li>
 
-            @if (!string.IsNullOrEmpty(Context.Session.GetString("Role")) && Context.Session.GetString("Role") == "Admin")
+            @* Admin Links *@
+            @if (role == "Admin")
             {
-                <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-id-card" aria-hidden="true"></i> User Management</a></li>
-            }
-            @if (!string.IsNullOrEmpty(Context.Session.GetString("Role")) && Context.Session.GetString("Role") == "Staff")
-            {
-                <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Staff")"><i class="fa fa-id-card" aria-hidden="true"></i> Staff Management</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car"></i> Manage Cars</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot"></i> Locations</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("Booking", "Admin")"><i class="fa fa-book"></i> Booking History</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("CancelledBookings", "Admin")"><i class="fa fa-ban"></i> Cancelled Bookings / Refunds</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Driver")"><i class="fa fa-id-card"></i> Manage Drivers</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-id-card"></i> User Management</a></li>
             }
 
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("Logout", "Account")"><i class="fa fa-right-from-bracket" aria-hidden="true"></i><span class="sr-only">Logout</span> Logout</a></li>
+            @* Staff Links *@
+            @if (role == "Staff")
+            {
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car"></i> Manage Cars</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot"></i> Locations</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("Booking", "Admin")"><i class="fa fa-book"></i> Booking History</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Staff")"><i class="fa fa-id-card"></i> users</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("CancelledBookings", "Admin")"><i class="fa fa-ban"></i> Cancelled Bookings / Refunds</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Driver")"><i class="fa fa-id-card"></i> Manage Drivers</a></li>
+            }
+
+            <li class="nav-item"><a class="nav-link" href="@Url.Action("Logout", "Account")"><i class="fa fa-right-from-bracket"></i> Logout</a></li>
         </ul>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        @* <div class="topbar">
-            <h2>@ViewData["Title"]</h2>
-            <button class="btn btn-primary"><i class="fa fa-plus"></i> Add New</button>
-        </div> *@
-
         <div class="content-container">
             @RenderBody()
         </div>
