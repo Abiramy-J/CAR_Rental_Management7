@@ -29,20 +29,24 @@
     <table class="table table-bordered table-striped shadow-sm">
         <thead class="table-dark">
             <tr>
-                <th>UserId</th>
-                <th>Username</th>
-                <th>Email</th>   <!-- ✅ New Column -->
+
+                <th>FullName </th>
+                <th>Email</th>
+                <th>PhoneNumber</th>
+                <th>Role</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var user in Model)
             {
                 <tr>
-                    <td>@user.UserId</td>
-                    <td>@user.Username</td>
-                    <td>@user.Email</td>   <!-- ✅ Show Email -->
+
+                    <td>@user.FullName </td>
+                    <td>@user.Email</td>
+                    <td>@user.PhoneNumber</td>
+                    <td>@user.Role</td>
                 </tr>
             }
         </tbody>
     </table>
-</div>
+

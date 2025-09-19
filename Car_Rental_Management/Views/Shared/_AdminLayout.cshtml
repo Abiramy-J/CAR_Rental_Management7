@@ -131,17 +131,34 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-        <h4>Admin Panel</h4>
+        @if (!string.IsNullOrEmpty(Context.Session.GetString("Role")) && Context.Session.GetString("Role") == "Admin")
+        {
+            <h4>Admin Panel</h4>
+        }
+        @if (!string.IsNullOrEmpty(Context.Session.GetString("Role")) && Context.Session.GetString("Role") == "Staff")
+        {
+            <h4>Staff Panel</h4>
+        }
+        
         <ul class="nav flex-column">
-            <li class="nav-item"><a class="nav-link active" href="@Url.Action("Dashboard", "Admin")"><i class="fa fa-home"></i> Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car"></i> Manage Cars</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags"></i> Manage Models</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot"></i> Locations</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("Booking", "Admin")"><i class="fa fa-book"></i> Booking History</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("CancelledBookings", "Admin")"><i class="fa fa-ban"></i> Cancelled Bookings / Refunds</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("CreateUser", "Admin")"><i class="fa fa-id-card"></i> Management</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Driver")"><i class="fa fa-id-card"></i> Manage Drivers</a></li>
-            <li class="nav-item"><a class="nav-link" href="@Url.Action("Logout", "Account")"><i class="fa fa-right-from-bracket"></i> Logout</a></li>
+            <li class="nav-item"><a class="nav-link active" href="@Url.Action("Dashboard", "Admin")" aria-current="page"><i class="fa fa-home" aria-hidden="true"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="@Url.Action("CarList", "Admin")"><i class="fa fa-car" aria-hidden="true"></i> Manage Cars</a></li>
+            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "CarModel")"><i class="fa fa-tags" aria-hidden="true"></i> Manage Models</a></li>
+            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Location")"><i class="fa fa-location-dot" aria-hidden="true"></i> Locations</a></li>
+            <li class="nav-item"><a class="nav-link" href="@Url.Action("Booking", "Admin")"><i class="fa fa-book" aria-hidden="true"></i> Booking History</a></li>
+            <li class="nav-item"><a class="nav-link" href="@Url.Action("CancelledBookings", "Admin")"><i class="fa fa-ban" aria-hidden="true"></i> Cancelled Bookings / Refunds</a></li>
+            <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Driver")"><i class="fa fa-id-card" aria-hidden="true"></i> Manage Drivers</a></li>
+
+            @if (!string.IsNullOrEmpty(Context.Session.GetString("Role")) && Context.Session.GetString("Role") == "Admin")
+            {
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-id-card" aria-hidden="true"></i> User Management</a></li>
+            }
+            @if (!string.IsNullOrEmpty(Context.Session.GetString("Role")) && Context.Session.GetString("Role") == "Staff")
+            {
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Staff")"><i class="fa fa-id-card" aria-hidden="true"></i> Staff Management</a></li>
+            }
+
+            <li class="nav-item"><a class="nav-link" href="@Url.Action("Logout", "Account")"><i class="fa fa-right-from-bracket" aria-hidden="true"></i><span class="sr-only">Logout</span> Logout</a></li>
         </ul>
     </div>
 

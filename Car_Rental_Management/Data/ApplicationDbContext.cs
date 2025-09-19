@@ -29,7 +29,20 @@ namespace Car_Rental_Management.Data
                 .Property(b => b.TotalAmount)
                 .HasColumnType("decimal(18,2)");
 
-
+            // ===== Seed default admin user =====
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    UserId = 1,
+                    FullName = "System Administrator",
+                    Username = "admin",
+                    Password = "admin123",          
+                    Email = "admin@gmail.com",
+                    PhoneNumber = "0000000000",
+                    Role = "Admin",
+                    ProfileImageUrl = "/images/default-profile.png"
+                }
+                );
         }
 
     }

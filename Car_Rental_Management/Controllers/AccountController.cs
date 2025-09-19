@@ -38,15 +38,15 @@ namespace Car_Rental_Management.Controllers
             var inputUsername = model.Username?.Trim().ToLower();
             var inputPassword = model.Password?.Trim();
 
-            // Hardcoded admin login
-            if (inputUsername == "admin" && inputPassword == "admin123")
-            {
-                HttpContext.Session.SetInt32("UserId", 0);
-                HttpContext.Session.SetString("Username", "admin");
-                HttpContext.Session.SetString("Role", "Admin");
-                HttpContext.Session.SetString("ProfileImageUrl", "/images/default-profile.png");
-                return RedirectToAction("Dashboard", "Admin");
-            }
+            //// Hardcoded admin login
+            //if (inputUsername == "admin" && inputPassword == "admin123")
+            //{
+            //    HttpContext.Session.SetInt32("UserId", 0);
+            //    HttpContext.Session.SetString("Username", "admin");
+            //    HttpContext.Session.SetString("Role", "Admin");
+            //    HttpContext.Session.SetString("ProfileImageUrl", "/images/default-profile.png");
+            //    return RedirectToAction("Dashboard", "Admin");
+            //}
 
             var user = _db.Users.FirstOrDefault(u =>
                 u.Username.ToLower() == inputUsername &&
