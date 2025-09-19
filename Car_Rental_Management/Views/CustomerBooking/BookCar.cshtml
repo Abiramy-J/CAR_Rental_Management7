@@ -157,7 +157,7 @@
             if (!pickup || !returnDate) return;
 
             $.ajax({
-                url: '/CustomerBooking/AvailableDrivers',
+                url: '/Customer/AvailableDrivers',
                 type: 'GET',
                 data: { pickup: pickup, returnDate: returnDate },
                 success: function (data) {
@@ -184,3 +184,4 @@
         toggleDriverFields();
     </script>
 }
+

@@ -23,7 +23,7 @@ namespace Car_Rental_Management.Controllers
         }
 
         // GET: BookCar
-        public async Task<IActionResult> BookCar(int id)
+        public async Task<IActionResult> BookCar(int id, DateTime? pickupDate, DateTime? returnDate)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
@@ -36,15 +36,28 @@ namespace Car_Rental_Management.Controllers
             var car = await _db.Cars.Include(c => c.CarModel).FirstOrDefaultAsync(c => c.CarID == id);
             if (car == null) return NotFound();
 
+            // Use provided dates or default to today and tomorrow
+            var pickup = pickupDate ?? DateTime.Now;
+            var ret = returnDate ?? DateTime.Now.AddDays(1);
+
+            // Get available drivers for the selected dates
+            var availableDrivers = await GetAvailableDriversAsync(pickup, ret);
+
             var vm = new BookingVM
             {
                 CarID = car.CarID,
                 Car = car,
+                PickupDate = pickup,
+                ReturnDate = ret,
                 LocationList = await GetLocationsAsync(),
                 AltDriverName = "",
                 AltDriverIC = "",
                 AltDriverLicenseNo = "",
-                AvailableDrivers = new List<SelectListItem>()
+                AvailableDrivers = availableDrivers.Select(d => new SelectListItem
+                {
+                    Value = d.DriverId.ToString(),
+                    Text = d.FullName
+                }).ToList()
             };
 
             // Existing booked dates
@@ -52,7 +65,6 @@ namespace Car_Rental_Management.Controllers
                 .Where(b => b.CarID == id)
                 .Select(b => new { b.PickupDate, b.ReturnDate })
                 .ToListAsync();
-
             ViewBag.BookedDates = bookedDates;
 
             return View(vm);
@@ -71,17 +83,20 @@ namespace Car_Rental_Management.Controllers
             if (!ModelState.IsValid)
             {
                 vm.LocationList = await GetLocationsAsync();
+                vm.AvailableDrivers = (await GetAvailableDriversAsync(vm.PickupDate, vm.ReturnDate))
+                    .Select(d => new SelectListItem { Value = d.DriverId.ToString(), Text = d.FullName })
+                    .ToList();
                 return View(vm);
             }
 
             var car = await _db.Cars.FindAsync(vm.CarID);
             if (car == null) return NotFound();
 
-            // Prevent overlapping bookings
+            // Prevent overlapping car bookings
             bool isCarBooked = await _db.Bookings.AnyAsync(b =>
                 b.CarID == vm.CarID &&
-                b.ReturnDate >= vm.PickupDate &&
-                b.PickupDate <= vm.ReturnDate
+                b.ReturnDate > vm.PickupDate &&
+                b.PickupDate < vm.ReturnDate
             );
 
             if (isCarBooked)
@@ -112,62 +127,95 @@ namespace Car_Rental_Management.Controllers
             };
 
             await _db.Bookings.AddAsync(booking);
-
-            // Update Car status
             car.Status = "Booked";
             _db.Cars.Update(car);
-
             await _db.SaveChangesAsync();
 
-            // Assign driver if needed
+            // ---- Robust driver validation ----
             if (vm.NeedDriver && vm.SelectedDriverId.HasValue)
             {
                 var driver = await _db.Drivers.FindAsync(vm.SelectedDriverId.Value);
                 if (driver == null)
                 {
                     ModelState.AddModelError("", "Selected driver not found.");
-                    vm.LocationList = await GetLocationsAsync();
-                    return View(vm);
                 }
-
-                bool isDriverAvailable = !await _db.DriverBookings.AnyAsync(dbk =>
-                    dbk.DriverId == driver.DriverId &&
-                    vm.PickupDate < dbk.ReturnDateTime &&
-                    vm.ReturnDate > dbk.PickupDateTime
-                );
-
-                if (!isDriverAvailable)
+                else
                 {
-                    TempData["Error"] = "Selected driver is already booked for this time slot.";
-                    return RedirectToAction("BrowseCars", "Customer");
+                    bool isDriverAvailable = !await _db.DriverBookings.AnyAsync(dbk =>
+                        dbk.DriverId == driver.DriverId &&
+                        vm.PickupDate < dbk.ReturnDateTime &&
+                        vm.ReturnDate > dbk.PickupDateTime
+                    );
+
+                    if (!isDriverAvailable)
+                    {
+                        TempData["Error"] = "Selected driver is already booked for this time slot.";
+                        return RedirectToAction("BrowseCars", "Customer");
+                    }
+
+                    var driverBooking = new DriverBooking
+                    {
+                        DriverId = driver.DriverId,
+                        CustomerId = userId.Value,
+                        CarId = vm.CarID,
+                        BookingId = booking.BookingID,
+                        PickupDateTime = vm.PickupDate,
+                        ReturnDateTime = vm.ReturnDate
+                    };
+
+                    await _db.DriverBookings.AddAsync(driverBooking);
+                    await _db.SaveChangesAsync();
                 }
-
-                var driverBooking = new DriverBooking
-                {
-                    DriverId = driver.DriverId,
-                    CustomerId = userId.Value,
-                    CarId = vm.CarID,
-                    BookingId = booking.BookingID,
-                    PickupDateTime = vm.PickupDate,
-                    ReturnDateTime = vm.ReturnDate
-                };
-
-                await _db.DriverBookings.AddAsync(driverBooking);
-                await _db.SaveChangesAsync();
             }
 
-            // Redirect to Payment page
             return RedirectToAction("Method", "Payment", new { id = booking.BookingID });
         }
 
         [HttpGet]
         public async Task<IActionResult> AvailableDrivers(DateTime pickup, DateTime returnDate)
         {
-            var drivers = await GetAvailableDriversAsync(pickup, returnDate);
-            var result = drivers.Select(d => new { d.DriverId, d.FullName, d.PhoneNo, d.LicenseNo }).ToList();
-            return Json(result);
+            if (pickup >= returnDate)
+                return Json(new List<object>()); // Return empty if invalid dates
+
+            // Get all drivers
+            var allDrivers = await _db.Drivers.ToListAsync();
+
+            // Find driver IDs that have overlapping bookings
+            var overlappingDriverIds = await _db.DriverBookings
+                .Where(db => db.PickupDateTime < returnDate && db.ReturnDateTime > pickup)
+                .Select(db => db.DriverId)
+                .Distinct()
+                .ToListAsync();
+
+            // Filter out booked drivers
+            var availableDrivers = allDrivers
+                .Where(d => !overlappingDriverIds.Contains(d.DriverId))
+                .Select(d => new
+                {
+                    driverId = d.DriverId,
+                    fullName = d.FullName,
+                    phoneNo = d.PhoneNo,
+                    licenseNo = d.LicenseNo
+                })
+                .ToList();
+
+            return Json(availableDrivers);
         }
 
+
+        // Helper: Filter available drivers
+        private List<Driver> GetAvailableDrivers(DateTime pickup, DateTime returnDate)
+        {
+            var allDrivers = _db.Drivers.ToList();
+            var overlappingBookings = _db.DriverBookings
+                .Where(db => pickup < db.ReturnDateTime && returnDate > db.PickupDateTime)
+                .Select(db => db.DriverId)
+                .ToList();
+
+            return allDrivers.Where(d => !overlappingBookings.Contains(d.DriverId)).ToList();
+        }
+
+        // Add this async method to the controller
         private async Task<List<Driver>> GetAvailableDriversAsync(DateTime pickup, DateTime returnDate)
         {
             var allDrivers = await _db.Drivers.ToListAsync();
