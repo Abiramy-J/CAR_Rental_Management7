@@ -1,0 +1,48 @@
+﻿@model List<Car_Rental_Management.ViewModels.BookingViewModel>
+
+@{
+    ViewData["Title"] = "Bookings";
+}
+
+<h2>Booking Details</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <p>No bookings found. Please add some bookings to display.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>Customer Name</th>
+                <th>Driver Name</th>
+                <th>Pickup Date</th>
+                <th>Return Date</th>
+                <th>Car Model</th>
+                <th>Car Brand</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model)
+            {
+                <tr>
+                    <td>@booking.BookingId</td>
+                    <td>@booking.CustomerName</td>
+                    <td>@booking.DriverName</td>
+                    <td>@(booking.PickupDate.HasValue? booking.PickupDate.Value.ToString("dd/MM/yyyy") : "N/A")</td>
+                    <td>@(booking.ReturnDate.HasValue? booking.ReturnDate.Value.ToString("dd/MM/yyyy") : "N/A")</td>
+                    <td>@booking.CarModel</td>
+                    <td>@booking.CarBrand</td>
+                    <td>@booking.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

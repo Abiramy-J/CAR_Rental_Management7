@@ -424,6 +424,32 @@ namespace Car_Rental_Management.Controllers
 
             return View(bookings);
         }
+        //[Route("Staff/Booking")]
+        //public IActionResult Bookings()
+        //{
+        //    var role = HttpContext.Session.GetString("Role");
+        //    if (role != "Admin" && role != "Staff") return RedirectToAction("Login", "Account");
 
+        //    var bookings = _context.Bookings
+        //        .Include(b => b.Car).ThenInclude(c => c.CarModel)
+        //        .Include(b => b.Customer)
+        //        .Include(b => b.DriverBookings).ThenInclude(db => db.Driver)
+        //        .Include(b => b.Location)
+        //        .ToList();
+
+        //    var bookingViewModels = bookings.Select(b => new BookingViewModel
+        //    {
+        //        BookingId = b.BookingID,
+        //        CustomerName = b.Customer?.FullName ?? "Unknown Customer",
+        //        DriverName = b.DriverBookings.Any() ? b.DriverBookings.First().Driver.FullName : "Not Assigned",
+        //        PickupDate = b.PickupDate,
+        //        ReturnDate = b.ReturnDate,
+        //        CarModel = b.Car?.CarModel?.ModelName ?? "Unknown Model",
+        //        CarBrand = b.Car?.CarModel?.Brand ?? "Unknown Brand",
+        //        Status = b.Status
+        //    }).ToList();
+
+        //    return View(bookingViewModels);
+        //}
     }
 }

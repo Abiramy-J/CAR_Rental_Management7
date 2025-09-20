@@ -63,7 +63,8 @@ namespace Car_Rental_Management.Controllers
                 {
                     "Admin" => RedirectToAction("Dashboard", "Admin"),
                     "Staff" => RedirectToAction("Dashboard", "Staff"),
-                    "Customer" => RedirectToAction("Dashboard", "Customer"),
+                    "Customer" => RedirectToAction("BrowseCars", "Customer"),
+                    "Driver" => RedirectToAction("Dashboard", "Driver"),
                     _ => RedirectToAction("Login")
                 };
             }

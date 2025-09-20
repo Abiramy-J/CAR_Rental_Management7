@@ -1,4 +1,4 @@
-﻿@model Car_Rental_Management.Models.Driver
+﻿@model Car_Rental_Management.ViewModels.DriverCreateVM
 
 @{
     ViewData["Title"] = "Add Driver";
@@ -8,29 +8,40 @@
 
 <form asp-action="Create" method="post">
     <div class="mb-3">
-        <label asp-for="FullName" class="form-label"></label>
+        <label asp-for="FullName" class="form-label">Full Name</label>
         <input asp-for="FullName" class="form-control" />
         <span asp-validation-for="FullName" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="PhoneNo" class="form-label"></label>
-        <input asp-for="PhoneNo" class="form-control" />
-        <span asp-validation-for="PhoneNo" class="text-danger"></span>
+        <label asp-for="Username" class="form-label">Username</label>
+        <input asp-for="Username" class="form-control" />
+        <span asp-validation-for="Username" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="NIC" class="form-label"></label>
+        <label asp-for="Password" class="form-label">Password</label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="NIC" class="form-label">NIC</label>
         <input asp-for="NIC" class="form-control" />
         <span asp-validation-for="NIC" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="LicenseNo" class="form-label"></label>
+        <label asp-for="LicenseNo" class="form-label">License Number</label>
         <input asp-for="LicenseNo" class="form-control" />
         <span asp-validation-for="LicenseNo" class="text-danger"></span>
     </div>
-    @* <div class="form-check mb-3">
-        <input asp-for="IsAvailable" class="form-check-input" />
-        <label asp-for="IsAvailable" class="form-check-label">Available</label>
-    </div> *@
     <button type="submit" class="btn btn-success">Save</button>
     <a asp-action="Index" class="btn btn-secondary">Back</a>
 </form>

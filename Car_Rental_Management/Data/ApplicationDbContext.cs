@@ -43,6 +43,10 @@ namespace Car_Rental_Management.Data
                     ProfileImageUrl = "/images/default-profile.png"
                 }
                 );
+            modelBuilder.Entity<Driver>()
+            .HasOne(d => d.User) // Link to User
+            .WithMany() // Optional: if User has many Drivers
+            .HasForeignKey(d => d.UserId);
         }
 
     }

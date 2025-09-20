@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Car_Rental_Management.Models
+namespace Car_Rental_Management.ViewModels
 {
-    public class Driver
+    public class DriverEditVM
     {
-        [Key]
         public int DriverId { get; set; }
 
         [Required]
@@ -18,9 +17,11 @@ namespace Car_Rental_Management.Models
 
         [Required]
         public string LicenseNo { get; set; }
-        public int? UserId { get; set; }
-        public User User { get; set; }
 
-        //public bool IsAvailable { get; set; } = true;
+        [Required]
+        public string Username { get; set; }
+
+        [Required]
+        public string Email { get; set; }
     }
 }
