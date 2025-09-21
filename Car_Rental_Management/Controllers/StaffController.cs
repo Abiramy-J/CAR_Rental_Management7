@@ -23,16 +23,15 @@ namespace Car_Rental_Management.Controllers
         {
             var vm = new CarVM
             {
-                Car = new Car(),  // empty car object for the form to bind
+                Car = new Car(),  
 
-                // Load dropdown for CarModel from DB
                 CarModelList = _context.CarModels.Select(m => new SelectListItem
                 {
                     Value = m.CarModelID.ToString(),
                     Text = m.ModelName
                 }).ToList(),
 
-                // Hardcoded status dropdown
+               
                 StatusList = new List<SelectListItem>
             {
                 new SelectListItem { Value = "Available", Text = "Available" },
@@ -50,7 +49,7 @@ namespace Car_Rental_Management.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddCar(CarVM vm)
         {
-            // 🛠️ Remove them manually before validation
+            //  Remove them manually before validation
             ModelState.Remove("CarModelList");
             ModelState.Remove("StatusList");
 
@@ -115,7 +114,7 @@ namespace Car_Rental_Management.Controllers
             if (filter == null)
                 filter = new CarFilterVM();
 
-            // Start query with Cars including their CarModel
+           
             var carsQuery = _context.Cars.Include(c => c.CarModel).AsQueryable();
 
             // Apply filtering
@@ -146,15 +145,15 @@ namespace Car_Rental_Management.Controllers
                 case "rate_desc":
                     carsQuery = carsQuery.OrderByDescending(c => c.DailyRate);
                     break;
-                default: // default sort by Model ascending
+                default: 
                     carsQuery = carsQuery.OrderBy(c => c.CarModel.ModelName);
                     break;
             }
 
-            // Execute query asynchronously
+            
             filter.CarList = await carsQuery.ToListAsync();
 
-            // Prepare dropdowns for filtering
+            
             filter.CarModelList = await _context.CarModels
                 .Select(m => new SelectListItem
                 {
@@ -209,13 +208,13 @@ namespace Car_Rental_Management.Controllers
         {
             if (id != vm.Car.CarID) return BadRequest();
 
-            // Remove non-model fields from ModelState for validation
+            
             ModelState.Remove("CarModelList");
             ModelState.Remove("StatusList");
 
             if (!ModelState.IsValid)
             {
-                // Reload dropdowns if validation fails
+                
                 vm.CarModelList = _context.CarModels.Select(m => new SelectListItem
                 {
                     Value = m.CarModelID.ToString(),
@@ -324,26 +323,18 @@ namespace Car_Rental_Management.Controllers
         // GET: Staff/Dashboard
         public IActionResult Dashboard()
         {
-            // Collect statistics for dashboard
+            
             var totalCars = _context.Cars.Count();
             var availableCars = _context.Cars.Count(c => c.Status == "Available");
             var totalBookings = _context.Bookings.Count();
-            var totalCustomers = _context.Users.Count(u => u.Role == "Customer");
-
-            // Pass data to View via ViewBag
-            //ViewBag.TotalCars = totalCars;
-            //ViewBag.AvailableCars = availableCars;
-            //ViewBag.TotalBookings = totalBookings;
-            //ViewBag.TotalCustomers = totalCustomers;
-
-            // Optional: Recent Bookings - last 5
+            var totalCustomers = _context.Users.Count(u => u.Role == "Customer");  
             var recentBookings = _context.Bookings
                 .OrderByDescending(b => b.PaymentDate)
                .Take(5)
                 .Select(b => new {
                     b.BookingID,
                     CustomerName = b.Customer.FullName,
-                    CarName = b.Car.CarModel.Brand,                // Car model/brand
+                    CarName = b.Car.CarModel.Brand,                
                     CarImagePath = b.Car.ImageUrl,
                     LocationName = b.Location.Address,
                     b.Status
@@ -352,7 +343,7 @@ namespace Car_Rental_Management.Controllers
 
             ViewBag.RecentBookings = recentBookings;
 
-            // Booking Trend (last 7 days)
+            
             var bookingsTrend = _context.Bookings
                 .Where(b => b.PaymentDate >= DateTime.Now.AddDays(-7))
                 .GroupBy(b => b.PaymentDate)
@@ -377,8 +368,6 @@ namespace Car_Rental_Management.Controllers
 
 
             ViewBag.TotalCars = _context.Cars.Count();
-            // ViewBag.AvailableCars = _context.Cars.Count(c => c.IsAvailable);
-            // ViewBag.TotalBookings = _context.Bookings.Count();
             ViewBag.AvailableCars = availableCars;
             ViewBag.TotalBookings = totalBookings;
             ViewBag.Revenue = _context.Bookings.Sum(b => b.TotalAmount);
@@ -390,19 +379,14 @@ namespace Car_Rental_Management.Controllers
         // ========================
         public async Task<IActionResult> User()
         {
-            var customers = await _context.Users
-                                          .Where(u => u.Role == "Customer")
-                                          .ToListAsync();
+            var users = await _context.Users
+                          .Where(u => u.Role == "Customer" || u.Role == "Driver")
+                          .ToListAsync();
 
-            return View(customers);
+            return View(users);
+
         }
 
-        //// ---------- User List ----------
-        //public async Task<IActionResult> User()
-        //{
-        //    var users = await _context.Users.ToListAsync();
-        //    return View(users);
-        //}
 
 
 
@@ -417,39 +401,13 @@ namespace Car_Rental_Management.Controllers
             .Include(b => b.Car).ThenInclude(c => c.CarModel)
             .Include(b => b.Customer)
             .Include(b => b.Location)
-            .Include(b => b.DriverBookings) // include driver bookings
-                .ThenInclude(db => db.Driver) // get driver info
+            .Include(b => b.DriverBookings) 
+                .ThenInclude(db => db.Driver) 
             .ToList();
 
 
             return View(bookings);
         }
-        //[Route("Staff/Booking")]
-        //public IActionResult Bookings()
-        //{
-        //    var role = HttpContext.Session.GetString("Role");
-        //    if (role != "Admin" && role != "Staff") return RedirectToAction("Login", "Account");
-
-        //    var bookings = _context.Bookings
-        //        .Include(b => b.Car).ThenInclude(c => c.CarModel)
-        //        .Include(b => b.Customer)
-        //        .Include(b => b.DriverBookings).ThenInclude(db => db.Driver)
-        //        .Include(b => b.Location)
-        //        .ToList();
-
-        //    var bookingViewModels = bookings.Select(b => new BookingViewModel
-        //    {
-        //        BookingId = b.BookingID,
-        //        CustomerName = b.Customer?.FullName ?? "Unknown Customer",
-        //        DriverName = b.DriverBookings.Any() ? b.DriverBookings.First().Driver.FullName : "Not Assigned",
-        //        PickupDate = b.PickupDate,
-        //        ReturnDate = b.ReturnDate,
-        //        CarModel = b.Car?.CarModel?.ModelName ?? "Unknown Model",
-        //        CarBrand = b.Car?.CarModel?.Brand ?? "Unknown Brand",
-        //        Status = b.Status
-        //    }).ToList();
-
-        //    return View(bookingViewModels);
-        //}
+        
     }
 }

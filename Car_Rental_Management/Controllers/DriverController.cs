@@ -36,7 +36,7 @@ namespace Car_Rental_Management.Controllers
                 return View(model);
             }
 
-            // Check if username already exists
+            
             var existingUser = await _db.Users
                 .FirstOrDefaultAsync(u => u.Username.ToLower() == model.Username.Trim().ToLower());
             if (existingUser != null)
@@ -116,7 +116,7 @@ namespace Car_Rental_Management.Controllers
             user.FullName = model.FullName.Trim();
             user.PhoneNumber = model.PhoneNo.Trim();
             user.Email = model.Email.Trim();
-            user.Username = model.Username.Trim(); // Note: Check for username uniqueness if needed
+            user.Username = model.Username.Trim(); 
 
             _db.Drivers.Update(driver);
             await _db.SaveChangesAsync();
@@ -142,7 +142,7 @@ namespace Car_Rental_Management.Controllers
             var driver = await _db.Drivers.Include(d => d.User).FirstOrDefaultAsync(d => d.DriverId == id);
             if (driver == null) return NotFound();
 
-            // Delete the associated User
+            
             if (driver.User != null)
             {
                 _db.Users.Remove(driver.User);
@@ -162,17 +162,17 @@ namespace Car_Rental_Management.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            // Verify user is a driver
+            
             var user = await _db.Users.FirstOrDefaultAsync(u => u.UserId == userId.Value);
             if (user == null || user.Role != "Driver")
                 return Unauthorized("Access restricted to drivers.");
 
-            // Get driver record
+            
             var driver = await _db.Drivers.FirstOrDefaultAsync(d => d.UserId == userId.Value);
             if (driver == null)
                 return NotFound("Driver profile not found.");
 
-            // Fetch bookings assigned to this driver
+           
             var bookings = await _db.DriverBookings
                 .Include(db => db.Booking)
                     .ThenInclude(b => b.Customer)
@@ -185,7 +185,7 @@ namespace Car_Rental_Management.Controllers
                     BookingId = db.Booking.BookingID,
                     CustomerName = db.Booking.Customer.FullName,
                     PickupDate = db.Booking.PickupDate,
-                    Duration = (db.Booking.ReturnDate - db.Booking.PickupDate).Days + 1, // Include end date
+                    Duration = (db.Booking.ReturnDate - db.Booking.PickupDate).Days + 1, 
                     Status = db.Booking.Status
                 })
                 .OrderByDescending(db => db.PickupDate)

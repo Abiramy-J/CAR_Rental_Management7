@@ -22,9 +22,7 @@ public class AdminController : Controller
     {
         var vm = new CarVM
         {
-            Car = new Car(),  // empty car object for the form to bind
-
-            // Load dropdown for CarModel from DB
+            Car = new Car(),  
             CarModelList = _context.CarModels.Select(m => new SelectListItem
             {
                 Value = m.CarModelID.ToString(),
@@ -49,7 +47,7 @@ public class AdminController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddCar(CarVM vm)
     {
-        // 🛠️ Remove them manually before validation
+        //  Remove them manually before validation
         ModelState.Remove("CarModelList");
         ModelState.Remove("StatusList");
 
@@ -327,21 +325,13 @@ public class AdminController : Controller
         var availableCars = _context.Cars.Count(c => c.Status == "Available");
         var totalBookings = _context.Bookings.Count();
         var totalCustomers = _context.Users.Count(u => u.Role == "Customer");
-
-        // Pass data to View via ViewBag
-        //ViewBag.TotalCars = totalCars;
-        //ViewBag.AvailableCars = availableCars;
-        //ViewBag.TotalBookings = totalBookings;
-        //ViewBag.TotalCustomers = totalCustomers;
-
-        // Optional: Recent Bookings - last 5
         var recentBookings = _context.Bookings
             .OrderByDescending(b => b.PaymentDate)
            .Take(5)
             .Select(b => new {
                 b.BookingID,
                 CustomerName = b.Customer.FullName,
-                CarName = b.Car.CarModel.Brand,                // Car model/brand
+                CarName = b.Car.CarModel.Brand,               
                 CarImagePath = b.Car.ImageUrl,
                 LocationName = b.Location.Address,
                 b.Status
@@ -375,25 +365,13 @@ public class AdminController : Controller
 
 
         ViewBag.TotalCars = _context.Cars.Count();
-        // ViewBag.AvailableCars = _context.Cars.Count(c => c.IsAvailable);
-        // ViewBag.TotalBookings = _context.Bookings.Count();
         ViewBag.AvailableCars = availableCars;
         ViewBag.TotalBookings = totalBookings;
         ViewBag.Revenue = _context.Bookings.Sum(b => b.TotalAmount);
 
         return View();
     }
-    // ========================
-    // GET: /Admin/User
-    // ========================
-    //public async Task<IActionResult> User()
-    //{
-    //    var customers = await _context.Users
-    //                                  .Where(u => u.Role == "Customer")
-    //                                  .ToListAsync();
-
-    //    return View(customers);
-    //}
+ 
 
     // ---------- User List ----------
     public async Task<IActionResult> User()
@@ -404,7 +382,7 @@ public class AdminController : Controller
 
     // ---------- CreateUser : GET ----------
     [HttpGet]
-    public IActionResult CreateUser()   // GET
+    public IActionResult CreateUser()   
     {
         LoadRoles();
         return View();
@@ -414,8 +392,7 @@ public class AdminController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateUser(CreateUserViewModel model)
     {
-        //var cs = _context.Database.GetDbConnection().ConnectionString;
-        //Console.WriteLine(cs);   // Debug window-ல் connection string பாப்போம்
+       
 
         if (!ModelState.IsValid)
         {
@@ -423,7 +400,7 @@ public class AdminController : Controller
             return View(model);
         }
 
-        // username duplicate check
+       
         var existUser = await _context.Users
             .FirstOrDefaultAsync(u => u.Username.ToLower() == model.Username.Trim().ToLower());
         if (existUser != null)
@@ -437,7 +414,7 @@ public class AdminController : Controller
         {
             FullName = model.FullName.Trim(),
             Username = model.Username.Trim(),
-            Password = model.Password.Trim(), // 👉 production-ல் hash செய்யவும்
+            Password = model.Password.Trim(), 
             Email = model.Email.Trim(),
             PhoneNumber = model.PhoneNumber.Trim(),
             Role = model.Role,
@@ -458,7 +435,7 @@ public class AdminController : Controller
             {
                 new SelectListItem { Value = "Admin", Text = "Admin" },
                 new SelectListItem { Value = "Staff", Text = "Staff" },
-                new SelectListItem { Value = "Driver", Text = "Driver" }
+                
             };
     }
     // Cancelled Bookings with refund details
@@ -478,7 +455,6 @@ public class AdminController : Controller
     //[Route("Admin/booking")]
     public IActionResult Booking()
     {
-        // Optional: check if admin
         var role = HttpContext.Session.GetString("Role");
         if (role != "Admin" && role != "Staff") return RedirectToAction("Login", "Account");
 
@@ -486,8 +462,8 @@ public class AdminController : Controller
         .Include(b => b.Car).ThenInclude(c => c.CarModel)
         .Include(b => b.Customer)
         .Include(b => b.Location)
-        .Include(b => b.DriverBookings) // include driver bookings
-            .ThenInclude(db => db.Driver) // get driver info
+        .Include(b => b.DriverBookings) 
+            .ThenInclude(db => db.Driver) 
         .ToList();
 
 

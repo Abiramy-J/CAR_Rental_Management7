@@ -14,7 +14,7 @@ namespace Car_Rental_Management.Controllers
         public PaymentController(ApplicationDbContext db) => _db = db;
 
         // GET: Payment/Method
-        public IActionResult Method(int id) // booking ID
+        public IActionResult Method(int id)
         {
             var booking = _db.Bookings
                              .Include(b => b.Car)
@@ -36,7 +36,7 @@ namespace Car_Rental_Management.Controllers
             // Update booking
             booking.Status = "Paid";
             booking.PaymentDate = DateTime.Now;
-            booking.PaymentMethod = paymentType; // store method here
+            booking.PaymentMethod = paymentType; 
 
             _db.SaveChanges();
 
@@ -44,7 +44,7 @@ namespace Car_Rental_Management.Controllers
         }
 
 
-
+          // Receipt.cshtml will show details
         public IActionResult Receipt(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
@@ -58,7 +58,7 @@ namespace Car_Rental_Management.Controllers
 
             if (booking == null) return NotFound();
 
-            return View(booking); // Receipt.cshtml will show details
+            return View(booking); 
         }
 
 
@@ -110,8 +110,7 @@ namespace Car_Rental_Management.Controllers
                             table.Cell().Text("Booking ID:").SemiBold();
                             table.Cell().Text(booking.BookingID.ToString());
 
-                            //table.Cell().Text("Customer:").SemiBold();
-                            //table.Cell().Text(booking.Customer?.FullName ?? "N/A");
+                            
 
                             table.Cell().Text("Car:").SemiBold();
                             table.Cell().Text($"{booking.Car.CarModel.Brand} {booking.Car.CarModel.ModelName}");

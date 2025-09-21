@@ -11,7 +11,7 @@ namespace Car_Rental_Management.Controllers
         private readonly ApplicationDbContext _db;
         public BookingManagementController(ApplicationDbContext db) => _db = db;
 
-        // Show all bookings
+       
         public IActionResult Index()
         {
             var bookings = _db.Bookings
@@ -22,7 +22,7 @@ namespace Car_Rental_Management.Controllers
             return View(bookings);
         }
 
-        // Show one booking details
+        
         public IActionResult Details(int id)
         {
             var booking = _db.Bookings
