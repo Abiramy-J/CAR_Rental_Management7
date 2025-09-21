@@ -36,11 +36,11 @@ namespace Car_Rental_Management.Controllers
             var car = await _db.Cars.Include(c => c.CarModel).FirstOrDefaultAsync(c => c.CarID == id);
             if (car == null) return NotFound();
 
-            
+            // Use provided dates or default to today and tomorrow
             var pickup = pickupDate ?? DateTime.Now;
             var ret = returnDate ?? DateTime.Now.AddDays(1);
 
-            
+            // Get available drivers for the selected dates
             var availableDrivers = await GetAvailableDriversAsync(pickup, ret);
 
             var vm = new BookingVM
@@ -175,19 +175,19 @@ namespace Car_Rental_Management.Controllers
         public async Task<IActionResult> AvailableDrivers(DateTime pickup, DateTime returnDate)
         {
             if (pickup >= returnDate)
-                return Json(new List<object>()); 
+                return Json(new List<object>()); // Return empty if invalid dates
 
-           
+            // Get all drivers
             var allDrivers = await _db.Drivers.ToListAsync();
 
-           
+            // Find driver IDs that have overlapping bookings
             var overlappingDriverIds = await _db.DriverBookings
                 .Where(db => db.PickupDateTime < returnDate && db.ReturnDateTime > pickup)
                 .Select(db => db.DriverId)
                 .Distinct()
                 .ToListAsync();
 
-            
+            // Filter out booked drivers
             var availableDrivers = allDrivers
                 .Where(d => !overlappingDriverIds.Contains(d.DriverId))
                 .Select(d => new
@@ -203,17 +203,17 @@ namespace Car_Rental_Management.Controllers
         }
 
 
-        // Filter available drivers
-        private List<Driver> GetAvailableDrivers(DateTime pickup, DateTime returnDate)
-        {
-            var allDrivers = _db.Drivers.ToList();
-            var overlappingBookings = _db.DriverBookings
-                .Where(db => pickup < db.ReturnDateTime && returnDate > db.PickupDateTime)
-                .Select(db => db.DriverId)
-                .ToList();
+        // Helper: Filter available drivers
+        //private List<Driver> GetAvailableDrivers(DateTime pickup, DateTime returnDate)
+        //{
+        //    var allDrivers = _db.Drivers.ToList();
+        //    var overlappingBookings = _db.DriverBookings
+        //        .Where(db => pickup < db.ReturnDateTime && returnDate > db.PickupDateTime)
+        //        .Select(db => db.DriverId)
+        //        .ToList();
 
-            return allDrivers.Where(d => !overlappingBookings.Contains(d.DriverId)).ToList();
-        }
+        //    return allDrivers.Where(d => !overlappingBookings.Contains(d.DriverId)).ToList();
+        //}
 
         // Add this async method to the controller
         private async Task<List<Driver>> GetAvailableDriversAsync(DateTime pickup, DateTime returnDate)
@@ -259,12 +259,12 @@ namespace Car_Rental_Management.Controllers
             if (booking.PaymentMethod == "Card")
             {
                 booking.RefundIssued = true;
-                booking.RefundAmount = booking.TotalAmount;  
+                booking.RefundAmount = booking.TotalAmount;  // Full refund
             }
             else
             {
                 booking.RefundIssued = false;
-                booking.RefundAmount = 0; 
+                booking.RefundAmount = 0; // Cash – refund not auto issued
             }
 
             _db.Bookings.Update(booking);
@@ -283,7 +283,7 @@ namespace Car_Rental_Management.Controllers
 
 
 
-        //  Get Locations
+        // Helper: Get Locations
         private async Task<List<SelectListItem>> GetLocationsAsync()
         {
             return await _db.Locations.Select(l => new SelectListItem
@@ -306,7 +306,7 @@ namespace Car_Rental_Management.Controllers
                 .OrderByDescending(b => b.PickupDate)
                 .ToListAsync();
 
-            
+            // Specify the correct view path
             return View("~/Views/Customer/MyBookings.cshtml", bookings);
         }
     }
