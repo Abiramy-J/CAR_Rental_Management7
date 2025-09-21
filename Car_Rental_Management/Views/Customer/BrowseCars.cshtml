@@ -3,23 +3,14 @@
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    ViewData["Title"] = " Browse Cars";
+    ViewData["Title"] = "🚘 Browse Cars";
     Layout = "_CustomerLayout";
 }
 
 <h2 class="mb-4">🚘 Available Cars</h2>
 
-<!-- Display TempData Errors -->
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show">
-        <strong>❌ Error:</strong> @TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-}
-
-<!-- Filters -->
-<div class="card shadow p-3 mb-4 border border-primary filter-highlight" style="background-color: #f8f9fa;">
+<!-- Filters Container -->
+<div class="card shadow p-3 mb-4 border border-primary" style="background-color: #f8f9fa;">
     <h5 class="mb-3">Filter Cars</h5>
     <form method="get">
         <div class="row g-3 justify-content-center">
@@ -53,45 +44,22 @@
 <div class="row">
     @foreach (var car in Model.Cars)
     {
-        // Booking validation
-        var isBooked = Model.BookedCarIds != null && Model.BookedCarIds.Contains(car.CarID);
-
         <div class="col-md-4 mb-4">
-            <div class="card shadow border-0 h-100 @(isBooked ? "booked-card" : "")">
+            <div class="card shadow border-0 h-100">
                 <img src="@car.ImageUrl" class="card-img-top" alt="Car Image" style="height:200px; object-fit:cover;" />
-
                 <div class="card-body">
                     <h5 class="card-title">@car.CarModel.Brand @car.CarModel.ModelName</h5>
                     <p><strong>Price/Day:</strong> @car.DailyRate.ToString("C")</p>
-
-                    <!-- Status Badge -->
-                    @if (isBooked)
-                    {
-                        <span class="badge booked-badge">❌ Already Booked</span>
-                    }
-
-                    <div class="d-flex justify-content-between mt-2">
+                    <div class="d-flex justify-content-between">
                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#carModal-@car.CarID">
                             🔍 More
                         </button>
-
-                        @if (isBooked)
-                        {
-                            <button type="button" class="btn btn-danger btn-sm" disabled>
-                                ❌ Booked
-                            </button>
-                        }
-                        else
-                        {
-                            <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success btn-sm">
-                                🏷 Book Now
-                            </a>
-                        }
+                        <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success btn-sm">
+                            🏷 Book Now
+                        </a>
                     </div>
-
-                    <!-- Compare Checkbox -->
                     <div class="form-check mt-2">
-                        <input class="form-check-input compare-checkbox" type="checkbox" value="@car.CarID" id="compare-@car.CarID" @(isBooked ? "disabled" : "")>
+                        <input class="form-check-input compare-checkbox" type="checkbox" value="@car.CarID" id="compare-@car.CarID">
                         <label class="form-check-label" for="compare-@car.CarID">Compare</label>
                     </div>
                 </div>
@@ -99,15 +67,21 @@
         </div>
 
         <!-- Car Details Modal -->
-        <div class="modal fade" id="carModal-@car.CarID" tabindex="-1" aria-labelledby="carModalLabel-@car.CarID" aria-hidden="true">
+        <div class="modal fade" id="carModal-@car.CarID" tabindex="-1" aria-labelledby="carModalLabel-@car.CarID" aria-hidden="true"
+             data-bs-backdrop="false" data-bs-keyboard="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">@car.CarModel.Brand @car.CarModel.ModelName - Details</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
-                        <div id="carousel-@car.CarID" class="carousel slide mb-3" data-bs-ride="carousel">
+                    <div class="modal-body position-relative">
+                        <button type="button" class="btn btn-outline-primary fw-bold position-absolute top-0 start-0 m-3 z-index-10" data-bs-dismiss="modal">
+                            ⬅ Back
+                        </button>
+
+                        <!-- Instant Carousel -->
+                        <div id="carousel-@car.CarID" class="carousel slide carousel-fade-none mb-3" data-bs-ride="false">
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
                                     <img src="@car.ImageUrl" class="d-block w-100" style="height:350px; object-fit:cover;" />
@@ -139,6 +113,7 @@
                             </button>
                         </div>
 
+                        <!-- Car Details -->
                         <ul class="list-group">
                             <li class="list-group-item"><strong>Brand:</strong> @car.CarModel.Brand</li>
                             <li class="list-group-item"><strong>Model:</strong> @car.CarModel.ModelName</li>
@@ -153,16 +128,9 @@
                             <li class="list-group-item"><strong>Description:</strong> @car.Description</li>
                         </ul>
                     </div>
-                    <div class="modal-footer">
-                        @if (isBooked)
-                        {
-                            <button class="btn btn-danger" disabled>❌ Booked</button>
-                        }
-                        else
-                        {
-                            <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success">🏷 Book This Car</a>
-                        }
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Close</button>
+                    <div class="modal-footer d-flex justify-content-end">
+                        <a href="@Url.Action("BookCar", "CustomerBooking", new { id = car.CarID })" class="btn btn-success me-2">🏷 Book This Car</a>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">❌ Close</button>
                     </div>
                 </div>
             </div>
@@ -170,11 +138,9 @@
     }
 </div>
 
-<!-- Compare Button -->
+<!-- Compare Button & Modal -->
 <button type="button" class="btn btn-warning mt-3" id="compareBtn">Compare Selected Cars</button>
-
-<!-- Compare Modal -->
-<div class="modal fade" id="compareModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="compareModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false" data-bs-keyboard="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -187,39 +153,32 @@
 </div>
 
 <style>
-    .filter-highlight {
-        animation: popIn 0.5s ease-in-out;
-        border-radius: 10px;
+    .card.shadow:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    @@keyframes popIn {
-        0% { transform: scale(0.95); opacity: 0; }
-        50% { transform: scale(1.02); opacity: 0.8; }
-        100% { transform: scale(1); opacity: 1; }
+    /* Allow full page interaction even with modal open */
+    body.modal-open {
+        overflow: visible !important;
     }
 
-    /* Booked styling */
-    .booked-badge {
-        background-color: maroon;
-        color: white;
-        font-size: 14px;
-        padding: 6px 10px;
-        border-radius: 6px;
+    /* Disable carousel animation for instant switch */
+    .carousel-fade-none .carousel-inner {
+        transition: none !important;
     }
-
-    .booked-card {
-        opacity: 0.85;
+    .carousel-fade-none .carousel-item {
+        transition: none !important;
     }
 </style>
 
 @section Scripts {
     <script>
+        // Compare Logic
         document.getElementById("compareBtn").addEventListener("click", function () {
             let selectedIds = Array.from(document.querySelectorAll(".compare-checkbox:checked")).map(cb => cb.value);
-            if (selectedIds.length < 2) {
-                alert("Select at least 2 cars to compare!");
-                return;
-            }
+            if (selectedIds.length < 2) { alert("Select at least 2 cars to compare!"); return; }
 
             let compareHtml = '<table class="table table-bordered"><thead><tr><th>Feature</th>';
             selectedIds.forEach(id => {
@@ -243,8 +202,7 @@
 
             compareHtml += '</tbody></table>';
             document.getElementById("compareContent").innerHTML = compareHtml;
-            var compareModal = new bootstrap.Modal(document.getElementById('compareModal'));
-            compareModal.show();
+            new bootstrap.Modal(document.getElementById('compareModal')).show();
         });
     </script>
 }
