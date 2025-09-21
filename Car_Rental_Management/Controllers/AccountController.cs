@@ -96,7 +96,7 @@ namespace Car_Rental_Management.Controllers
             {
                 FullName = model.FullName.Trim(),
                 Username = model.Username.Trim(),
-                Password = model.Password.Trim(), // ⚠ plaintext password
+                Password = model.Password.Trim(), 
                 Email = model.Email.Trim(),
                 PhoneNumber = model.PhoneNumber.Trim(),
                 Role = "Customer",
@@ -108,7 +108,7 @@ namespace Car_Rental_Management.Controllers
 
             SetUserSession(user);
 
-            return RedirectToAction("Dashboard", "Customer");
+            return RedirectToAction("BrowseCars", "Customer");
         }
 
         // ------------------- FORGOT PASSWORD -------------------
@@ -143,7 +143,8 @@ namespace Car_Rental_Management.Controllers
             {
                 "Admin" => RedirectToAction("Dashboard", "Admin"),
                 "Staff" => RedirectToAction("Dashboard", "Staff"),
-                "Customer" => RedirectToAction("Dashboard", "Customer"),
+                "Customer" => RedirectToAction("BrowseCars", "Customer"),
+                "Driver" => RedirectToAction("Dashboard", "Driver"),
                 _ => RedirectToAction("Login")
             };
         }
@@ -229,7 +230,7 @@ namespace Car_Rental_Management.Controllers
             await _db.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Profile updated successfully!";
-            return RedirectToAction("Profile"); // ✅ Back to profile page
+            return RedirectToAction("Profile"); 
         }
 
 
