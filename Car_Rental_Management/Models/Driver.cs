@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http.Connections;
+using System.ComponentModel.DataAnnotations;
 
 namespace Car_Rental_Management.Models
 {
@@ -22,5 +23,6 @@ namespace Car_Rental_Management.Models
         public User User { get; set; }
 
         //public bool IsAvailable { get; set; } = true;
+        public string Status { get; set; } = "Available";
     }
 }

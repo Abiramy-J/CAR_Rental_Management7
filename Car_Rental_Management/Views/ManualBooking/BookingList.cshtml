@@ -1,0 +1,49 @@
+﻿@model IEnumerable<Car_Rental_Management.Models.Booking>
+
+@{
+    ViewData["Title"] = "Bookings";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // or _AdminLayout.cshtml if you have one
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">📑 All Bookings</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center">
+            No bookings found.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Customer</th>
+                    <th>Car</th>
+                    <th>Driver</th>
+                    <th>Pickup</th>
+                    <th>Return</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in Model)
+                {
+                    <tr>
+                        <td>@booking.BookingID</td>
+                        <td>@booking.Customer?.FullName</td>
+                        <td>@booking.Car?.CarModel?.ModelName</td>
+                        <td>@booking.Driver?.FullName ?? booking.AltDriverName</td>
+                        <td>@booking.PickupDate.ToString("dd MMM yyyy")</td>
+                        <td>@booking.ReturnDate.ToString("dd MMM yyyy")</td>
+                        <td>@booking.TotalAmount.ToString("C")</td>
+                        <td>@booking.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

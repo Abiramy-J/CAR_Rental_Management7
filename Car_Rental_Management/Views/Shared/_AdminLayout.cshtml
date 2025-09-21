@@ -141,6 +141,7 @@
                 <li class="nav-item"><a class="nav-link" href="@Url.Action("CancelledBookings", "Admin")"><i class="fa fa-ban"></i> Cancelled Bookings / Refunds</a></li>
                 <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Driver")"><i class="fa fa-id-card"></i> Manage Drivers</a></li>
                 <li class="nav-item"><a class="nav-link" href="@Url.Action("User", "Admin")"><i class="fa fa-id-card"></i> User Management</a></li>
+                <li class="nav-item"><a class="nav-link" href="@Url.Action("SelectCar", "ManualBooking")"><i class="fa fa-id-card"></i> User Management</a></li>
                 @* <li class="nav-item"><a class="nav-link" href="@Url.Action("BookingDriver", "Admin")"><i class="fa fa-id-card"></i> Drivers Bookings</a></li> *@
             }
 
@@ -169,5 +170,8 @@
     </div>
 
     @RenderSection("Scripts", required: false)
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

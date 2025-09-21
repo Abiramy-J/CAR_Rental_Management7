@@ -1,0 +1,45 @@
+﻿@model List<Car_Rental_Management.Models.Car>
+
+@{
+    ViewData["Title"] = "Select Car for Manual Booking";
+}
+
+<h2 class="mb-4">Select Car for Manual Booking</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Daily Rate</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var car in Model)
+        {
+            <tr>
+                <td>@car.CarModel.Brand</td>
+                <td>@car.CarModel.ModelName</td>
+                <td>@car.DailyRate.ToString("C")</td>
+                <td>@car.Status</td>
+                <td>
+                    @if (car.Status == "Available")
+                    {
+                        <a asp-controller="ManualBooking"
+                           asp-action="Create"
+                           asp-route-carId="@car.CarID"
+                           class="btn btn-primary">
+                            Book Manually
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Not Available</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

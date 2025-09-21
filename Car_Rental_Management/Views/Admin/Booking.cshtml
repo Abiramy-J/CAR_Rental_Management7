@@ -5,9 +5,15 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-
 <div class="container mt-4">
-    <h2 class="mb-4">📑 All Bookings</h2>
+    <h2 class="mb-4 text-primary">📑 All Bookings</h2>
+
+    <!-- Filter/Search -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <input type="text" id="searchBox" class="form-control" placeholder="Search by Customer or Car...">
+        </div>
+    </div>
 
     @if (!Model.Any())
     {
@@ -17,85 +23,158 @@
     }
     else
     {
-        <table class="table table-bordered shadow-sm">
-            <thead class="table-dark">
-                <tr>
-                    <th>Booking ID</th>
-                    <th>Customer</th>
-                    <th>Car</th>
-                    <th>Pickup</th>
-                    <th>Return</th>
-                    <th>Location</th>
-                    <th>Status</th>
-                    <th>Payment</th>
-                    <th>Driver</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var b in Model)
-                {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-sm align-middle shadow-sm">
+                <thead class="table-dark text-center">
                     <tr>
-                        <td>@b.BookingID</td>
-                        <td>@b.Customer?.Username</td>
-                        <td>@b.Car.CarModel.Brand @b.Car.CarModel.ModelName</td>
-                        <td>@b.PickupDate.ToShortDateString()</td>
-                        <td>@b.ReturnDate.ToShortDateString()</td>
-                        <td>@b.Location?.Address</td>
-                        <td>@b.Status</td>
-                        <td>@(b.PaymentMethod ?? "Pending")</td>
-                        <td>
-                            <button type="button" class="btn btn-info btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#driverModal-@b.BookingID">
-                                View
-                            </button>
+                        <th>Booking ID</th>
+                        <th>Customer</th>
+                        <th>Car</th>
+                        <th>Image</th>
+                        <th>Pickup</th>
+                        <th>Return</th>
+                        <th>Location</th>
+                        <th>Payment</th>
+                        <th>Driver</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in Model)
+                    {
+                        <tr class="text-center">
+                            <td>@b.BookingID</td>
+                            <td>@b.Customer?.Username</td>
+                            <td>@(b.Car?.CarModel != null ? $"{b.Car.CarModel.Brand} {b.Car.CarModel.ModelName}" : "N/A")</td>
 
-                            <!-- Modal -->
-                            <div class="modal fade" id="driverModal-@b.BookingID" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Driver Details</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            @if (b.NeedDriver)
-                                            {
-                                                @if (b.DriverBookings != null && b.DriverBookings.Any())
+                            <!-- Car Image -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(b.Car?.ImageUrl))
+                                {
+                                    <img src="@Url.Content(b.Car.ImageUrl)" alt="Car Image" class="img-thumbnail" style="width:80px; height:auto;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No Image</span>
+                                }
+                            </td>
+
+                            <td>@b.PickupDate.ToShortDateString()</td>
+                            <td>@b.ReturnDate.ToShortDateString()</td>
+                            <td>@b.Location?.Address</td>
+
+                            <!-- Payment -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(b.PaymentMethod))
+                                {
+                                    <span class="badge bg-primary">@b.PaymentMethod</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Pending</span>
+                                }
+                            </td>
+
+                            <!-- Driver -->
+                            <td>
+                                @if (b.NeedDriver && b.DriverBookings?.Any() == true)
+                                {
+                                    <span class="badge bg-success">Assigned</span>
+                                }
+                                else if (b.NeedDriver && !string.IsNullOrEmpty(b.AltDriverName))
+                                {
+                                    <span class="badge bg-info text-dark">Alt Driver</span>
+                                }
+                                else if (b.NeedDriver)
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Not Requested</span>
+                                }
+
+                                <!-- View button -->
+                                <button type="button" class="btn btn-sm btn-outline-info ms-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#driverModal-@b.BookingID">
+                                    View
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="driverModal-@b.BookingID" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content shadow-lg">
+                                            <div class="modal-header bg-primary text-white">
+                                                <h5 class="modal-title">Driver Details</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                @if (b.NeedDriver)
                                                 {
-                                                    var driver = b.DriverBookings.First().Driver;
-                                                    <p><strong>Our Driver Assigned</strong></p>
-                                                    <p>Name: @driver.FullName</p>
-                                                    <p>Phone: @driver.PhoneNo</p>
-                                                    <p>License: @driver.LicenseNo</p>
-                                                }
-                                                else if (!string.IsNullOrEmpty(b.AltDriverName))
-                                                {
-                                                    <p><strong>Customer's Alternate Driver</strong></p>
-                                                    <p>Name: @b.AltDriverName</p>
-                                                    <p>IC: @b.AltDriverIC</p>
-                                                    <p>License: @b.AltDriverLicenseNo</p>
+                                                    @if (b.DriverBookings != null && b.DriverBookings.Any())
+                                                    {
+                                                        var driver = b.DriverBookings.First().Driver;
+                                                        <div class="card border-success mb-2 shadow-sm">
+                                                            <div class="card-body">
+                                                                <h6 class="card-title">Our Driver Assigned</h6>
+                                                                <p class="card-text"><strong>Name:</strong> @driver.FullName</p>
+                                                                <p class="card-text"><strong>Phone:</strong> @driver.PhoneNo</p>
+                                                                <p class="card-text"><strong>License:</strong> @driver.LicenseNo</p>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else if (!string.IsNullOrEmpty(b.AltDriverName))
+                                                    {
+                                                        <div class="card border-info mb-2 shadow-sm">
+                                                            <div class="card-body">
+                                                                <h6 class="card-title">Customer's Alternate Driver</h6>
+                                                                <p class="card-text"><strong>Name:</strong> @b.AltDriverName</p>
+                                                                <p class="card-text"><strong>IC:</strong> @b.AltDriverIC</p>
+                                                                <p class="card-text"><strong>License:</strong> @b.AltDriverLicenseNo</p>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="text-warning">No driver assigned yet.</p>
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    <p>No driver assigned yet</p>
+                                                    <p class="text-muted">No driver requested.</p>
                                                 }
-                                            }
-                                            else
-                                            {
-                                                <p>No driver requested</p>
-                                            }
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 </div>
+
+<!-- JS-only filter -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchBox = document.getElementById("searchBox");
+
+    function filterTable() {
+        const searchValue = searchBox.value.toLowerCase();
+
+        document.querySelectorAll("table tbody tr").forEach(function (row) {
+            const customer = row.cells[1].innerText.toLowerCase();
+            const car = row.cells[2].innerText.toLowerCase();
+            const matchesSearch = customer.includes(searchValue) || car.includes(searchValue);
+            row.style.display = matchesSearch ? "" : "none";
+        });
+    }
+
+    searchBox.addEventListener("input", filterTable);
+});
+</script>
