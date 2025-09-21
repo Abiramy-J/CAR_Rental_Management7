@@ -264,16 +264,16 @@
                             <td>@booking.CustomerName</td>
                             <!-- Car image + name -->
                             <td>
-                                @{
-                                    string imgSrc = booking.CarImagePath.StartsWith("/")
-                                    ? booking.CarImagePath
-                                    : Url.Content("~/images/cars/" + booking.CarImagePath);
-                                }
-                                <img src="@imgSrc"
-                                     alt="@booking.CarName"
-                                     class="car-img" />
-                                <span>@booking.CarName</span>
-                            </td>
+                                <img src="@(string.IsNullOrEmpty(booking?.CarImagePath)
+                                                     ? Url.Content("~/images/default-car.png")
+                                                     : (booking.CarImagePath.StartsWith("/")
+                                                         ? booking.CarImagePath
+                                                         : Url.Content("~/images/cars/" + booking.CarImagePath)))"
+                             alt="@booking.CarName"
+                             class="car-img" />
+                        <span>@booking.CarName</span>
+                    </td>
+
                             <td>@booking.CarName</td>
                             <td>@booking.LocationName</td>
                             <td>

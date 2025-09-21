@@ -3,6 +3,18 @@
     Layout = "_CustomerLayout"; // full customer layout with navbar
 }
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" id="errorAlert">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" id="successAlert">@TempData["Success"]</div>
+}
+
+
+
 <div class="container mt-4">
     <h2 class="mb-4">📑 My Bookings</h2>
 
@@ -94,7 +106,14 @@
                         </td>
                     </tr>
                 }
+                
             </tbody>
         </table>
     }
 </div>
+<script>
+    setTimeout(function () {
+        document.getElementById("errorAlert")?.remove();
+        document.getElementById("successAlert")?.remove();
+    }, 5000); // hide after 4 seconds
+</script>
