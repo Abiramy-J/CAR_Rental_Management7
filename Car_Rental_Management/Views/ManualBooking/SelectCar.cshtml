@@ -4,42 +4,142 @@
     ViewData["Title"] = "Select Car for Manual Booking";
 }
 
-<h2 class="mb-4">Select Car for Manual Booking</h2>
+<h2 class="mb-4 text-primary">Select Car for Manual Booking</h2>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Brand</th>
-            <th>Model</th>
-            <th>Daily Rate</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var car in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover align-middle shadow-sm">
+        <thead class="table-dark text-center">
             <tr>
-                <td>@car.CarModel.Brand</td>
-                <td>@car.CarModel.ModelName</td>
-                <td>@car.DailyRate.ToString("C")</td>
-                <td>@car.Status</td>
-                <td>
-                    @if (car.Status == "Available")
-                    {
-                        <a asp-controller="ManualBooking"
-                           asp-action="Create"
-                           asp-route-carId="@car.CarID"
-                           class="btn btn-primary">
-                            Book Manually
-                        </a>
-                    }
-                    else
-                    {
-                        <span class="text-muted">Not Available</span>
-                    }
-                </td>
+                <th>Image</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Daily Rate</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var car in Model)
+            {
+                <tr class="text-center">
+                    <!-- Car Image -->
+                    <td>
+                        @if (!string.IsNullOrEmpty(car.ImageUrl))
+                        {
+                            <img src="@Url.Content(car.ImageUrl)" alt="Car Image" class="img-thumbnail" style="width:100px; height:auto;" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">No Image</span>
+                        }
+                    </td>
+
+                    <td>@car.CarModel.Brand</td>
+                    <td>@car.CarModel.ModelName</td>
+                    <td>@car.DailyRate.ToString("C")</td>
+                    <td>
+                        @if (car.Status == "Available")
+                        {
+                            <span class="badge bg-success">Available</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Not Available</span>
+                        }
+                    </td>
+
+                    <!-- Action Buttons -->
+                    <td>
+                        @if (car.Status == "Available")
+                        {
+                            <a asp-controller="ManualBooking"
+                               asp-action="Create"
+                               asp-route-carId="@car.CarID"
+                               class="btn btn-primary btn-sm mb-1">
+                                Book Manually
+                            </a>
+                        }
+
+                        <!-- More Details Button -->
+                        <button type="button" class="btn btn-info btn-sm mb-1" data-bs-toggle="modal" data-bs-target="#carModal-@car.CarID">
+                            More Details
+                        </button>
+
+                        <!-- Modal for More Details + Carousel -->
+                        <div class="modal fade" id="carModal-@car.CarID" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content shadow-lg">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">@car.CarModel.Brand @car.CarModel.ModelName Details</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <!-- Carousel -->
+                                                <div id="carousel-@car.CarID" class="carousel slide" data-bs-ride="carousel">
+                                                    <div class="carousel-inner">
+                                                        @if (!string.IsNullOrEmpty(car.ImageUrl))
+                                                        {
+                                                            <div class="carousel-item active">
+                                                                <img src="@Url.Content(car.ImageUrl)" class="d-block w-100 rounded" style="height:350px; object-fit:cover;" />
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(car.ImageUrl2))
+                                                        {
+                                                            <div class="carousel-item">
+                                                                <img src="@Url.Content(car.ImageUrl2)" class="d-block w-100 rounded" style="height:350px; object-fit:cover;" />
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(car.ImageUrl3))
+                                                        {
+                                                            <div class="carousel-item">
+                                                                <img src="@Url.Content(car.ImageUrl3)" class="d-block w-100 rounded" style="height:350px; object-fit:cover;" />
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(car.ImageUrl4))
+                                                        {
+                                                            <div class="carousel-item">
+                                                                <img src="@Url.Content(car.ImageUrl4)" class="d-block w-100 rounded" style="height:350px; object-fit:cover;" />
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-@car.CarID" data-bs-slide="prev">
+                                                        <span class="carousel-control-prev-icon"></span>
+                                                    </button>
+                                                    <button class="carousel-control-next" type="button" data-bs-target="#carousel-@car.CarID" data-bs-slide="next">
+                                                        <span class="carousel-control-next-icon"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item"><strong>Brand:</strong> @car.CarModel.Brand</li>
+                                                    <li class="list-group-item"><strong>Model:</strong> @car.CarModel.ModelName</li>
+                                                    <li class="list-group-item"><strong>Year:</strong> @car.CarModel.Year</li>
+                                                    <li class="list-group-item"><strong>Body Type:</strong> @car.CarModel.BodyType</li>
+                                                    <li class="list-group-item"><strong>Fuel:</strong> @car.CarModel.FuelType</li>
+                                                    <li class="list-group-item"><strong>Transmission:</strong> @car.CarModel.Transmission</li>
+                                                    <li class="list-group-item"><strong>Seats:</strong> @car.CarModel.SeatingCapacity</li>
+                                                    <li class="list-group-item"><strong>Engine:</strong> @car.CarModel.EngineCapacity</li>
+                                                    <li class="list-group-item"><strong>Mileage:</strong> @car.Mileage km</li>
+                                                    <li class="list-group-item"><strong>Rate/Day:</strong> @car.DailyRate.ToString("C")</li>
+                                                    <li class="list-group-item"><strong>Description:</strong> @car.Description</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

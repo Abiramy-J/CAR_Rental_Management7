@@ -1,0 +1,220 @@
+﻿@model Car_Rental_Management.ViewModels.ManualBookingVM
+@{
+    ViewData["Title"] = "Edit Booking";
+}
+
+@using System.Globalization
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-warning">✏️ Edit Booking - @Model.CarModelName</h2>
+
+    @if (TempData["Errors"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Errors"]</div>
+    }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+
+        <!-- Hidden IDs -->
+        <input type="hidden" asp-for="BookingID" />
+        <input type="hidden" asp-for="CarId" />
+        <input type="hidden" asp-for="CustomerId" />
+
+        <input type="hidden" id="DailyRate" value="@Model.CarDailyRate.ToString("0.00", CultureInfo.InvariantCulture)" />
+        <input type="hidden" id="DriverRate" value="@Model.DriverDailyRate.ToString("0.00", CultureInfo.InvariantCulture)" />
+
+        <!-- Customer Card -->
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">Customer</div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Username" class="form-label"></label>
+                        <input asp-for="Username" class="form-control" />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" type="password" class="form-control" value="@Model.Password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label asp-for="PhoneNumber" class="form-label"></label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="LocationId" class="form-label"></label>
+                        <select asp-for="LocationId" class="form-select" asp-items="Model.LocationList">
+                            <option value="">-- Select Location --</option>
+                        </select>
+                        <span asp-validation-for="LocationId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Card -->
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">Booking</div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label asp-for="PickupDate" class="form-label"></label>
+                        <input asp-for="PickupDate" type="datetime-local" class="form-control"
+                               value="@Model.PickupDate.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ReturnDate" class="form-label"></label>
+                        <input asp-for="ReturnDate" type="datetime-local" class="form-control"
+                               value="@Model.ReturnDate.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Need Driver?</label>
+                        <select asp-for="NeedDriver" id="NeedDriverSelect" class="form-select">
+                            <option value="false">No</option>
+                            <option value="true" selected="@Model.NeedDriver">Yes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="DriverDropdown" style="display:none;" class="mb-2">
+                    <label asp-for="SelectedDriverId" class="form-label">Select Driver</label>
+                    <select asp-for="SelectedDriverId" class="form-select" asp-items="Model.AvailableDrivers">
+                        <option value="">-- Select Driver --</option>
+                    </select>
+                    <span asp-validation-for="SelectedDriverId" class="text-danger"></span>
+                </div>
+
+
+                <div id="AltDriverFields" class="mb-2" style="display:none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label asp-for="AltDriverName" class="form-label"></label>
+                            <input asp-for="AltDriverName" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="AltDriverIC" class="form-label"></label>
+                            <input asp-for="AltDriverIC" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label asp-for="AltDriverLicenseNo" class="form-label"></label>
+                            <input asp-for="AltDriverLicenseNo" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <label asp-for="Total" class="form-label"></label>
+                        <input asp-for="Total" id="Total" class="form-control fw-bold" readonly />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Card -->
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">Payment</div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label asp-for="PaymentMethod" class="form-label"></label>
+                        <input asp-for="PaymentMethod" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="PaymentDate" class="form-label"></label>
+                        <<input asp-for="PaymentDate" type="datetime-local" class="form-control"
+                                value="@(Model.PaymentDate != DateTime.MinValue ? ((DateTime)Model.PaymentDate).ToString("yyyy-MM-ddTHH:mm") : "")" />
+
+                    </div>
+                </div>
+                <div class="form-check mt-2">
+                    <input asp-for="IsPaid" class="form-check-input" type="checkbox" />
+                    <label asp-for="IsPaid" class="form-check-label"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-warning">Update Booking</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function parseInvariantFloat(val) {
+            return parseFloat((val || "").toString().replace(',', '.')) || 0;
+        }
+
+        const needDriverSelect = document.querySelector("#NeedDriverSelect");
+        const driverDropdown = document.querySelector("#DriverDropdown");
+        const altDriverFields = document.querySelector("#AltDriverFields");
+
+        const pickup = document.querySelector("#PickupDate");
+        const ret = document.querySelector("#ReturnDate");
+        const totalInput = document.querySelector("#Total");
+
+        const dailyRate = parseInvariantFloat(document.querySelector("#DailyRate").value);
+        const driverRate = parseInvariantFloat(document.querySelector("#DriverRate").value);
+
+        function toggleDriverUI() {
+            if (needDriverSelect.value === "true") {
+                driverDropdown.style.display = "block";
+                altDriverFields.style.display = "none";
+            } else {
+                driverDropdown.style.display = "none";
+                altDriverFields.style.display = "block";
+            }
+            updateTotal();
+        }
+
+        function updateTotal() {
+            const start = new Date(pickup.value);
+            const end = new Date(ret.value);
+            let diff = (end - start) / (1000 * 60 * 60 * 24);
+            if (!isFinite(diff) || diff < 1) diff = 1;
+            let total = dailyRate * diff;
+            if (needDriverSelect.value === "true") {
+                total += driverRate * diff;
+            }
+            totalInput.value = total.toFixed(2);
+        }
+
+        needDriverSelect.addEventListener("change", toggleDriverUI);
+        pickup.addEventListener("change", updateTotal);
+        ret.addEventListener("change", updateTotal);
+
+        // Initial setup
+        toggleDriverUI();
+        updateTotal();
+    </script>
+}

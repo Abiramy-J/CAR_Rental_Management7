@@ -39,6 +39,9 @@ namespace Car_Rental_Management.ViewModels
         public DateTime? PaymentDate { get; set; }
         public string? PaymentMethod { get; set; }
         public bool IsPaid { get; set; } = false;
+        // <-- Add this property for NeedDriver dropdown
+        public List<SelectListItem> NeedDriverOptions { get; set; } = new List<SelectListItem>();
+
     }
 }
 

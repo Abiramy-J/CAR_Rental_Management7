@@ -2,11 +2,16 @@
 
 @{
     ViewData["Title"] = "Bookings";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // or _AdminLayout.cshtml if you have one
+    Layout = "~/Views/Shared/_Layout.cshtml"; // or _AdminLayout.cshtml
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4">📑 All Bookings</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">📑 All Bookings</h2>
+        <a href="@Url.Action("SelectCar", "ManualBooking")" class="btn btn-success">
+            Book Manually
+        </a>
+    </div>
 
     @if (!Model.Any())
     {
@@ -16,34 +21,107 @@
     }
     else
     {
-        <table class="table table-striped table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Booking ID</th>
-                    <th>Customer</th>
-                    <th>Car</th>
-                    <th>Driver</th>
-                    <th>Pickup</th>
-                    <th>Return</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var booking in Model)
-                {
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover align-middle shadow-sm">
+                <thead class="table-dark text-center">
                     <tr>
-                        <td>@booking.BookingID</td>
-                        <td>@booking.Customer?.FullName</td>
-                        <td>@booking.Car?.CarModel?.ModelName</td>
-                        <td>@booking.Driver?.FullName ?? booking.AltDriverName</td>
-                        <td>@booking.PickupDate.ToString("dd MMM yyyy")</td>
-                        <td>@booking.ReturnDate.ToString("dd MMM yyyy")</td>
-                        <td>@booking.TotalAmount.ToString("C")</td>
-                        <td>@booking.Status</td>
+                        <th>Booking ID</th>
+                        <th>Customer</th>
+                        <th>Car</th>
+                        <th>Driver</th>
+                        <th>Pickup</th>
+                        <th>Return</th>
+                        <th>Total</th>
+                        <th>Payment Status</th>
+                        <th>Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var booking in Model)
+                    {
+                        <tr class="text-center">
+                            <td>@booking.BookingID</td>
+                            <td>@booking.Customer?.FullName</td>
+
+                            <!-- Car Image -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(booking.Car?.ImageUrl))
+                                {
+                                    <img src="@Url.Content(booking.Car.ImageUrl)" alt="Car Image" class="img-thumbnail" style="width:80px; height:auto;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No Image</span>
+                                }
+                            </td>
+
+                            <!-- Driver Column -->
+                            <td>
+                                @if (booking.DriverBookings != null && booking.DriverBookings.Any())
+                                {
+                                    <span class="badge bg-success">Company Driver</span>
+
+                                    <br />
+                                    @booking.DriverBookings.First().Driver.FullName
+                                }
+                                else if (!string.IsNullOrEmpty(booking.AltDriverName))
+                                {
+                                    <span class="badge bg-info text-dark">Alternate Driver</span>
+
+                                    <br />
+                                    @booking.AltDriverName
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No Driver</span>
+                                }
+                            </td>
+
+                            <td>@booking.PickupDate.ToString("dd MMM yyyy")</td>
+                            <td>@booking.ReturnDate.ToString("dd MMM yyyy")</td>
+                            <td>@booking.TotalAmount.ToString("C")</td>
+
+                            <!-- Payment Status -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(booking.PaymentMethod))
+                                {
+                                    <span class="badge bg-success">Paid</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Not Paid</span>
+                                }
+                            </td>
+
+                            <!-- Action Buttons -->
+                            <td>
+                                <a asp-controller="ManualBooking"
+                                   asp-action="Edit"
+                                   asp-route-id="@booking.BookingID"
+                                   class="btn btn-warning btn-sm mb-1">
+                                    Edit
+                                </a>
+
+                                @if (booking.Status != "Cancelled")
+                                {
+                                    <form asp-controller="ManualBooking"
+                                          asp-action="Cancel"
+                                          asp-route-id="@booking.BookingID"
+                                          method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-danger btn-sm mb-1" onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Cancelled</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 </div>

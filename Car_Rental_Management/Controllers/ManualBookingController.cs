@@ -78,7 +78,7 @@ namespace Car_Rental_Management.Controllers
             if (!vm.NeedDriver)
             {
                 //optional: require alt-driver fields only if you want
-                 if (string.IsNullOrWhiteSpace(vm.AltDriverName)) ModelState.AddModelError(nameof(vm.AltDriverName), "Please enter alternative driver name.");
+                if (string.IsNullOrWhiteSpace(vm.AltDriverName)) ModelState.AddModelError(nameof(vm.AltDriverName), "Please enter alternative driver name.");
             }
 
             if (!ModelState.IsValid)
@@ -235,13 +235,167 @@ namespace Car_Rental_Management.Controllers
             var bookings = await _context.Bookings
                 .Include(b => b.Car)
                 .Include(b => b.Customer)
-                .Include(b => b.Driver)
+                .Include(b => b.DriverBookings).ThenInclude(db => db.Driver)
                 .Include(b => b.Location)
                 .ToListAsync();
 
             return View(bookings);
         }
+        // ---------------- GET: Edit ----------------
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.Car).ThenInclude(c => c.CarModel)
+                .Include(b => b.Customer)
+                .Include(b => b.DriverBookings).ThenInclude(db => db.Driver)
+                .Include(b => b.Location)
+                .FirstOrDefaultAsync(b => b.BookingID == id);
 
+            if (booking == null) return NotFound();
+            var availableDrivers = await GetAvailableDriversAsync(booking.PickupDate, booking.ReturnDate);
+            var vm = new ManualBookingVM
+            {
+                BookingID = booking.BookingID,
+                CarId = booking.CarID,
+                CustomerId = booking.CustomerID,
+                CarModelName = booking.Car.CarModel?.ModelName ?? "",
+                CarDailyRate = booking.Car.DailyRate,
+                DriverDailyRate = 500m, // replace with config or db value
+
+                // Customer
+                FullName = booking.Customer.FullName,
+                Username = booking.Customer.Username,
+                Password = booking.Customer.Password,
+                Email = booking.Customer.Email,
+                PhoneNumber = booking.Customer.PhoneNumber,
+                LocationId = booking.LocationID,
+
+                // Booking
+                PickupDate = booking.PickupDate,
+                ReturnDate = booking.ReturnDate,
+                NeedDriver = booking.NeedDriver,
+                SelectedDriverId = booking.DriverBookings.FirstOrDefault()?.DriverId,
+                AltDriverName = booking.AltDriverName,
+                AltDriverIC = booking.AltDriverIC,
+                AltDriverLicenseNo = booking.AltDriverLicenseNo,
+                Total = booking.TotalAmount,
+
+                // Payment
+                PaymentMethod = booking.PaymentMethod,
+                PaymentDate = booking.PaymentDate,
+                IsPaid = booking.Status == "Paid",
+
+                // Dropdowns
+                LocationList = await GetLocationsAsync(),
+                AvailableDrivers = availableDrivers
+            .Select(d => new SelectListItem
+            {
+                Value = d.Value,
+                Text = d.Text,
+                Selected = d.Value == booking.DriverBookings.FirstOrDefault()?.DriverId.ToString()
+            })
+            .ToList()
+            };
+
+            return View(vm);
+        }
+        // ---------------- POST: Edit ----------------
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, ManualBookingVM vm)
+        {
+            if (id != vm.BookingID) return BadRequest();
+
+            if (!ModelState.IsValid)
+            {
+                vm.LocationList = await GetLocationsAsync();
+                vm.AvailableDrivers = await GetAvailableDriversAsync(vm.PickupDate, vm.ReturnDate);
+                return View(vm);
+            }
+
+            var booking = await _context.Bookings
+                .Include(b => b.Customer)
+                .Include(b => b.DriverBookings)
+                .FirstOrDefaultAsync(b => b.BookingID == id);
+
+            if (booking == null) return NotFound();
+
+            // --- Recalculate total ---
+            var car = await _context.Cars.FindAsync(vm.CarId);
+            if (car == null) return NotFound();
+
+            var days = Math.Ceiling((vm.ReturnDate - vm.PickupDate).TotalDays);
+            if (days < 1) days = 1;
+
+            decimal total = car.DailyRate * (decimal)days;
+            if (vm.NeedDriver) total += vm.DriverDailyRate * (decimal)days;
+
+            // --- Update Customer ---
+            booking.Customer.FullName = vm.FullName;
+            booking.Customer.Username = vm.Username;
+            booking.Customer.Password = vm.Password; // ⚠️ hash in production
+            booking.Customer.Email = vm.Email;
+            booking.Customer.PhoneNumber = vm.PhoneNumber;
+
+            // --- Update Booking ---
+            booking.PickupDate = vm.PickupDate;
+            booking.ReturnDate = vm.ReturnDate;
+            booking.LocationID = vm.LocationId;
+            booking.NeedDriver = vm.NeedDriver;
+            booking.TotalAmount = total;
+            booking.PaymentMethod = vm.PaymentMethod;
+            booking.PaymentDate = vm.PaymentDate ?? DateTime.Now;
+            booking.Status = vm.IsPaid ? "Paid" : "Pending";
+
+            // --- Release old drivers ---
+            foreach (var db in booking.DriverBookings)
+            {
+                var oldDriver = await _context.Drivers.FindAsync(db.DriverId);
+                if (oldDriver != null)
+                    oldDriver.Status = "Available"; // mark old driver available
+            }
+
+            // --- Clear old assignments ---
+            booking.DriverBookings.Clear();
+
+            // --- Assign new driver if needed ---
+            if (vm.NeedDriver && vm.SelectedDriverId.HasValue)
+            {
+                booking.DriverBookings.Add(new DriverBooking
+                {
+                    DriverId = vm.SelectedDriverId.Value,
+                    BookingId = booking.BookingID,
+                    CustomerId = booking.CustomerID,
+                    CarId = vm.CarId,
+                    PickupDateTime = vm.PickupDate,
+                    ReturnDateTime = vm.ReturnDate
+                });
+
+                var newDriver = await _context.Drivers.FindAsync(vm.SelectedDriverId.Value);
+                if (newDriver != null) newDriver.Status = "Booked"; // mark new driver booked
+            }
+            else
+            {
+                // --- Alt driver info ---
+                booking.AltDriverName = vm.AltDriverName;
+                booking.AltDriverIC = vm.AltDriverIC;
+                booking.AltDriverLicenseNo = vm.AltDriverLicenseNo;
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync(); // save everything
+                TempData["SuccessMessage"] = "Booking updated successfully.";
+                return RedirectToAction("BookingList");
+            }
+            catch (Exception ex)
+            {
+                TempData["Errors"] = $"Failed to update booking: {ex.Message}";
+                vm.LocationList = await GetLocationsAsync();
+                vm.AvailableDrivers = await GetAvailableDriversAsync(vm.PickupDate, vm.ReturnDate);
+                return View(vm);
+            }
+        }
     }
 }
-
