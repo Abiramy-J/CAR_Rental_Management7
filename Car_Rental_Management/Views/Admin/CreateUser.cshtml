@@ -3,66 +3,105 @@
     ViewData["Title"] = "Create User";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-<!-- Main -->
-<div class="main-content">
-    <div class="dashboard-header">
-        <h2 class="mb-0">Create New User</h2>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+
+<div class="main-content container my-5">
+
+    <!-- Header -->
+    <div class="text-center mb-4 animate__animated animate__fadeInDown">
+        <h2 class="text-primary fw-bold">👤 Create New User</h2>
+        <p class="text-muted">Fill out the form below to add a new user.</p>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success">@TempData["Success"]</div>
+        <div class="alert alert-success animate__animated animate__fadeIn">
+            @TempData["Success"]
+        </div>
     }
 
-    <form asp-action="CreateUser" method="post" class="card p-4 shadow-sm" style="max-width:600px;">
-        <div class="mb-3">
-            <label asp-for="FullName" class="form-label"></label>
-            <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
-            <span asp-validation-for="FullName" class="text-danger"></span>
-        </div>
+    <!-- Form Card -->
+    <div class="card shadow-sm p-4 animate__animated animate__fadeInUp" style="max-width:600px; margin:auto;">
+        <form asp-action="CreateUser" method="post">
 
-        <div class="mb-3">
-            <label asp-for="Username" class="form-label"></label>
-            <input asp-for="Username" class="form-control" placeholder="Choose username" />
-            <span asp-validation-for="Username" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label fw-semibold"></label>
+                <input asp-for="FullName" class="form-control form-control-lg" placeholder="Enter full name" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" type="password" class="form-control" placeholder="Create password" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label fw-semibold"></label>
+                <input asp-for="Username" class="form-control form-control-lg" placeholder="Choose username" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Role" class="form-label"></label>
-            <select asp-for="Role" asp-items="ViewBag.Roles" class="form-select">
-                <option value="">-- Select Role --</option>
-            </select>
-            <span asp-validation-for="Role" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label fw-semibold"></label>
+                <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="Create password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="Email" class="form-label"></label>
-            <input asp-for="Email" class="form-control" placeholder="Email (optional)" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label asp-for="Role" class="form-label fw-semibold"></label>
+                <select asp-for="Role" asp-items="ViewBag.Roles" class="form-select form-select-lg">
+                    <option value="">-- Select Role --</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
 
-        <div class="mb-3">
-            <label asp-for="PhoneNumber" class="form-label"></label>
-            <input asp-for="PhoneNumber" class="form-control" placeholder="Phone (optional)" />
-            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-        </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label fw-semibold"></label>
+                <input asp-for="Email" class="form-control form-control-lg" placeholder="Email (optional)" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
 
-        <button type="submit" class="btn btn-primary me-2">Create</button>
-        <a asp-action="User" class="btn btn-secondary">Back to List</a>
-    </form>
-</div>
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Success"]
+            <div class="mb-3">
+                <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
+                <input asp-for="PhoneNumber" class="form-control form-control-lg" placeholder="Phone (optional)" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg px-5 py-2 shadow-sm animate__animated animate__pulse animate__infinite">
+                    Create
+                </button>
+                <a asp-action="User" class="btn btn-secondary btn-lg px-4 py-2 shadow-sm ms-2">Back to List</a>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger mt-3 animate__animated animate__shakeX">
+                    ⚠️ Please correct the errors before submitting.
+                </div>
+            }
+        </form>
     </div>
-}
+</div>
+
+<style>
+    /* Card hover effect */
+    .card {
+        border-radius: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+        }
+
+    /* Button hover */
+    .btn {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

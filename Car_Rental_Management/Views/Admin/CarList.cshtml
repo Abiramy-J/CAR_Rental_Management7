@@ -5,59 +5,62 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+
 <div class="main-content container my-4">
 
     <!-- Header -->
-    <div class="text-center mb-4">
-        <h2 class="mb-0">🚘 Car Management</h2>
+    <div class="text-center mb-4 animate__animated animate__fadeInDown">
+        <h2 class="mb-0 text-primary fw-bold">🚘 Car Management</h2>
+        <p class="text-muted">Manage all cars, filter, and perform actions</p>
     </div>
 
     <!-- Filters -->
-    <form method="get" class="mb-4">
+    <form method="get" class="mb-4 animate__animated animate__fadeIn">
         <div class="row g-3 justify-content-center">
 
             <div class="col-md-2">
-                <select asp-for="SelectedCarModelID" asp-items="Model.CarModelList" class="form-select">
+                <select asp-for="SelectedCarModelID" asp-items="Model.CarModelList" class="form-select shadow-sm">
                     <option value="">-- All Models --</option>
                 </select>
             </div>
 
             <div class="col-md-2">
-                <input asp-for="MinRate" type="number" min="0" step="100" class="form-control" placeholder="Min Rate (LKR)" />
+                <input asp-for="MinRate" type="number" min="0" step="100" class="form-control shadow-sm" placeholder="Min Rate (LKR)" />
             </div>
 
             <div class="col-md-2">
-                <input asp-for="MaxRate" type="number" min="0" step="100" class="form-control" placeholder="Max Rate (LKR)" />
+                <input asp-for="MaxRate" type="number" min="0" step="100" class="form-control shadow-sm" placeholder="Max Rate (LKR)" />
             </div>
 
             <div class="col-md-2">
-                <select asp-for="Status" asp-items="Model.StatusList" class="form-select">
+                <select asp-for="Status" asp-items="Model.StatusList" class="form-select shadow-sm">
                     <option value="">-- All Status --</option>
                 </select>
             </div>
 
             <div class="col-md-2">
-                <input asp-for="Keyword" class="form-control" placeholder="Keyword in description" />
+                <input asp-for="Keyword" class="form-control shadow-sm" placeholder="Keyword in description" />
             </div>
 
             <div class="col-md-1">
-                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                <button type="submit" class="btn btn-primary w-100 shadow-sm">Filter</button>
             </div>
 
         </div>
     </form>
 
     <!-- Add Car Button -->
-    <div class="text-center mb-4">
-        <a asp-controller="Admin" asp-action="AddCar" class="btn btn-primary">
+    <div class="text-center mb-4 animate__animated animate__fadeIn">
+        <a asp-controller="Admin" asp-action="AddCar" class="btn btn-success shadow-sm px-4 py-2 animate__animated animate__pulse animate__infinite">
             <i class="bi bi-plus-circle"></i> Add Car
         </a>
     </div>
 
     <!-- Car Table -->
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped text-center align-middle shadow-sm">
-            <thead class="table-dark">
+    <div class="table-responsive animate__animated animate__fadeInUp">
+        <table class="table table-hover align-middle shadow-sm rounded overflow-hidden">
+            <thead class="table-dark text-center">
                 <tr>
                     <th>Image</th>
                     <th>
@@ -67,7 +70,7 @@
                            asp-route-MinRate="@Model.MinRate"
                            asp-route-MaxRate="@Model.MaxRate"
                            asp-route-Status="@Model.Status"
-                           asp-route-Keyword="@Model.Keyword">
+                           asp-route-Keyword="@Model.Keyword" class="text-white text-decoration-none">
                             Model @(Model.SortOrder == "model_desc" ? "▼" : "▲")
                         </a>
                     </th>
@@ -80,7 +83,7 @@
                            asp-route-MinRate="@Model.MinRate"
                            asp-route-MaxRate="@Model.MaxRate"
                            asp-route-Status="@Model.Status"
-                           asp-route-Keyword="@Model.Keyword">
+                           asp-route-Keyword="@Model.Keyword" class="text-white text-decoration-none">
                             Rate (LKR/Day) @(Model.SortOrder == "rate_asc" ? "▲" : Model.SortOrder == "rate_desc" ? "▼" : "")
                         </a>
                     </th>
@@ -92,15 +95,15 @@
             <tbody>
                 @foreach (var car in Model.CarList)
                 {
-                    <tr>
+                    <tr class="align-middle text-center table-row-hover animate__animated animate__fadeInUp" style="transition: transform 0.2s;">
                         <td>
                             @if (!string.IsNullOrEmpty(car.ImageUrl))
                             {
-                                <img src="@car.ImageUrl" alt="Car Image" class="img-thumbnail" style="max-width: 100px; height: auto;" />
+                                <img src="@car.ImageUrl" alt="Car Image" class="img-thumbnail shadow-sm" style="max-width: 100px; height: auto; border-radius: 8px;" />
                             }
                             else
                             {
-                                <span>No image</span>
+                                <span class="text-muted">No image</span>
                             }
                         </td>
                         <td>@car.CarModel?.ModelName</td>
@@ -108,15 +111,15 @@
                         <td>@car.Mileage km</td>
                         <td>@car.DailyRate.ToString("N0")</td>
                         <td>
-                            <span class="badge @(car.Status == "Available" ? "bg-success" : "bg-warning")">
+                            <span class="badge @(car.Status == "Available" ? "bg-success" : "bg-warning") shadow-sm">
                                 @car.Status
                             </span>
                         </td>
-                        <td>@car.Description</td>
+                        <td class="text-start">@car.Description</td>
                         <td>
                             <div class="d-flex justify-content-center gap-2">
-                                <a asp-action="EditCar" asp-route-id="@car.CarID" class="btn btn-sm btn-warning">Edit</a>
-                                <a asp-action="DeleteCar" asp-route-id="@car.CarID" class="btn btn-sm btn-danger">Delete</a>
+                                <a asp-action="EditCar" asp-route-id="@car.CarID" class="btn btn-sm btn-warning shadow-sm">Edit</a>
+                                <a asp-action="DeleteCar" asp-route-id="@car.CarID" class="btn btn-sm btn-danger shadow-sm">Delete</a>
                             </div>
                         </td>
                     </tr>
@@ -125,3 +128,14 @@
         </table>
     </div>
 </div>
+
+<style>
+    .table-row-hover:hover {
+        transform: scale(1.02);
+        background-color: #f1f5f9 !important;
+    }
+
+    .table-hover tbody tr:hover td {
+        transition: background-color 0.3s, transform 0.3s;
+    }
+</style>

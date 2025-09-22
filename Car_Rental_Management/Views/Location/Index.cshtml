@@ -5,37 +5,70 @@
     ViewBag.Title = "Locations";
 }
 
-<div class="main-content">
-    <div class="dashboard-header">
-        <h2>📍 Location Management</h2>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+
+<div class="main-content container my-4">
+
+    <!-- Header -->
+    <div class="text-center mb-4 animate__animated animate__fadeInDown">
+        <h2 class="mb-0 text-primary fw-bold">📍 Location Management</h2>
+        <p class="text-muted">Add, edit, or remove locations</p>
     </div>
 
-    <div class="mb-3">
-        <a asp-action="Create" class="btn btn-primary">
+    <!-- Add Location Button -->
+    <div class="text-center mb-4 animate__animated animate__fadeIn">
+        <a asp-action="Create" class="btn btn-success shadow-sm px-4 py-2 animate__animated animate__pulse animate__infinite">
             <i class="fa fa-plus-circle"></i> Add New Location
         </a>
     </div>
 
-    <table class="table table-bordered table-striped shadow-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>Name</th>
-                <th>Address</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var location in Model)
-            {
+    <!-- Locations Table -->
+    <div class="table-responsive animate__animated animate__fadeInUp">
+        <table class="table table-hover table-bordered table-striped shadow-sm rounded overflow-hidden text-center align-middle">
+            <thead class="table-dark">
                 <tr>
-                    <td>@location.Name</td>
-                    <td>@location.Address</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@location.LocationID" class="btn btn-sm btn-warning">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@location.LocationID" class="btn btn-sm btn-danger">Delete</a>
-                    </td>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th style="width: 200px;">Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var location in Model)
+                {
+                    <tr class="table-row-hover animate__animated animate__fadeInUp" style="transition: transform 0.2s;">
+                        <td>@location.Name</td>
+                        <td>@location.Address</td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a asp-action="Edit" asp-route-id="@location.LocationID" class="btn btn-sm btn-warning shadow-sm">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@location.LocationID" class="btn btn-sm btn-danger shadow-sm">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<style>
+    /* Hover animation for table rows */
+    .table-row-hover:hover {
+        transform: scale(1.02);
+        background-color: #f1f5f9 !important;
+    }
+
+    .table-hover tbody tr:hover td {
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    /* Buttons shadow and smooth hover */
+    .btn {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+</style>

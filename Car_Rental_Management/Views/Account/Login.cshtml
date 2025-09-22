@@ -4,79 +4,81 @@
     var returnUrl = ViewData["ReturnUrl"] as string ?? "/";
 }
 
-<div class="d-flex justify-content-center align-items-center vh-100"
-     style="background: url('/images/car.png') no-repeat center center; background-size: cover;">
+<!-- Fullscreen video background -->
+<video autoplay muted loop playsinline id="bgVideo">
+    <source src="~/videos/Login.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
 
-    <div class="card shadow-lg p-5 rounded-4"
-         style="width: 100%; max-width: 380px; backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.9);">
+<!-- Centered Login Card -->
+<div class="d-flex justify-content-center align-items-center vh-100">
+
+    <div class="card shadow-lg p-5 rounded-4 glass-card-dark animate__animated animate__fadeInDown"
+         style="width: 100%; max-width: 400px; position: relative; z-index: 2;">
 
         <!-- Title -->
-        <h2 class="text-center mb-4 fw-bold text-primary">Login</h2>
+        <h2 class="text-center mb-4 fw-bold text-info">Login</h2>
 
         <!-- Form -->
-        <form asp-action="Login" method="post">
+        <form asp-action="Login" method="post" class="needs-validation" novalidate>
             <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
 
             <div asp-validation-summary="ModelOnly" class="text-danger mb-2 text-center"></div>
 
             <!-- Username -->
             <div class="form-group mb-3">
-                <label asp-for="Username" class="fw-semibold"></label>
+                <label asp-for="Username" class="fw-semibold text-light"></label>
                 <div class="input-group">
-                    <span class="input-group-text bg-white"><i class="bi bi-person-fill text-primary"></i></span>
-                    <input asp-for="Username" class="form-control" placeholder="Enter your username" />
+                    <span class="input-group-text bg-dark text-white border-secondary">
+                        <i class="bi bi-person-fill text-info"></i>
+                    </span>
+                    <input asp-for="Username" class="form-control bg-dark text-white border-secondary"
+                           placeholder="Enter your username" />
                 </div>
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
 
             <!-- Password with Eye -->
             <div class="form-group mb-4">
-                <label asp-for="Password" class="fw-semibold"></label>
+                <label asp-for="Password" class="fw-semibold text-light"></label>
                 <div class="input-group">
-                    <span class="input-group-text bg-white"><i class="bi bi-lock-fill text-primary"></i></span>
-                    <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" id="passwordInput" />
-                    <span class="input-group-text bg-white" style="cursor:pointer;" onclick="togglePassword()">
-                        <i class="bi bi-eye-slash-fill text-primary" id="toggleIcon"></i>
+                    <span class="input-group-text bg-dark text-white border-secondary">
+                        <i class="bi bi-lock-fill text-info"></i>
+                    </span>
+                    <input asp-for="Password" type="password" class="form-control bg-dark text-white border-secondary"
+                           placeholder="Enter your password" id="passwordInput" />
+                    <span class="input-group-text bg-dark text-white border-secondary" style="cursor:pointer;" onclick="togglePassword()">
+                        <i class="bi bi-eye-slash-fill text-info" id="toggleIcon"></i>
                     </span>
                 </div>
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
             <!-- Submit -->
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3" style="transition: transform 0.2s;">
+            <button type="submit" class="btn btn-info w-100 py-2 fw-bold rounded-3 btn-hover">
                 Login
             </button>
 
-            <!-- Hover effect -->
-            <style>
-                button:hover {
-                    transform: scale(1.03);
-                }
-            </style>
+            <!-- Error Message -->
+            @if (ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger mt-3 text-center">
+                    Invalid username or password
+                </div>
+            }
+
+            <!-- Register & Forgot Password -->
+            <p class="text-center mt-3 mb-0 text-light">
+                Don't have an account?
+                <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@returnUrl"
+                   class="fw-semibold text-decoration-none text-info">Register here</a>
+            </p>
+            <p class="text-center mt-2 mb-0">
+                <a asp-controller="Account" asp-action="ForgotPassword" class="text-info fw-semibold">
+                    Forgot Password?
+                </a>
+            </p>
         </form>
-
-        <!-- Error Message -->
-        @if (ViewData.ModelState.ErrorCount > 0)
-        {
-            <div class="alert alert-danger mt-3 text-center">
-                Invalid username or password
-            </div>
-        }
-
-        <!-- Register Link -->
-        <p class="text-center mt-3 mb-0">
-            Don't have an account?
-            <a asp-controller="Account" asp-action="Register" asp-route-returnUrl="@returnUrl" class="fw-semibold text-decoration-none text-primary">
-                Register here
-            </a>
-        </p>
-       
-        <p class="text-center mt-3 mb-0">
-           <br />
-            <a asp-controller="Account" asp-action="ForgotPassword" class="text-primary fw-semibold">
-                Forgot Password?
-            </a>
-        </p>
     </div>
 </div>
 
@@ -93,8 +95,75 @@
             icon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
         }
     }
+
+    // Bootstrap validation
+    (() => {
+        'use strict';
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
 </script>
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
 }
+
+<!-- CSS -->
+<style>
+    /* Video background */
+    #bgVideo {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        filter: brightness(0.6); /* dim video for better contrast */
+    }
+
+    /* Dark Glass card */
+    .glass-card-dark {
+        background: rgba(30, 30, 30, 0.55);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .glass-card-dark:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+        }
+
+    /* Button hover */
+    .btn-hover {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .btn-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+    /* Input placeholders color */
+    ::placeholder {
+        color: rgba(255,255,255,0.7) !important;
+        opacity: 1;
+    }
+
+    /* Input text color */
+    input, select {
+        color: #ffffff;
+    }
+</style>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />

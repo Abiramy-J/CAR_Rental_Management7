@@ -1,48 +1,95 @@
-﻿@model Car_Rental_Management.ViewModels.DriverEditVM
+﻿@model Car_Rental_Management.Models.Driver
 
 @{
     ViewData["Title"] = "Edit Driver";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>Edit Driver</h2>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="DriverId" />
+<div class="main-content container my-5">
 
-    <div class="mb-3">
-        <label asp-for="FullName" class="form-label">Full Name</label>
-        <input asp-for="FullName" class="form-control" />
-        <span asp-validation-for="FullName" class="text-danger"></span>
+    <!-- Header -->
+    <div class="text-center mb-4 animate__animated animate__fadeInDown">
+        <h2 class="text-warning fw-bold">✏️ Edit Driver</h2>
+        <p class="text-muted">Update driver details below</p>
     </div>
-    <div class="mb-3">
-        <label asp-for="PhoneNo" class="form-label">Phone Number</label>
-        <input asp-for="PhoneNo" class="form-control" />
-        <span asp-validation-for="PhoneNo" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="NIC" class="form-label">NIC</label>
-        <input asp-for="NIC" class="form-control" />
-        <span asp-validation-for="NIC" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="LicenseNo" class="form-label">License Number</label>
-        <input asp-for="LicenseNo" class="form-control" />
-        <span asp-validation-for="LicenseNo" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Username" class="form-label">Username</label>
-        <input asp-for="Username" class="form-control" />
-        <span asp-validation-for="Username" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label">Email</label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-    <button type="submit" class="btn btn-success">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Back</a>
-</form>
+
+    <!-- Form Card -->
+    <form asp-action="Edit" method="post" class="card p-4 shadow-sm animate__animated animate__fadeInUp" style="max-width:600px; margin:auto;">
+        <input type="hidden" asp-for="DriverId" />
+
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label fw-bold"></label>
+            <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PhoneNo" class="form-label fw-bold"></label>
+            <input asp-for="PhoneNo" class="form-control" placeholder="Enter phone number" />
+            <span asp-validation-for="PhoneNo" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="NIC" class="form-label fw-bold"></label>
+            <input asp-for="NIC" class="form-control" placeholder="Enter NIC" />
+            <span asp-validation-for="NIC" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="LicenseNo" class="form-label fw-bold"></label>
+            <input asp-for="LicenseNo" class="form-control" placeholder="Enter License Number" />
+            <span asp-validation-for="LicenseNo" class="text-danger"></span>
+        </div>
+
+        @* Optional Availability
+        <div class="form-check mb-3">
+        <input asp-for="IsAvailable" class="form-check-input" />
+        <label asp-for="IsAvailable" class="form-check-label">Available</label>
+        </div> *@
+
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-success btn-hover">
+                💾 Update
+            </button>
+            <a asp-action="Index" class="btn btn-secondary btn-hover">
+                ↩ Back
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Card hover animation */
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        transition: all 0.3s ease-in-out;
+    }
+
+    /* Buttons hover animation */
+    .btn-hover {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .btn-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Optional: smooth focus animation on input fields
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.classList.add('animate__animated', 'animate__pulse');
+            });
+            input.addEventListener('blur', () => {
+                input.classList.remove('animate__animated', 'animate__pulse');
+            });
+        });
+    </script>
 }

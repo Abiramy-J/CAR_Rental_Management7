@@ -4,21 +4,64 @@
     ViewData["Title"] = "Delete Location";
 }
 
-<div class="main-content">
-    <div class="dashboard-header">
-        <h2>❌ Delete Location</h2>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+
+<div class="main-content container my-4">
+
+    <!-- Header -->
+    <div class="text-center mb-4 animate__animated animate__fadeInDown">
+        <h2 class="text-danger fw-bold">❌ Delete Location</h2>
+        <p class="text-muted">This action cannot be undone!</p>
     </div>
 
-    <p>Are you sure you want to delete this location?</p>
-
-    <div>
-        <strong>Name:</strong> @Model.Name <br />
-        <strong>Address:</strong> @Model.Address
+    <!-- Warning Card -->
+    <div class="alert alert-warning shadow-sm animate__animated animate__fadeInUp">
+        ⚠️ You are about to permanently delete the following location:
+        <div class="mt-2">
+            <strong>Name:</strong> @Model.Name <br />
+            <strong>Address:</strong> @Model.Address
+        </div>
     </div>
 
-    <form asp-action="Delete" method="post">
-        <input type="hidden" asp-for="LocationID" />
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-    </form>
+    <!-- Delete Form -->
+    <div class="text-center mt-4 animate__animated animate__fadeInUp animate__delay-1s">
+        <form asp-action="Delete" method="post" onsubmit="return confirmDelete();" class="d-inline-block">
+            <input type="hidden" asp-for="LocationID" />
+            <button type="submit" class="btn btn-danger btn-lg px-4 py-2 shadow-sm animate__animated animate__pulse animate__infinite">
+                🗑️ Confirm Delete
+            </button>
+            <a asp-action="Index" class="btn btn-secondary btn-lg px-4 py-2 shadow-sm">↩ Cancel</a>
+        </form>
+    </div>
 </div>
+
+<style>
+    /* Button hover effect */
+    .btn {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+    /* Alert shadow */
+    .alert {
+        border-radius: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .alert:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        }
+</style>
+
+@section Scripts {
+    <script>
+        function confirmDelete() {
+            return confirm("⚠️ Are you sure you want to delete this location?\nThis action cannot be undone.");
+        }
+    </script>
+}

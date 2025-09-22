@@ -3,85 +3,101 @@
     ViewData["Title"] = "Register";
 }
 
-<div class="d-flex justify-content-center align-items-center vh-100"
-     style="background: url('/images/car.png') no-repeat center center; background-size: cover;">
-    <div class="card shadow-lg p-4 rounded-4"
-         style="width: 100%; max-width: 400px; backdrop-filter: blur(10px); background: rgba(255,255,255,0.95);">
-        <h2 class="text-center mb-4 fw-bold text-primary">Create Account</h2>
+<!-- Fullscreen Video Background -->
+<video autoplay muted loop playsinline id="bgVideo">
+    <source src="~/videos/Car.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+</video>
 
+<div class="d-flex justify-content-center align-items-center vh-100">
+
+    <div class="card shadow-lg p-5 rounded-4 glass-card-dark animate__animated animate__fadeInDown"
+         style="width: 100%; max-width: 420px; position: relative; z-index: 2;">
+
+        <!-- Title -->
+        <h2 class="text-center mb-4 fw-bold text-info">Create Account</h2>
+
+        <!-- Register Form -->
         <form asp-action="Register" method="post" novalidate class="needs-validation">
             @Html.AntiForgeryToken()
 
             <!-- Full Name -->
             <div class="mb-3">
-                <label asp-for="FullName" class="form-label fw-semibold"></label>
-                <input asp-for="FullName" class="form-control" placeholder="Enter full name" required pattern="^[a-zA-Z\s]{3,50}$" />
-                <div class="invalid-feedback">
-                    Enter a valid name (3-50 letters only).
-                </div>
+                <label asp-for="FullName" class="form-label fw-semibold text-light"></label>
+                <input asp-for="FullName" class="form-control bg-dark text-white border-secondary"
+                       placeholder="Enter full name" required pattern="^[a-zA-Z\s]{3,50}$" />
+                <div class="invalid-feedback">Enter a valid name (3-50 letters only).</div>
             </div>
 
             <!-- Username -->
             <div class="mb-3">
-                <label asp-for="Username" class="form-label fw-semibold"></label>
-                <input asp-for="Username" class="form-control" placeholder="Choose a username" required pattern="^[a-zA-Z0-9]{4,20}$" />
-                <div class="invalid-feedback">
-                    Username must be 4-20 alphanumeric characters.
-                </div>
+                <label asp-for="Username" class="form-label fw-semibold text-light"></label>
+                <input asp-for="Username" class="form-control bg-dark text-white border-secondary"
+                       placeholder="Choose a username" required pattern="^[a-zA-Z0-9]{4,20}$" />
+                <div class="invalid-feedback">Username must be 4-20 alphanumeric characters.</div>
             </div>
 
             <!-- Email -->
             <div class="mb-3">
-                <label asp-for="Email" class="form-label fw-semibold"></label>
-                <input asp-for="Email" type="email" class="form-control" placeholder="Enter your email" required />
-                <div class="invalid-feedback">
-                    Enter a valid email address.
-                </div>
+                <label asp-for="Email" class="form-label fw-semibold text-light"></label>
+                <input asp-for="Email" type="email"
+                       class="form-control bg-dark text-white border-secondary"
+                       placeholder="Enter your email" required />
+                <div class="invalid-feedback">Enter a valid email address.</div>
             </div>
 
             <!-- Phone Number -->
             <div class="mb-3">
-                <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
-                <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="Enter your phone number" required pattern="^\d{10}$" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'');" />
-                <div class="invalid-feedback">
-                    Enter a valid 10-digit phone number.
-                </div>
+                <label asp-for="PhoneNumber" class="form-label fw-semibold text-light"></label>
+                <input asp-for="PhoneNumber" type="tel"
+                       class="form-control bg-dark text-white border-secondary"
+                       placeholder="Enter your phone number" required
+                       pattern="^\d{10}$" maxlength="10"
+                       oninput="this.value=this.value.replace(/[^0-9]/g,'');" />
+                <div class="invalid-feedback">Enter a valid 10-digit phone number.</div>
             </div>
 
             <!-- Password -->
             <div class="mb-3">
-                <label asp-for="Password" class="form-label fw-semibold"></label>
+                <label asp-for="Password" class="form-label fw-semibold text-light"></label>
                 <div class="input-group">
-                    <input asp-for="Password" type="password" class="form-control" id="PasswordField" placeholder="Create a password" required pattern=".{6,}">
-                    <span class="input-group-text bg-white" style="cursor:pointer;" onclick="togglePassword('PasswordField', this)">
+                    <input asp-for="Password" type="password"
+                           class="form-control bg-dark text-white border-secondary"
+                           id="PasswordField" placeholder="Create a password"
+                           required pattern=".{6,}" />
+                    <span class="input-group-text bg-dark text-white border-secondary"
+                          style="cursor:pointer;" onclick="togglePassword('PasswordField', this)">
                         <i class="bi bi-eye-slash"></i>
                     </span>
                 </div>
-                <div class="invalid-feedback">
-                    Password must be at least 6 characters.
-                </div>
+                <div class="invalid-feedback">Password must be at least 6 characters.</div>
             </div>
 
             <!-- Confirm Password -->
             <div class="mb-3">
-                <label asp-for="ConfirmPassword" class="form-label fw-semibold"></label>
+                <label asp-for="ConfirmPassword" class="form-label fw-semibold text-light"></label>
                 <div class="input-group">
-                    <input asp-for="ConfirmPassword" type="password" class="form-control" id="ConfirmPasswordField" placeholder="Confirm your password" required />
-                    <span class="input-group-text bg-white" style="cursor:pointer;" onclick="togglePassword('ConfirmPasswordField', this)">
+                    <input asp-for="ConfirmPassword" type="password"
+                           class="form-control bg-dark text-white border-secondary"
+                           id="ConfirmPasswordField" placeholder="Confirm your password" required />
+                    <span class="input-group-text bg-dark text-white border-secondary"
+                          style="cursor:pointer;" onclick="togglePassword('ConfirmPasswordField', this)">
                         <i class="bi bi-eye-slash"></i>
                     </span>
                 </div>
-                <div class="invalid-feedback" id="confirmPasswordFeedback">
-                    Passwords do not match.
-                </div>
+                <div class="invalid-feedback" id="confirmPasswordFeedback">Passwords do not match.</div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3">Register</button>
+            <!-- Submit -->
+            <button type="submit" class="btn btn-info w-100 py-2 fw-bold rounded-3 btn-hover">
+                Register
+            </button>
         </form>
 
-        <p class="text-center mt-3 mb-0">
+        <!-- Login link -->
+        <p class="text-center mt-3 mb-0 text-light">
             Already have an account?
-            <a asp-controller="Account" asp-action="Login" class="fw-semibold text-decoration-none text-primary">
+            <a asp-controller="Account" asp-action="Login" class="fw-semibold text-decoration-none text-info">
                 Login here
             </a>
         </p>
@@ -136,3 +152,44 @@
         })();
     </script>
 }
+
+<!-- CSS -->
+<style>
+    /* Video background */
+    #bgVideo {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        filter: brightness(0.6); /* dim background */
+    }
+
+    /* Dark Glass card */
+    .glass-card-dark {
+        background: rgba(30, 30, 30, 0.55);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .glass-card-dark:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+        }
+
+    /* Button hover */
+    .btn-hover {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .btn-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+</style>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
