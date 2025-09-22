@@ -246,12 +246,12 @@ namespace Car_Rental_Management.Controllers
                 return RedirectToAction("MyBookings");
             }
 
-            // Allow cancel only within 24 hours of pickup
-            if ((booking.PickupDate - DateTime.Now).TotalHours > 24)
-            {
-                TempData["Error"] = "Cannot cancel booking after 24 hours of pickup.";
-                return RedirectToAction("MyBookings");
-            }
+            //// Allow cancel only within 24 hours of pickup
+            //if ((booking.PickupDate - DateTime.Now).TotalHours > 24)
+            //{
+            //    TempData["Error"] = "Cannot cancel booking after 24 hours of pickup.";
+            //    return RedirectToAction("MyBookings");
+            //}
 
             booking.Status = "Cancelled";
 

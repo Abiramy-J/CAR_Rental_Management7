@@ -37,11 +37,14 @@
             <div class="col-md-2">
                 <input asp-for="MaxRate" type="number" min="0" step="100" class="form-control" placeholder="Max Rate (LKR)" />
             </div>
+            
             <div class="col-md-2">
-                <select asp-for="Status" asp-items="Model.StatusList" class="form-select">
-                    <option value="">-- All Status --</option>
-                </select>
-            </div>
+    <input asp-for="PickupDate" type="date" class="form-control" placeholder="Pickup Date" />
+</div>
+<div class="col-md-2">
+    <input asp-for="ReturnDate" type="date" class="form-control" placeholder="Return Date" />
+</div>
+
             <div class="col-md-2">
                 <input asp-for="Keyword" class="form-control" placeholder="Keyword in description" />
             </div>

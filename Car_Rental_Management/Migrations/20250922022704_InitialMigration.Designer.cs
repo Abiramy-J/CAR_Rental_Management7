@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Car_Rental_Management.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250919034939_AddRefundAmountToBooking")]
-    partial class AddRefundAmountToBooking
+    [Migration("20250922022704_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -220,7 +220,16 @@ namespace Car_Rental_Management.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("DriverId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Drivers");
                 });
@@ -325,6 +334,19 @@ namespace Car_Rental_Management.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Email = "admin@gmail.com",
+                            FullName = "System Administrator",
+                            Password = "admin123",
+                            PhoneNumber = "0000000000",
+                            ProfileImageUrl = "/images/default-profile.png",
+                            Role = "Admin",
+                            Username = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Car_Rental_Management.Models.Booking", b =>
@@ -369,6 +391,15 @@ namespace Car_Rental_Management.Migrations
                         .IsRequired();
 
                     b.Navigation("CarModel");
+                });
+
+            modelBuilder.Entity("Car_Rental_Management.Models.Driver", b =>
+                {
+                    b.HasOne("Car_Rental_Management.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Car_Rental_Management.Models.DriverBooking", b =>

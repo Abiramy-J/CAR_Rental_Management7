@@ -11,6 +11,10 @@ namespace Car_Rental_Management.ViewModels
         public string Status { get; set; }
         public string Keyword { get; set; }
 
+        // Pickup/Return Dates for availability
+        public DateTime? PickupDate { get; set; }
+        public DateTime? ReturnDate { get; set; }
+
         // Sorting
         public string SortOrder { get; set; }
 

@@ -397,5 +397,42 @@ namespace Car_Rental_Management.Controllers
                 return View(vm);
             }
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.DriverBookings)
+                .Include(b => b.Car)
+                .FirstOrDefaultAsync(b => b.BookingID == id);
+
+            if (booking == null) return NotFound();
+
+            booking.Status = "Cancelled";
+
+            // Release car
+            if (booking.Car != null) booking.Car.Status = "Available";
+
+            // Release drivers
+            foreach (var db in booking.DriverBookings)
+            {
+                var driver = await _context.Drivers.FindAsync(db.DriverId);
+                if (driver != null) driver.Status = "Available";
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Booking cancelled successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Errors"] = "Failed to cancel booking: " + ex.Message;
+            }
+
+            return RedirectToAction("BookingList");
+        }
+
     }
 }

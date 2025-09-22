@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Car_Rental_Management.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigratiom : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,22 +30,6 @@ namespace Car_Rental_Management.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CarModels", x => x.CarModelID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Drivers",
-                columns: table => new
-                {
-                    DriverId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    NIC = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LicenseNo = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Drivers", x => x.DriverId);
                 });
 
             migrationBuilder.CreateTable(
@@ -111,6 +95,29 @@ namespace Car_Rental_Management.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Drivers",
+                columns: table => new
+                {
+                    DriverId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NIC = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LicenseNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Drivers", x => x.DriverId);
+                    table.ForeignKey(
+                        name: "FK_Drivers_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Bookings",
                 columns: table => new
                 {
@@ -129,7 +136,9 @@ namespace Car_Rental_Management.Migrations
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefundIssued = table.Column<bool>(type: "bit", nullable: false),
+                    RefundAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -189,6 +198,11 @@ namespace Car_Rental_Management.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "UserId", "Email", "FullName", "Password", "PhoneNumber", "ProfileImageUrl", "Role", "Username" },
+                values: new object[] { 1, "admin@gmail.com", "System Administrator", "admin123", "0000000000", "/images/default-profile.png", "Admin", "admin" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_CarID",
                 table: "Bookings",
@@ -223,6 +237,11 @@ namespace Car_Rental_Management.Migrations
                 name: "IX_DriverBookings_DriverId",
                 table: "DriverBookings",
                 column: "DriverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Drivers_UserId",
+                table: "Drivers",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -244,10 +263,10 @@ namespace Car_Rental_Management.Migrations
                 name: "Locations");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "CarModels");
 
             migrationBuilder.DropTable(
-                name: "CarModels");
+                name: "Users");
         }
     }
 }

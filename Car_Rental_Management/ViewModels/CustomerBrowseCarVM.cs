@@ -22,5 +22,7 @@ namespace Car_Rental_Management.ViewModels
 
         // <-- Add this property to track booked cars
         public List<int> BookedCarIds { get; set; } = new();
+        public DateTime? PickupDate { get; set; }
+        public DateTime? ReturnDate { get; set; }
     }
 }
