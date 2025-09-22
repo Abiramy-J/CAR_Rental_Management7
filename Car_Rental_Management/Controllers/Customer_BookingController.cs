@@ -96,7 +96,8 @@ namespace Car_Rental_Management.Controllers
             bool isCarBooked = await _db.Bookings.AnyAsync(b =>
                 b.CarID == vm.CarID &&
                 b.ReturnDate > vm.PickupDate &&
-                b.PickupDate < vm.ReturnDate
+                b.PickupDate < vm.ReturnDate &&
+                (b.Status != "Cancelled")
             );
 
             if (isCarBooked)
@@ -227,15 +228,19 @@ namespace Car_Rental_Management.Controllers
             return allDrivers.Where(d => !overlappingBookings.Contains(d.DriverId)).ToList();
         }
 
+        
         // Cancel Booking with refund logic
         public async Task<IActionResult> CancelBooking(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Account");
 
+            // Include related Car, Customer, and DriverBookings
             var booking = await _db.Bookings
                 .Include(b => b.Car)
                 .Include(b => b.Customer)
+                .Include(b => b.DriverBookings)
+                    .ThenInclude(db => db.Driver)
                 .FirstOrDefaultAsync(b => b.BookingID == id && b.CustomerID == userId.Value);
 
             if (booking == null) return NotFound();
@@ -246,13 +251,7 @@ namespace Car_Rental_Management.Controllers
                 return RedirectToAction("MyBookings");
             }
 
-            //// Allow cancel only within 24 hours of pickup
-            //if ((booking.PickupDate - DateTime.Now).TotalHours > 24)
-            //{
-            //    TempData["Error"] = "Cannot cancel booking after 24 hours of pickup.";
-            //    return RedirectToAction("MyBookings");
-            //}
-
+            // Mark booking as cancelled
             booking.Status = "Cancelled";
 
             // Refund Logic
@@ -269,17 +268,36 @@ namespace Car_Rental_Management.Controllers
 
             _db.Bookings.Update(booking);
 
+            // Free the car
             if (booking.Car != null)
             {
                 booking.Car.Status = "Available";
                 _db.Cars.Update(booking.Car);
             }
 
+            // Free drivers and remove DriverBooking rows
+            if (booking.DriverBookings != null && booking.DriverBookings.Any())
+            {
+                foreach (var driverBooking in booking.DriverBookings)
+                {
+                    if (driverBooking.Driver != null)
+                    {
+                        driverBooking.Driver.Status = "Available";
+                        _db.Drivers.Update(driverBooking.Driver);
+                    }
+
+                    _db.DriverBookings.Remove(driverBooking); // remove the booking-driver link
+                }
+            }
+           
             await _db.SaveChangesAsync();
 
             TempData["Success"] = "Booking cancelled successfully.";
             return RedirectToAction("MyBookings");
         }
+
+
+
 
 
 

@@ -23,7 +23,7 @@ namespace Car_Rental_Management.ViewModels
         [Display(Name = "Upload Image (optional)")]
         public IFormFile? ImageFile { get; set; }
 
-        public string? VideoUrl { get; set; }
+        //public string? VideoUrl { get; set; }
         public string? Description { get; set; }
 
         [Required]
