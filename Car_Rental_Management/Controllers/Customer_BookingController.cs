@@ -36,11 +36,11 @@ namespace Car_Rental_Management.Controllers
             var car = await _db.Cars.Include(c => c.CarModel).FirstOrDefaultAsync(c => c.CarID == id);
             if (car == null) return NotFound();
 
-            // Use provided dates or default to today and tomorrow
+            
             var pickup = pickupDate ?? DateTime.Now;
             var ret = returnDate ?? DateTime.Now.AddDays(1);
 
-            // Get available drivers for the selected dates
+            // Get available drivers
             var availableDrivers = await GetAvailableDriversAsync(pickup, ret);
 
             var vm = new BookingVM
@@ -132,7 +132,7 @@ namespace Car_Rental_Management.Controllers
             _db.Cars.Update(car);
             await _db.SaveChangesAsync();
 
-            // ---- Robust driver validation ----
+            //  driver validation 
             if (vm.NeedDriver && vm.SelectedDriverId.HasValue)
             {
                 var driver = await _db.Drivers.FindAsync(vm.SelectedDriverId.Value);
@@ -176,19 +176,19 @@ namespace Car_Rental_Management.Controllers
         public async Task<IActionResult> AvailableDrivers(DateTime pickup, DateTime returnDate)
         {
             if (pickup >= returnDate)
-                return Json(new List<object>()); // Return empty if invalid dates
+                return Json(new List<object>()); 
 
-            // Get all drivers
+            // Get  drivers
             var allDrivers = await _db.Drivers.ToListAsync();
 
-            // Find driver IDs that have overlapping bookings
+            // Find driver  overlapping bookings
             var overlappingDriverIds = await _db.DriverBookings
                 .Where(db => db.PickupDateTime < returnDate && db.ReturnDateTime > pickup)
                 .Select(db => db.DriverId)
                 .Distinct()
                 .ToListAsync();
 
-            // Filter out booked drivers
+            // Filter  booked drivers
             var availableDrivers = allDrivers
                 .Where(d => !overlappingDriverIds.Contains(d.DriverId))
                 .Select(d => new
@@ -204,18 +204,7 @@ namespace Car_Rental_Management.Controllers
         }
 
 
-        // Helper: Filter available drivers
-        //private List<Driver> GetAvailableDrivers(DateTime pickup, DateTime returnDate)
-        //{
-        //    var allDrivers = _db.Drivers.ToList();
-        //    var overlappingBookings = _db.DriverBookings
-        //        .Where(db => pickup < db.ReturnDateTime && returnDate > db.PickupDateTime)
-        //        .Select(db => db.DriverId)
-        //        .ToList();
-
-        //    return allDrivers.Where(d => !overlappingBookings.Contains(d.DriverId)).ToList();
-        //}
-
+       
         // Add this async method to the controller
         private async Task<List<Driver>> GetAvailableDriversAsync(DateTime pickup, DateTime returnDate)
         {
@@ -251,31 +240,31 @@ namespace Car_Rental_Management.Controllers
                 return RedirectToAction("MyBookings");
             }
 
-            // Mark booking as cancelled
+           
             booking.Status = "Cancelled";
 
-            // Refund Logic
+            // Refund 
             if (booking.PaymentMethod == "Card")
             {
                 booking.RefundIssued = true;
-                booking.RefundAmount = booking.TotalAmount;  // Full refund
+                booking.RefundAmount = booking.TotalAmount;  
             }
             else
             {
                 booking.RefundIssued = false;
-                booking.RefundAmount = 0; // Cash – refund not auto issued
+                booking.RefundAmount = 0; 
             }
 
             _db.Bookings.Update(booking);
 
-            // Free the car
+           
             if (booking.Car != null)
             {
                 booking.Car.Status = "Available";
                 _db.Cars.Update(booking.Car);
             }
 
-            // Free drivers and remove DriverBooking rows
+            
             if (booking.DriverBookings != null && booking.DriverBookings.Any())
             {
                 foreach (var driverBooking in booking.DriverBookings)
@@ -286,7 +275,7 @@ namespace Car_Rental_Management.Controllers
                         _db.Drivers.Update(driverBooking.Driver);
                     }
 
-                    _db.DriverBookings.Remove(driverBooking); // remove the booking-driver link
+                    _db.DriverBookings.Remove(driverBooking); 
                 }
             }
            
@@ -324,7 +313,7 @@ namespace Car_Rental_Management.Controllers
                 .OrderByDescending(b => b.PickupDate)
                 .ToListAsync();
 
-            // Specify the correct view path
+            
             return View("~/Views/Customer/MyBookings.cshtml", bookings);
         }
     }

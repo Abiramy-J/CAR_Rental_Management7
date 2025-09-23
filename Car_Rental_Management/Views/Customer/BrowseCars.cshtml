@@ -55,7 +55,7 @@
     </form>
 </div>
 
-<!-- Car Listing -->
+@*  Car Listing  *@
 <div class="row">
     @foreach (var car in Model.Cars)
     {
@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <!-- Car Details Modal -->
+        @* ! Car Details Modal *@
         <div class="modal fade" id="carModal-@car.CarID" tabindex="-1" aria-labelledby="carModalLabel-@car.CarID" aria-hidden="true"
              data-bs-backdrop="false" data-bs-keyboard="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">

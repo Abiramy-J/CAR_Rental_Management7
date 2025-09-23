@@ -44,7 +44,7 @@ namespace Car_Rental_Management.Controllers
         }
 
 
-          // Receipt.cshtml will show details
+          // Receipt.cshtml  show 
         public IActionResult Receipt(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
@@ -84,7 +84,7 @@ namespace Car_Rental_Management.Controllers
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(12));
 
-                    // Header
+                   
                     page.Header().Row(row =>
                     {
                         row.RelativeItem().AlignLeft().Text("🚘 Car Rental Management")
@@ -92,7 +92,7 @@ namespace Car_Rental_Management.Controllers
                         row.RelativeItem().AlignRight().Text($"Date: {DateTime.Now:dd/MM/yyyy}");
                     });
 
-                    // Content
+                    
                     page.Content().Column(col =>
                     {
                         col.Spacing(15);
@@ -149,7 +149,7 @@ namespace Car_Rental_Management.Controllers
                         });
                     });
 
-                    // Footer
+                    
                     page.Footer().AlignCenter().Text("⚠️ No Refund Policy | Thank you for booking with us!")
                         .FontSize(10).Italic();
                 });

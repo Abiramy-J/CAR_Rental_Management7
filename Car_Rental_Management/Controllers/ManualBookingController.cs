@@ -39,7 +39,7 @@ namespace Car_Rental_Management.Controllers
                 CarId = car.CarID,
                 CarModelName = car.CarModel?.ModelName ?? "",
                 CarDailyRate = car.DailyRate,
-                DriverDailyRate = 50m, // default driver/day (adjust or fetch per-driver)
+                DriverDailyRate = 50m,
                 PickupDate = pickup,
                 ReturnDate = ret,
                 Total = car.DailyRate,
@@ -71,13 +71,13 @@ namespace Car_Rental_Management.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ManualBookingVM vm)
         {
-            // server-side validation: driver selection vs alt-driver fields
+           
             if (vm.NeedDriver && !vm.SelectedDriverId.HasValue)
                 ModelState.AddModelError(nameof(vm.SelectedDriverId), "Please select a driver when 'Need Driver' is Yes.");
 
             if (!vm.NeedDriver)
             {
-                //optional: require alt-driver fields only if you want
+                
                 if (string.IsNullOrWhiteSpace(vm.AltDriverName)) ModelState.AddModelError(nameof(vm.AltDriverName), "Please enter alternative driver name.");
             }
 
@@ -89,7 +89,7 @@ namespace Car_Rental_Management.Controllers
                 return View(vm);
             }
 
-            // Recalculate server-side total (authoritative)
+            
             var car = await _context.Cars.FindAsync(vm.CarId);
             if (car == null) return NotFound();
 
@@ -100,11 +100,11 @@ namespace Car_Rental_Management.Controllers
             if (vm.NeedDriver) total += driverRate * (decimal)days;
             vm.Total = total;
 
-            // Begin a transaction to ensure atomicity
+            
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // 1) Create or get customer (don't SaveChanges yet; EF can handle it)
+                
                 User customer;
                 if (vm.CustomerId.HasValue)
                 {
@@ -125,11 +125,11 @@ namespace Car_Rental_Management.Controllers
                     _context.Users.Add(customer);
                 }
 
-                // 2) Create booking and link to customer entity (works whether new or existing)
+               
                 var booking = new Booking
                 {
                     CarID = vm.CarId,
-                    Customer = customer,                // set navigation property so EF will set FK
+                    Customer = customer,                
                     LocationID = vm.LocationId,
                     PickupDate = vm.PickupDate,
                     ReturnDate = vm.ReturnDate,
@@ -145,10 +145,10 @@ namespace Car_Rental_Management.Controllers
                 };
                 _context.Bookings.Add(booking);
 
-                // Save so booking.CustomerId and booking.BookingID are assigned (and new user id, if any)
+                
                 await _context.SaveChangesAsync();
 
-                // 3) If driver needed, create DriverBooking and set driver status
+               
                 if (vm.NeedDriver && vm.SelectedDriverId.HasValue)
                 {
                     var driverBooking = new DriverBooking
@@ -166,11 +166,11 @@ namespace Car_Rental_Management.Controllers
                     if (driver != null) driver.Status = "Booked";
                 }
 
-                // 4) Update car status
+                
                 var carToUpdate = await _context.Cars.FindAsync(vm.CarId);
                 if (carToUpdate != null) carToUpdate.Status = "Booked";
 
-                // 5) Save all remaining changes & commit
+               
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -179,8 +179,7 @@ namespace Car_Rental_Management.Controllers
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                // For debugging: pass message to view
+                await transaction.RollbackAsync(); 
                 TempData["Errors"] = "Failed to create booking: " + ex.Message;
                 vm.LocationList = await GetLocationsAsync();
                 vm.AvailableDrivers = await GetAvailableDriversAsync(vm.PickupDate, vm.ReturnDate);
@@ -188,7 +187,7 @@ namespace Car_Rental_Management.Controllers
             }
         }
 
-        // Helper: locations
+        //  locations
         private async Task<List<SelectListItem>> GetLocationsAsync()
         {
             return await _context.Locations
@@ -196,7 +195,7 @@ namespace Car_Rental_Management.Controllers
                 .ToListAsync();
         }
 
-        // Helper: available drivers (no overlapping bookings)
+        //  available drivers 
         private async Task<List<SelectListItem>> GetAvailableDriversAsync(DateTime pickup, DateTime returnDate)
         {
             var bookedDriverIds = await _context.DriverBookings
@@ -229,7 +228,7 @@ namespace Car_Rental_Management.Controllers
                 await _context.SaveChangesAsync();
             }
         }
-        // ---------------- GET: Booking List ----------------
+        // GET: Booking List
         public async Task<IActionResult> BookingList()
         {
             var bookings = await _context.Bookings
@@ -241,7 +240,7 @@ namespace Car_Rental_Management.Controllers
 
             return View(bookings);
         }
-        // ---------------- GET: Edit ----------------
+        //  GET: Edit
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -261,9 +260,9 @@ namespace Car_Rental_Management.Controllers
                 CustomerId = booking.CustomerID,
                 CarModelName = booking.Car.CarModel?.ModelName ?? "",
                 CarDailyRate = booking.Car.DailyRate,
-                DriverDailyRate = 500m, // replace with config or db value
+                DriverDailyRate = 500m, 
 
-                // Customer
+                
                 FullName = booking.Customer.FullName,
                 Username = booking.Customer.Username,
                 Password = booking.Customer.Password,
@@ -271,7 +270,7 @@ namespace Car_Rental_Management.Controllers
                 PhoneNumber = booking.Customer.PhoneNumber,
                 LocationId = booking.LocationID,
 
-                // Booking
+               
                 PickupDate = booking.PickupDate,
                 ReturnDate = booking.ReturnDate,
                 NeedDriver = booking.NeedDriver,
@@ -281,12 +280,12 @@ namespace Car_Rental_Management.Controllers
                 AltDriverLicenseNo = booking.AltDriverLicenseNo,
                 Total = booking.TotalAmount,
 
-                // Payment
+               
                 PaymentMethod = booking.PaymentMethod,
                 PaymentDate = booking.PaymentDate,
                 IsPaid = booking.Status == "Paid",
 
-                // Dropdowns
+                
                 LocationList = await GetLocationsAsync(),
                 AvailableDrivers = availableDrivers
             .Select(d => new SelectListItem
@@ -300,7 +299,7 @@ namespace Car_Rental_Management.Controllers
 
             return View(vm);
         }
-        // ---------------- POST: Edit ----------------
+        // POST: Edit 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ManualBookingVM vm)
@@ -321,7 +320,7 @@ namespace Car_Rental_Management.Controllers
 
             if (booking == null) return NotFound();
 
-            // --- Recalculate total ---
+           
             var car = await _context.Cars.FindAsync(vm.CarId);
             if (car == null) return NotFound();
 
@@ -331,14 +330,14 @@ namespace Car_Rental_Management.Controllers
             decimal total = car.DailyRate * (decimal)days;
             if (vm.NeedDriver) total += vm.DriverDailyRate * (decimal)days;
 
-            // --- Update Customer ---
+           
             booking.Customer.FullName = vm.FullName;
             booking.Customer.Username = vm.Username;
-            booking.Customer.Password = vm.Password; // ⚠️ hash in production
+            booking.Customer.Password = vm.Password; 
             booking.Customer.Email = vm.Email;
             booking.Customer.PhoneNumber = vm.PhoneNumber;
 
-            // --- Update Booking ---
+           
             booking.PickupDate = vm.PickupDate;
             booking.ReturnDate = vm.ReturnDate;
             booking.LocationID = vm.LocationId;
@@ -348,18 +347,18 @@ namespace Car_Rental_Management.Controllers
             booking.PaymentDate = vm.PaymentDate ?? DateTime.Now;
             booking.Status = vm.IsPaid ? "Paid" : "Pending";
 
-            // --- Release old drivers ---
+            
             foreach (var db in booking.DriverBookings)
             {
                 var oldDriver = await _context.Drivers.FindAsync(db.DriverId);
                 if (oldDriver != null)
-                    oldDriver.Status = "Available"; // mark old driver available
+                    oldDriver.Status = "Available";
             }
 
-            // --- Clear old assignments ---
+            
             booking.DriverBookings.Clear();
 
-            // --- Assign new driver if needed ---
+            
             if (vm.NeedDriver && vm.SelectedDriverId.HasValue)
             {
                 booking.DriverBookings.Add(new DriverBooking
@@ -373,11 +372,11 @@ namespace Car_Rental_Management.Controllers
                 });
 
                 var newDriver = await _context.Drivers.FindAsync(vm.SelectedDriverId.Value);
-                if (newDriver != null) newDriver.Status = "Booked"; // mark new driver booked
+                if (newDriver != null) newDriver.Status = "Booked"; 
             }
             else
             {
-                // --- Alt driver info ---
+                
                 booking.AltDriverName = vm.AltDriverName;
                 booking.AltDriverIC = vm.AltDriverIC;
                 booking.AltDriverLicenseNo = vm.AltDriverLicenseNo;
@@ -385,7 +384,7 @@ namespace Car_Rental_Management.Controllers
 
             try
             {
-                await _context.SaveChangesAsync(); // save everything
+                await _context.SaveChangesAsync(); 
                 TempData["SuccessMessage"] = "Booking updated successfully.";
                 return RedirectToAction("BookingList");
             }
@@ -411,10 +410,10 @@ namespace Car_Rental_Management.Controllers
 
             booking.Status = "Cancelled";
 
-            // Release car
+            
             if (booking.Car != null) booking.Car.Status = "Available";
 
-            // Release drivers
+            
             foreach (var db in booking.DriverBookings)
             {
                 var driver = await _context.Drivers.FindAsync(db.DriverId);

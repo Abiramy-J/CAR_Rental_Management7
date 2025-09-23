@@ -4,9 +4,9 @@ using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ------------------------
+
 // Add services to the container
-// ------------------------
+
 builder.Services.AddControllersWithViews();
 
 // Add DbContext (SQL Server)
@@ -30,9 +30,9 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 
-// ------------------------
+
 // Configure the HTTP request pipeline
-// ------------------------
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

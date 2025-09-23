@@ -8,9 +8,9 @@ namespace Car_Rental_Management.Models
 
         [Required]
         [StringLength(100)]
-        public string Name { get; set; }  // e.g., "Colombo Airport"
+        public string Name { get; set; }  
 
         [StringLength(200)]
-        public string Address { get; set; } // Optional
+        public string Address { get; set; } 
     }
 }

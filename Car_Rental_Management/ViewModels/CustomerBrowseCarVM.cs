@@ -8,7 +8,7 @@ namespace Car_Rental_Management.ViewModels
     {
         public List<Car> Cars { get; set; } = new();  // List of cars to display
 
-        // Filter properties
+      
         public int? SelectedCarModelID { get; set; }
         public IEnumerable<SelectListItem> CarModelList { get; set; } = new List<SelectListItem>();
 
@@ -20,7 +20,7 @@ namespace Car_Rental_Management.ViewModels
 
         public string? Keyword { get; set; }
 
-        // <-- Add this property to track booked cars
+      
         public List<int> BookedCarIds { get; set; } = new();
         public DateTime? PickupDate { get; set; }
         public DateTime? ReturnDate { get; set; }

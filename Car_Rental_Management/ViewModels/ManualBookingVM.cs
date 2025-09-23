@@ -9,8 +9,8 @@ namespace Car_Rental_Management.ViewModels
 
         [Required] public int CarId { get; set; }
         public string CarModelName { get; set; } = "";
-        public decimal CarDailyRate { get; set; } = 0m;      // <- used by JS/server
-        public decimal DriverDailyRate { get; set; } = 0m;   // <- used by JS/server
+        public decimal CarDailyRate { get; set; } = 0m;     
+        public decimal DriverDailyRate { get; set; } = 0m;   
 
         public int? CustomerId { get; set; }
 

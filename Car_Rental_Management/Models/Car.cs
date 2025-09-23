@@ -40,7 +40,7 @@ namespace Car_Rental_Management.Models
         public string? Description { get; set; }
 
         [Required]
-        public string Status { get; set; } // Available, Maintenance
+        public string Status { get; set; } 
 
 
     }

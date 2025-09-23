@@ -16,12 +16,13 @@ namespace Car_Rental_Management.ViewModels
         [Required]
         public decimal DailyRate { get; set; }
 
-        // Either paste a URL or upload a file
+        
         [Display(Name = "Main Image URL (optional)")]
         public string? ImageUrl { get; set; }
 
         [Display(Name = "Upload Image (optional)")]
         public IFormFile? ImageFile { get; set; }
+
 
         //public string? VideoUrl { get; set; }
         public string? Description { get; set; }

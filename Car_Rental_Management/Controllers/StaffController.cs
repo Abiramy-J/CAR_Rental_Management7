@@ -16,9 +16,9 @@ namespace Car_Rental_Management.Controllers
             _context = context;
         }
 
-        // ========================
+       
         // GET: /Staff/AddCar
-        // ========================
+       
         public IActionResult AddCar()
         {
             var vm = new CarVM
@@ -42,9 +42,9 @@ namespace Car_Rental_Management.Controllers
             return View(vm);
         }
 
-        // ========================
+        
         // POST: /Staff/AddCar
-        // ========================
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddCar(CarVM vm)
@@ -71,12 +71,12 @@ namespace Car_Rental_Management.Controllers
                 return View(vm);
             }
 
-            // Folder to save images
+            
             string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/cars");
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            // Handle uploaded images
+
             if (vm.ImageFile != null)
             {
                 string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile.FileName);
@@ -96,8 +96,27 @@ namespace Car_Rental_Management.Controllers
 
                 vm.Car.ImageUrl2 = "/images/cars/" + fileName;
             }
+            if (vm.ImageFile3 != null)
+            {
+                string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile3.FileName);
+                string filePath = Path.Combine(folder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                    await vm.ImageFile3.CopyToAsync(stream);
 
-            // Repeat for ImageFile3 and ImageFile4
+                vm.Car.ImageUrl3 = "/images/cars/" + fileName;
+            }
+            if (vm.ImageFile4 != null)
+            {
+                string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile4.FileName);
+                string filePath = Path.Combine(folder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                    await vm.ImageFile4.CopyToAsync(stream);
+
+                vm.Car.ImageUrl4 = "/images/cars/" + fileName;
+            }
+
+
+            
 
             _context.Cars.Add(vm.Car);
             await _context.SaveChangesAsync();
@@ -117,7 +136,7 @@ namespace Car_Rental_Management.Controllers
            
             var carsQuery = _context.Cars.Include(c => c.CarModel).AsQueryable();
 
-            // Apply filtering
+           
             if (filter.SelectedCarModelID.HasValue)
                 carsQuery = carsQuery.Where(c => c.CarModelID == filter.SelectedCarModelID.Value);
 
@@ -133,7 +152,7 @@ namespace Car_Rental_Management.Controllers
             if (!string.IsNullOrEmpty(filter.Keyword))
                 carsQuery = carsQuery.Where(c => c.Description.Contains(filter.Keyword));
 
-            // Apply sorting
+           
             switch (filter.SortOrder)
             {
                 case "model_desc":
@@ -356,7 +375,7 @@ namespace Car_Rental_Management.Controllers
             ViewBag.BookingsTrendCount = bookingsTrend.Select(b => b.Count).ToList();
 
 
-            // Top Locations (most bookings)
+            
             var locationStats = _context.Bookings
                 .GroupBy(b => b.Location.Address)
                 .Select(g => new { Location = g.Key, Count = g.Count() })
@@ -374,9 +393,9 @@ namespace Car_Rental_Management.Controllers
 
             return View();
         }
-        // ========================
+        
         // GET: /Staff/User
-        // ========================
+       
         public async Task<IActionResult> User()
         {
             var users = await _context.Users
@@ -393,7 +412,7 @@ namespace Car_Rental_Management.Controllers
         [Route("Staff/booking")]
         public IActionResult Booking()
         {
-            // Optional: check if admin
+            
             var role = HttpContext.Session.GetString("Role");
             if (role != "Admin") return RedirectToAction("Login", "Account");
 

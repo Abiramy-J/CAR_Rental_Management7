@@ -50,7 +50,7 @@ namespace Car_Rental_Management.Controllers
 
             var user = _db.Users.FirstOrDefault(u =>
                 u.Username.ToLower() == inputUsername &&
-                u.Password == inputPassword); // ⚠ plain text password
+                u.Password == inputPassword); 
 
             if (user != null)
             {

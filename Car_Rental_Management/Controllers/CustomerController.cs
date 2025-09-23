@@ -28,29 +28,26 @@ namespace Car_Rental_Management.Controllers
         {
             var carsQuery = _context.Cars.Include(c => c.CarModel).AsQueryable();
 
-            // Filter by Car Model
+            
             if (SelectedCarModelID.HasValue)
                 carsQuery = carsQuery.Where(c => c.CarModelID == SelectedCarModelID.Value);
 
-            // Filter by rate
+           
             if (MinRate.HasValue)
                 carsQuery = carsQuery.Where(c => c.DailyRate >= MinRate.Value);
 
             if (MaxRate.HasValue)
                 carsQuery = carsQuery.Where(c => c.DailyRate <= MaxRate.Value);
 
-            // Filter by status
+            
             if (!string.IsNullOrEmpty(Status))
                 carsQuery = carsQuery.Where(c => c.Status == Status);
-            //else
-            //    carsQuery = carsQuery.Where(c => c.Status == "Available");
-
-            // Filter by keyword
+            
             if (!string.IsNullOrEmpty(Keyword))
                 carsQuery = carsQuery.Where(c => c.Description != null && c.Description.Contains(Keyword));
 
 
-            // Filter by availability dates
+            
             if (PickupDate.HasValue && ReturnDate.HasValue)
             {
                 var bookedCarIds = await _context.Bookings

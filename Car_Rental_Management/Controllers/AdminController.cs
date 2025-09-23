@@ -94,6 +94,24 @@ public class AdminController : Controller
 
             vm.Car.ImageUrl2 = "/images/cars/" + fileName;
         }
+        if (vm.ImageFile3 != null)
+        {
+            string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile3.FileName);
+            string filePath = Path.Combine(folder, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+                await vm.ImageFile3.CopyToAsync(stream);
+
+            vm.Car.ImageUrl3 = "/images/cars/" + fileName;
+        }
+        if (vm.ImageFile4 != null)
+        {
+            string fileName = Guid.NewGuid() + Path.GetExtension(vm.ImageFile4.FileName);
+            string filePath = Path.Combine(folder, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+                await vm.ImageFile4.CopyToAsync(stream);
+
+            vm.Car.ImageUrl4 = "/images/cars/" + fileName;
+        }
 
         // Repeat for ImageFile3 and ImageFile4
 
