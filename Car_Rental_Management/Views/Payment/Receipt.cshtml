@@ -142,71 +142,32 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
     <script>
+        // Show popup after page load
         window.addEventListener("load", () => {
-            // Step 1: Show payment success popup
             Swal.fire({
                 title: "🎉 Thank You!",
-                text: "Your booking was successful!",
+                text: "Thank you so much for your successful booking!",
                 icon: "success",
                 confirmButtonText: "OK",
                 backdrop: `
-                            rgba(0,0,123,0.4)
-                            url("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
-                            left top
-                            no-repeat
-                        `
-            }).then(() => {
-                // Step 2: Ask for a review after popup closes
-                Swal.fire({
-                    title: '📝 Leave a Review',
-                    text: 'How was your experience with this car?',
-                    input: 'textarea',
-                    inputPlaceholder: 'Write your review here...',
-                    showCancelButton: true,
-                    confirmButtonText: 'Submit',
-                    cancelButtonText: 'Later',
-                    inputAttributes: {
-                        'aria-label': 'Write your review here'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed && result.value.trim() !== "") {
-                        // Submit review via AJAX
-                        fetch('@Url.Action("SubmitReview", "Customer")', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                            },
-                            body: JSON.stringify({
-                                bookingId: @Model.BookingID,
-                                carId: @Model.Car.CarID,
-                                reviewText: result.value
-                            })
-                        })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.success) {
-                                    Swal.fire('✅ Thank you!', 'Your review has been submitted.', 'success');
-                                } else {
-                                    Swal.fire('⚠️ Error', 'Failed to submit review. Please try again later.', 'error');
-                                }
-                            })
-                            .catch(err => {
-                                Swal.fire('⚠️ Error', 'Failed to submit review. Please try again later.', 'error');
-                            });
-                    }
-                });
+                    rgba(0,0,123,0.4)
+                    url("https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif")
+                    left top
+                    no-repeat
+                `
             });
 
             // Launch confetti
             fireConfetti();
         });
 
+        // Confetti animation
         function fireConfetti() {
-            var duration = 3 * 1000;
+            var duration = 3 * 1000; // 3 seconds
             var end = Date.now() + duration;
 
             (function frame() {
+                // Confetti burst
                 confetti({
                     particleCount: 5,
                     angle: 60,
